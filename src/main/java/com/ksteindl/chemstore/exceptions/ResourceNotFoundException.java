@@ -2,14 +2,16 @@ package com.ksteindl.chemstore.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException{
 
-    private String key;
+    private final String resource;
 
-    public ResourceNotFoundException(String key, String message) {
-        super(message);
-        this.key = key;
+    private final static String MESSAGE_TEMPLATE = "Resource '%s' with key '%s' cannot be found";
+
+    public ResourceNotFoundException(String resource, Object key) {
+        super(String.format(MESSAGE_TEMPLATE, resource, key));
+        this.resource = resource;
     }
 
-    public String getKey() {
-        return key;
+    public String getResource() {
+        return resource;
     }
 }

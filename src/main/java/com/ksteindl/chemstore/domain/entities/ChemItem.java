@@ -1,12 +1,10 @@
-package com.ksteindl.chemstore.lab.domain;
+package com.ksteindl.chemstore.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ksteindl.chemstore.user.domain.AppUser;
 import lombok.Getter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 
 @Entity
 @Getter
@@ -37,8 +35,7 @@ public class ChemItem {
 
     private Double quantity;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Unit unit;
+    private String unit;
 
     private Integer seqNumber;
 

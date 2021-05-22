@@ -1,15 +1,14 @@
-package com.ksteindl.chemstore.lab.domain;
+package com.ksteindl.chemstore.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ksteindl.chemstore.user.domain.AppUser;
 import lombok.Data;
-import lombok.Getter;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Entity
-@Getter
+@Data
 public class Lab {
 
     @Id
@@ -20,8 +19,12 @@ public class Lab {
 
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private AppUser labManager;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "LAB_ADMIN_TABLE", joinColumns = @JoinColumn(name = "LAB_ID"), inverseJoinColumns = @JoinColumn(name = "LAB_ADMIN_ID"))
+    private List<AppUser> labAdmins;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(updatable = false)

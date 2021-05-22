@@ -17,7 +17,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
 
     @ExceptionHandler
     public final ResponseEntity<AbstractMap.SimpleEntry<String, String>> handleProjectNotFoundException(ResourceNotFoundException exception, WebRequest request) {
-        return new ResponseEntity(new AbstractMap.SimpleEntry(exception.getKey() + "NotFound", exception.getMessage()), HttpStatus.NOT_FOUND);
+        return new ResponseEntity(new AbstractMap.SimpleEntry(exception.getResource(), exception.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
