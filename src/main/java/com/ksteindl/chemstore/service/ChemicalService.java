@@ -60,6 +60,7 @@ public class ChemicalService implements UniqueEntityInput<ChemicalInput> {
 
     public void deleteChemical(Long id) {
         Chemical chemical = chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
-        chemicalRepository.delete(chemical);
+        chemical.setDeleted(true);
+        chemicalRepository.save(chemical);
     }
 }

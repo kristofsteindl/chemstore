@@ -37,7 +37,8 @@ public class ManufacturerService implements UniqueEntityInput<ManufacturerInput>
 
     public void deleteManufacturer(Long id) {
         Manufacturer manufacturer = manufacturerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.MANUFACTURER_ENTITY_NAME, id));
-        manufacturerRepository.delete(manufacturer);
+        manufacturer.setDeleted(true);
+        manufacturerRepository.save(manufacturer);
     }
 
     @Override

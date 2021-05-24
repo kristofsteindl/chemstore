@@ -21,8 +21,6 @@ public class LabInput implements Input{
     @NotNull(message = "The labManagerId is required")
     private Long labManagerId;
 
-    private List<Long> labAdminIds = new ArrayList<>();
-
 
 
 }

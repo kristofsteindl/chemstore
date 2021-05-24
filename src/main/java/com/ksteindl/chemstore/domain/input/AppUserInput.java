@@ -4,9 +4,11 @@ import lombok.Data;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
-public class UpdateUserInput implements Input {
+public class AppUserInput implements Input {
 
     @Email(message = "Username must be an email")
     @NotBlank(message = "Username is required")
@@ -14,4 +16,14 @@ public class UpdateUserInput implements Input {
 
     @NotBlank(message = "full name cannot be blank")
     protected String fullName;
+
+    private List<Long> labIdsAsUser = new ArrayList<>();
+
+    private List<Long> labIdsAsAdmin = new ArrayList<>();
+
+    @NotBlank(message = "password cannot be blank")
+    private String password;
+
+    @NotBlank(message = "password2 cannot be blank")
+    private String password2;
 }

@@ -6,22 +6,22 @@ import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.LabInput;
 import com.ksteindl.chemstore.domain.repositories.LabRepository;
 import com.ksteindl.chemstore.domain.entities.AppUser;
-import com.ksteindl.chemstore.domain.repositories.AppUserRepository;
 import com.ksteindl.chemstore.util.Lang;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public class LabService implements UniqueEntityInput<LabInput> {
 
+    private final static Sort SORT_BY_NAME = Sort.by(Sort.Direction.ASC, "name");
+
     @Autowired
     private LabRepository labRepository;
     @Autowired
-    private AppUserRepository appUserRepository;
+    private AppUserService appUserService;
 
     public Lab createLab(LabInput labInput) {
         throwExceptionIfNotUnique(labInput);
@@ -41,21 +41,45 @@ public class LabService implements UniqueEntityInput<LabInput> {
         return labRepository.save(lab);
     }
 
+    public List<Lab> getLabs() {
+        return getLabs(true);
+    }
 
-    public List<Lab> getEveryLab() {
-        Iterable<Lab> iterator = labRepository.findAllByOrderByNameAsc();
-        return StreamSupport.stream(iterator.spliterator(), false).collect(Collectors.toList());
+    public List<Lab> getLabs(Boolean onlyActive) {
+        return onlyActive ?
+                labRepository.findAllActive(SORT_BY_NAME) :
+                labRepository.findAll(SORT_BY_NAME);
+    }
+
+    public void deleteLab(Long id) {
+        Lab lab = labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, id));
+        lab.setDeleted(true);
+        lab.setLabManager(null);
+        appUserService.removeLabsFromAppUsers(lab);
+        labRepository.save(lab);
+    }
+
+    public void removeUserFromLabs(AppUser labManager) {
+        labRepository.findByLabManager(labManager).ifPresent(lab -> {
+            lab.setLabManager(null);
+            labRepository.save(lab);
+        });
+    }
+    public Lab findById(Long id) {
+        return findById(id, false);
+    }
+
+    public Lab findById(Long id, Boolean onlyActive) {
+        Lab lab = labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, id));
+        if (onlyActive && lab.getDeleted()) {
+            throw new ValidationException(Lang.LAB_ENTITY_NAME, String.format(Lang.LAB_IS_DELETED, lab.getName()));
+        }
+        return lab;
     }
 
     private void updateAttributes(Lab lab, LabInput labInput) {
         lab.setName(labInput.getName());
-        Long managerId = labInput.getLabManagerId();
-        lab.setLabManager(appUserRepository.findById(managerId).orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, managerId)));
-        List<AppUser> labAdmins = labInput.getLabAdminIds()
-                .stream()
-                .map(labAdminId -> appUserRepository.findById(labAdminId).orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, labAdminId)))
-                .collect(Collectors.toList());
-        lab.setLabAdmins(labAdmins);
+        lab.setLabManager(appUserService.findById(labInput.getLabManagerId()));
     }
 
     @Override

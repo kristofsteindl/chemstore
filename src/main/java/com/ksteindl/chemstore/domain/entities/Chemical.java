@@ -17,4 +17,6 @@ public class Chemical {
 
     @Column(unique = true) // for backup, duplicate supposed to be checked in service
     private String exactName;
+
+    private Boolean deleted = false;
 }

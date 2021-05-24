@@ -16,4 +16,6 @@ public class Manufacturer {
 
     @Column(unique = true) // for backup, duplicate supposed to be checked in service
     private String name;
+
+    private Boolean deleted = false;
 }

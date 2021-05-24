@@ -13,11 +13,14 @@ public class Lang {
     public static final String APP_USER_PASSWORD2_ATTRIBUTE_NAME = "password2";
     public static final String APP_USER_SAME_NAME_FOUND_TEMPLATE = "App user with same username was found ('%s')";
     public static final String PASSWORDS_MUST_BE_THE_SAME = "password and password2 must be the same";
+    public static final String APP_USER_IS_DELETED = "User %s is deleted, operation is aborted";
+
 
     public static final String LAB_ENTITY_NAME = "lab";
     public static final String LAB_KEY_ATTRIBUTE_NAME = "key";
     public static final String LAB_SAME_NAME_FOUND_TEMPLATE = "Lab with same key/name was found (key: '%s', name: '%s')";
     public static final String LAB_KEY_CANOT_BE_CHANGED = "key of the lab cannot be updated (%s, %s)";
+    public static final String LAB_IS_DELETED = "Lab %s is deleted, operation is aborted";
 
 
 
