@@ -11,13 +11,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class AppUserService implements UniqueEntityInput<AppUserInput> {
+public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDetailsService {
 
     private static final Logger logger
             = LoggerFactory.getLogger(AppUserService.class);
@@ -28,6 +33,18 @@ public class AppUserService implements UniqueEntityInput<AppUserInput> {
     private AppUserRepository appUserRepository;
     @Autowired
     private LabService labService;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return appUserRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    @Transactional
+    public AppUser loadUserById(Long id) {
+        return appUserRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+   }
 
     public AppUser crateUser(AppUserInput appUserInput) {
         AppUser appUser = new AppUser();
@@ -114,7 +131,7 @@ public class AppUserService implements UniqueEntityInput<AppUserInput> {
                     Lang.APP_USER_PASSWORD2_ATTRIBUTE_NAME, Lang.PASSWORDS_MUST_BE_THE_SAME);
             throw new ValidationException(errors);
         }
-        appUser.setPassword(password);
+        appUser.setPassword(bCryptPasswordEncoder.encode(password));
     }
 
     @Override
@@ -127,6 +144,7 @@ public class AppUserService implements UniqueEntityInput<AppUserInput> {
             }
         });
     }
+
 
 
     /*

@@ -15,7 +15,6 @@ public interface AppUserRepository extends CrudRepository<AppUser, Long> {
 
     Optional<AppUser> findByUsername(String username);
 
-    //@Query("SELECT u FROM AppUser u")
     List<AppUser> findAll(Sort sort);
 
     @Query("SELECT u FROM AppUser u WHERE u.deleted = false")

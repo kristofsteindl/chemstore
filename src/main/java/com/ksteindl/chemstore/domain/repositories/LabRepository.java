@@ -20,12 +20,17 @@ public interface LabRepository extends CrudRepository<Lab, Long> {
 
     List<Lab> findAll(Sort sort);
 
-    @Query(value = "select * from lab l inner join user_of_lab_table u ON l.id = u.lab_id where u.app_user_id = ?;", nativeQuery = true)
+    Optional<Lab> findByLabManager(AppUser appUser);
+
+    /*
+    * https://prog.hu/tudastar/164576/kereses-kapcsolotabla-hasznalataval-mysql-ben
+    *
+    * @Query(value = "select * from lab l inner join user_of_lab_table u ON l.id = u.lab_id where u.app_user_id = ?;", nativeQuery = true)
     List<Lab> findLabsWhereUserAccess(AppUser appUser);
 
     @Query(value = "select * from lab l inner join admin_of_lab_table u ON l.id = u.lab_id where u.app_user_id = ?;", nativeQuery = true)
     List<Lab> findLabsWhereUserAdmin(AppUser appUser);
-
-    Optional<Lab> findByLabManager(AppUser appUser);
+    *
+    * */
 
 }

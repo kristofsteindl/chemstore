@@ -3,6 +3,7 @@ package com.ksteindl.chemstore.domain.input;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -26,6 +27,7 @@ public class ChemItemInput implements Input{
     private String batchNumber;
 
     @NotBlank(message = "Quantity of chemical cannot be blank")
+    @DecimalMin(value = "0.0", inclusive = false)
     private Double quantity;
 
     @NotBlank(message = "unit is required")
