@@ -1,12 +1,9 @@
 package com.ksteindl.chemstore.web;
 
-import com.ksteindl.chemstore.domain.entities.AppUser;
-import com.ksteindl.chemstore.domain.input.AppUserInput;
 import com.ksteindl.chemstore.payload.JwtLoginResponse;
 import com.ksteindl.chemstore.payload.LoginRequest;
-import com.ksteindl.chemstore.security.JwtTokenProvider;
+import com.ksteindl.chemstore.security.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,7 +22,7 @@ public class UserController {
     @Autowired
     private MapValidationErrorService mapValidationErrorService;
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtProvider jwtProvider;
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -39,6 +36,7 @@ public class UserController {
                 loginRequest.getPassword()
         ));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return ResponseEntity.status(HttpStatus.OK).body(new JwtLoginResponse(true, jwtTokenProvider.generateToken(authentication)));
+        String jwt =  jwtProvider.generateToken(authentication);
+        return ResponseEntity.ok().body(new JwtLoginResponse(true, jwt));
     }
 }
