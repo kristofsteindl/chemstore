@@ -6,6 +6,9 @@ import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
 import com.ksteindl.chemstore.domain.repositories.AppUserRepository;
+import com.ksteindl.chemstore.security.role.Role;
+import com.ksteindl.chemstore.security.role.RoleRepository;
+import com.ksteindl.chemstore.security.role.RoleService;
 import com.ksteindl.chemstore.util.Lang;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +38,8 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
     private LabService labService;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private RoleService roleService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -42,9 +47,11 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
     }
 
     @Transactional
-    public AppUser loadUserById(Long id) {
+    public UserDetails loadUserById(Long id) {
         return appUserRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
    }
+
+
 
     public AppUser crateUser(AppUserInput appUserInput) {
         AppUser appUser = new AppUser();
@@ -82,7 +89,7 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
     }
 
     public AppUser findById(Long id) {
-        return findById(id, false);
+        return findById(id, true);
     }
 
     public AppUser findById(Long id, Boolean onlyActive) {
@@ -107,6 +114,10 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
     }
 
     private void validateAndSetAppUser(AppUser appUser, AppUserInput appUserInput) {
+        List<Role> roles = appUserInput.getRoles()
+                .stream()
+                .map(role -> roleService.findByRole(role))
+                .collect(Collectors.toList());
         List<Lab> labsAsUser = appUserInput.getLabIdsAsUser()
                 .stream()
                 .map(labId -> labService.findById(labId))
@@ -116,6 +127,7 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
                 .stream()
                 .map(labId -> labService.findById(labId))
                 .collect(Collectors.toList());
+
         appUser.setLabsAsAdmin(labsAsAdmin);
         appUser.setUsername(appUserInput.getUsername());
         appUser.setFullName(appUserInput.getFullName());

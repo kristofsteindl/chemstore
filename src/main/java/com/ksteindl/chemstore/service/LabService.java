@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LabService implements UniqueEntityInput<LabInput> {
@@ -54,17 +55,18 @@ public class LabService implements UniqueEntityInput<LabInput> {
     public void deleteLab(Long id) {
         Lab lab = labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, id));
         lab.setDeleted(true);
-        lab.setLabManager(null);
+        lab.getLabManagers().clear();
         appUserService.removeLabsFromAppUsers(lab);
         labRepository.save(lab);
     }
 
     public void removeUserFromLabs(AppUser labManager) {
-        labRepository.findByLabManager(labManager).ifPresent(lab -> {
-            lab.setLabManager(null);
+        labRepository.findByLabManagers(labManager).forEach(lab -> {
+            lab.getLabManagers().remove(labManager);
             labRepository.save(lab);
         });
     }
+
     public Lab findById(Long id) {
         return findById(id, false);
     }
@@ -79,7 +81,8 @@ public class LabService implements UniqueEntityInput<LabInput> {
 
     private void updateAttributes(Lab lab, LabInput labInput) {
         lab.setName(labInput.getName());
-        lab.setLabManager(appUserService.findById(labInput.getLabManagerId()));
+        List<AppUser> managers = labInput.getLabManagerIds().stream().map(id -> appUserService.findById(id)).collect(Collectors.toList());
+        lab.setLabManagers(managers);
     }
 
     @Override

@@ -20,7 +20,7 @@ public interface LabRepository extends CrudRepository<Lab, Long> {
 
     List<Lab> findAll(Sort sort);
 
-    Optional<Lab> findByLabManager(AppUser appUser);
+    List<Lab> findByLabManagers(AppUser appUser);
 
     /*
     * https://prog.hu/tudastar/164576/kereses-kapcsolotabla-hasznalataval-mysql-ben

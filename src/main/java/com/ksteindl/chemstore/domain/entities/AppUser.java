@@ -2,8 +2,10 @@ package com.ksteindl.chemstore.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ksteindl.chemstore.security.role.Role;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
@@ -11,6 +13,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -36,6 +39,13 @@ public class AppUser implements UserDetails {
     @JoinTable(name = "ADMIN_OF_LAB_TABLE", joinColumns = @JoinColumn(name = "APP_USER_ID"), inverseJoinColumns = @JoinColumn(name = "LAB_ID"))
     private List<Lab> labsAsAdmin;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "ROLE_OF_USER", joinColumns = @JoinColumn(name = "APP_USER_ID"), inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
+    private Set<Role> roles;
+
+    @ManyToMany(mappedBy = "labManagers")
+    private List<Lab> managedLabs;
+
     @JsonIgnore
     private OffsetDateTime createdAt;
     @JsonIgnore
@@ -60,7 +70,7 @@ public class AppUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(new SimpleGrantedAuthority("LAB_ADMIN"));
     }
 
     @Override

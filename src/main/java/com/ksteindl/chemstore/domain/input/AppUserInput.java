@@ -21,6 +21,8 @@ public class AppUserInput implements Input {
 
     private List<Long> labIdsAsAdmin = new ArrayList<>();
 
+    private List<String> roles = new ArrayList<>();
+
     @NotBlank(message = "password cannot be blank")
     private String password;
 

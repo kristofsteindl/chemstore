@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Long userId = jwtProvider.getUserIdFromToken(token);
             UserDetails appUserDetails = appUserService.loadUserById(userId);
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(appUserDetails, null, Collections.emptyList());
+                    new UsernamePasswordAuthenticationToken(appUserDetails, null, appUserDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (SignatureException signatureException) {

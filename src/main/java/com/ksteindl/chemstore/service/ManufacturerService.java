@@ -6,6 +6,9 @@ import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
 import com.ksteindl.chemstore.domain.repositories.ManufacturerRepository;
 import com.ksteindl.chemstore.util.Lang;
+import com.ksteindl.chemstore.web.AccountAdminController;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +17,8 @@ import java.util.Optional;
 
 @Service
 public class ManufacturerService implements UniqueEntityInput<ManufacturerInput> {
+
+    private static final Logger logger = LogManager.getLogger(ManufacturerService.class);
 
     @Autowired
     ManufacturerRepository manufacturerRepository;

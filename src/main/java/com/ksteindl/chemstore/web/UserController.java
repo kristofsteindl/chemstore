@@ -3,6 +3,8 @@ package com.ksteindl.chemstore.web;
 import com.ksteindl.chemstore.payload.JwtLoginResponse;
 import com.ksteindl.chemstore.payload.LoginRequest;
 import com.ksteindl.chemstore.security.JwtProvider;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +21,8 @@ import javax.validation.Valid;
 @CrossOrigin
 public class UserController {
 
+    private static final Logger logger = LogManager.getLogger(UserController.class);
+
     @Autowired
     private MapValidationErrorService mapValidationErrorService;
     @Autowired
@@ -30,11 +34,13 @@ public class UserController {
     // USER
     @PostMapping("/login")
     public ResponseEntity<JwtLoginResponse> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult result) {
+        logger.info("'/login' was called with {}", loginRequest.getUsername());
         mapValidationErrorService.throwExceptionIfNotValid(result);
         Authentication authentication  = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginRequest.getUsername(),
                 loginRequest.getPassword()
         ));
+        logger.info("Successful login ({})", loginRequest.getUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt =  jwtProvider.generateToken(authentication);
         return ResponseEntity.ok().body(new JwtLoginResponse(true, jwt));

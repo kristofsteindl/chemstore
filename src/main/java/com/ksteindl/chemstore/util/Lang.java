@@ -22,6 +22,8 @@ public class Lang {
     public static final String LAB_KEY_CANOT_BE_CHANGED = "key of the lab cannot be updated (%s, %s)";
     public static final String LAB_IS_DELETED = "Lab %s is deleted, operation is aborted";
 
+    public static final String ROLE_ENTITY_NAME = "role";
+
 
 
 

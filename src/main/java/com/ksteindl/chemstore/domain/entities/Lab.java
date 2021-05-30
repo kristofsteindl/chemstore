@@ -24,9 +24,10 @@ public class Lab {
 
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "MANAGER_OF_LAB_TABLE", joinColumns = @JoinColumn(name = "LAB_ID"), inverseJoinColumns = @JoinColumn(name = "APP_USER_ID"))
     @JsonIgnore
-    private AppUser labManager;
+    private List<AppUser> labManagers;
 
     private Boolean deleted = false;
 
@@ -42,9 +43,9 @@ public class Lab {
         this.createdAt = OffsetDateTime.now();
     }
 
-    @JsonProperty("labManagerUsername")
-    public String getLabManagerUsername() {
-        return labManager == null? "" : labManager.getUsername();
+    @JsonProperty("labManagerUsernames")
+    public List<String> getLabManagerUsername() {
+        return labManagers.stream().map(manager -> manager.getUsername()).collect(Collectors.toList());
     }
 
 }

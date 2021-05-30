@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 public class JwtProvider {
 
-    public static final Long EXPIRATION_TIME_IN_SECONDS = 3600l;
+    public static final Long EXPIRATION_TIME_IN_SECONDS = 120l;
     public static final String SECRET_KEY = "thisIsASecret";
 
     public String generateToken(Authentication authentication) {
