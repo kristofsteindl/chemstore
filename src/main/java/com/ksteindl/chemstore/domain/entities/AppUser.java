@@ -2,7 +2,9 @@ package com.ksteindl.chemstore.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ksteindl.chemstore.security.Authority;
 import com.ksteindl.chemstore.security.role.Role;
+import com.ksteindl.chemstore.security.role.RoleService;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,7 +20,9 @@ import java.util.stream.Collectors;
 
 @Entity
 @Data
-public class AppUser implements UserDetails {
+public class AppUser {
+
+    // TODO maybe we should split AppUser and UserDetails implementation
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +43,7 @@ public class AppUser implements UserDetails {
     @JoinTable(name = "ADMIN_OF_LAB_TABLE", joinColumns = @JoinColumn(name = "APP_USER_ID"), inverseJoinColumns = @JoinColumn(name = "LAB_ID"))
     private List<Lab> labsAsAdmin;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "ROLE_OF_USER", joinColumns = @JoinColumn(name = "APP_USER_ID"), inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
     private Set<Role> roles;
 
@@ -68,30 +72,6 @@ public class AppUser implements UserDetails {
         this.updatedAt = OffsetDateTime.now();
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("LAB_ADMIN"));
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 
     /*
     * https://javabydeveloper.com/many-many-unidirectional-association/

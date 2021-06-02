@@ -4,7 +4,6 @@ import com.ksteindl.chemstore.service.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -26,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 )
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    public static final String LOGIN_URLS = "/api/user/login";
+    public static final String LOGIN_URLS = "/api/login";
     public static final String H2_URL = "/h2-console/**";
 
     @Autowired

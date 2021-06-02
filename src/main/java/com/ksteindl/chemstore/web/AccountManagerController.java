@@ -18,11 +18,11 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/account-admin")
+@RequestMapping("api/account-manager")
 @CrossOrigin
-public class AccountAdminController {
+public class AccountManagerController {
 
-    private static final Logger logger = LogManager.getLogger(AccountAdminController.class);
+    private static final Logger logger = LogManager.getLogger(AccountManagerController.class);
 
     @Autowired
     private MapValidationErrorService mapValidationErrorService;

@@ -12,12 +12,6 @@ import java.util.List;
 @Data
 public class Role {
 
-    public static final String ACCOUNT_MANAGER = "ACCOUNT_MANAGER";
-
-    public static final List<String> ROLES = List.of(
-            ACCOUNT_MANAGER);
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

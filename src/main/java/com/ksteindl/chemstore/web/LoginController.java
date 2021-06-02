@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("api/user")
+@RequestMapping("api/login")
 @CrossOrigin
-public class UserController {
+public class LoginController {
 
-    private static final Logger logger = LogManager.getLogger(UserController.class);
+    private static final Logger logger = LogManager.getLogger(LoginController.class);
 
     @Autowired
     private MapValidationErrorService mapValidationErrorService;
@@ -32,7 +32,7 @@ public class UserController {
 
 
     // USER
-    @PostMapping("/login")
+    @PostMapping()
     public ResponseEntity<JwtLoginResponse> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult result) {
         logger.info("'/login' was called with {}", loginRequest.getUsername());
         mapValidationErrorService.throwExceptionIfNotValid(result);

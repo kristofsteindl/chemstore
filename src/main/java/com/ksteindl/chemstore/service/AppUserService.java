@@ -6,6 +6,7 @@ import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
 import com.ksteindl.chemstore.domain.repositories.AppUserRepository;
+import com.ksteindl.chemstore.security.UserDetailsImpl;
 import com.ksteindl.chemstore.security.role.Role;
 import com.ksteindl.chemstore.security.role.RoleRepository;
 import com.ksteindl.chemstore.security.role.RoleService;
@@ -43,13 +44,17 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return appUserRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        AppUser appUser = appUserRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        //return appUser;
+        return new UserDetailsImpl(appUser);
     }
 
     @Transactional
     public UserDetails loadUserById(Long id) {
-        return appUserRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-   }
+        AppUser appUser = appUserRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        //return appUser;
+                return new UserDetailsImpl(appUser);
+    }
 
 
 
@@ -86,6 +91,18 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
         appUser.setLabsAsUser(Collections.emptyList());
         labService.removeUserFromLabs(appUser);
         appUserRepository.save(appUser);
+    }
+
+    public AppUser findByName(String name) {
+        return findByName(name, true);
+    }
+
+    public AppUser findByName(String username, boolean onlyActive) {
+        AppUser appUser = appUserRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username));
+        if (onlyActive && appUser.getDeleted()) {
+            throw new ValidationException(Lang.APP_USER_ENTITY_NAME, String.format(Lang.APP_USER_IS_DELETED, appUser.getUsername()));
+        }
+        return appUser;
     }
 
     public AppUser findById(Long id) {
