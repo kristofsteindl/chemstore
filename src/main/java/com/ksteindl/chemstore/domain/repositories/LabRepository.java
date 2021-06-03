@@ -15,6 +15,8 @@ public interface LabRepository extends CrudRepository<Lab, Long> {
 
     List<Lab> findByKeyOrName(String key, String name);
 
+    Optional<Lab> findByKey(String key);
+
     @Query("SELECT l FROM Lab l WHERE l.deleted = false")
     List<Lab> findAllActive(Sort sort);
 

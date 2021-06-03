@@ -10,11 +10,15 @@ import com.ksteindl.chemstore.security.UserDetailsImpl;
 import com.ksteindl.chemstore.security.role.Role;
 import com.ksteindl.chemstore.security.role.RoleRepository;
 import com.ksteindl.chemstore.security.role.RoleService;
+import com.ksteindl.chemstore.service.wrapper.AppUserCard;
 import com.ksteindl.chemstore.util.Lang;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +26,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -76,6 +82,38 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
 
     public List<AppUser> getAppUsers() {
         return getAppUsers(true);
+    }
+
+    /**
+     * <p> Returns a list of all active app users with publicly available data (without any confidential data).
+     * This method should be called by users, without any privilage.
+     * </p>
+     * @return list of AppUser representation
+     */
+    public List<AppUserCard> getAppUserCards() {
+        return getAppUsers().stream().map(appUser -> new AppUserCard(appUser)).collect(Collectors.toList());
+    }
+
+    public AppUser getMyAppUser(Principal principal) {
+        String username = principal.getName();
+        return appUserRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username));
+    }
+
+    public Map<String, List<AppUser>> getUsersFromMyLabs(Principal principal) {
+        AppUser manager = getMyAppUser(principal);
+        return manager.getManagedLabs().stream()
+                .collect(Collectors.toMap(lab -> lab.getKey(), lab -> appUserRepository.findByLabsAsUser(lab)));
+    }
+
+    public List<AppUser> getUsersFromManagedLab(Principal managerPrincipal, String labKey) {
+        AppUser manager = getMyAppUser(managerPrincipal);
+        Lab managedLab = labService.getLabByKey(labKey);
+        if (!managedLab.getLabManagers().stream().anyMatch(appUser -> appUser.equals(manager))) {
+            throw new ValidationException("authorization", "User " + manager.getUsername() + " is not manager of " + managedLab.getKey() + ", please the account admin");
+        }
+        return appUserRepository.findByLabsAsUser(managedLab);
     }
 
     public List<AppUser> getAppUsers(Boolean onlyActive) {

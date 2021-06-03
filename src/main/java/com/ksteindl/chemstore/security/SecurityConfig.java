@@ -64,7 +64,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .sameOrigin() // to enable H2 database
                     .and()
                 .authorizeRequests()
-                    .antMatchers("/api/lab-admin/manufacturer").hasAuthority("LAB_ADMIN")
+                    .antMatchers("/api/account").hasAuthority(
+                            Authority.ACCOUNT_MANAGER)
+                    .antMatchers("/api/lab-admin").hasAnyAuthority(
+                            Authority.ACCOUNT_MANAGER,
+                            Authority.LAB_MANAGER,
+                            Authority.LAB_ADMIN)
                     .antMatchers("/",
                             "/favicon.ico",
                             "/**/*.ico",

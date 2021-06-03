@@ -52,6 +52,10 @@ public class LabService implements UniqueEntityInput<LabInput> {
                 labRepository.findAll(SORT_BY_NAME);
     }
 
+    public Lab getLabByKey(String key) {
+        return labRepository.findByKey(key).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, key));
+    }
+
     public void deleteLab(Long id) {
         Lab lab = labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, id));
         lab.setDeleted(true);
