@@ -169,10 +169,10 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
     }
 
     private void validateAndSetAppUser(AppUser appUser, AppUserInput appUserInput) {
-        List<Role> roles = appUserInput.getRoles()
+        Set<Role> roles = appUserInput.getRoles()
                 .stream()
                 .map(role -> roleService.findByRole(role))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
         List<Lab> labsAsUser = appUserInput.getLabIdsAsUser()
                 .stream()
                 .map(labId -> labService.findById(labId))
@@ -186,6 +186,7 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
         appUser.setLabsAsAdmin(labsAsAdmin);
         appUser.setUsername(appUserInput.getUsername());
         appUser.setFullName(appUserInput.getFullName());
+        appUser.setRoles(roles);
         validateAndSetPassword(appUser, appUserInput);
     }
 

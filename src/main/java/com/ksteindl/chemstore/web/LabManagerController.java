@@ -2,6 +2,8 @@ package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.service.AppUserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,16 +16,20 @@ import java.util.Map;
 @CrossOrigin
 public class LabManagerController {
 
+    private static final Logger logger = LogManager.getLogger(LabManagerController.class);
+
     @Autowired
     private AppUserService appUserService;
 
     @GetMapping("/user")
     public Map<String, List<AppUser>> getUersFromMyLabs(Principal principal) {
+        logger.info("'/lab-manager/user' was called by {}", principal.getName());
         return appUserService.getUsersFromMyLabs(principal);
     }
 
     @GetMapping("/user/{labKey}")
-    public List<AppUser> getUersFromMyLabs(@PathVariable String labKey, Principal principal) {
+    public List<AppUser> getUersFromMyLab(@PathVariable String labKey, Principal principal) {
+        logger.info("'/lab-manager/user/{labKey}' was called by {}", principal.getName());
         return appUserService.getUsersFromManagedLab(principal, labKey);
     }
 

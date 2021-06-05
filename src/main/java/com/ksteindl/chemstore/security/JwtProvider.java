@@ -23,7 +23,11 @@ public class JwtProvider {
     public static final String SECRET_KEY = "thisIsASecret";
 
     public String generateToken(Authentication authentication) {
-        AppUser appUser = appUserService.findByName(authentication.getName());
+        return generateToken(authentication.getName());
+    }
+
+    public String generateToken(String username) {
+        AppUser appUser = appUserService.findByName(username);
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME_IN_SECONDS * 1000);
         String userId = Long.toString(appUser.getId());

@@ -35,6 +35,9 @@ public class PublicController {
 
     @GetMapping("/user")
     public List<AppUserCard> getAllAppUser() {
+        logger.info("GET '/api/public/user' was called");
+        List<AppUserCard> users =  appUserService.getAppUserCards();
+        logger.info("GET '/api/public/user' is returning with {} item", users.size());
         return appUserService.getAppUserCards();
     }
 
@@ -46,7 +49,7 @@ public class PublicController {
     @GetMapping("/lab")
     public List<Lab> getEveryLab(
             @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
-        logger.info("GET '/api/public/lab' was called");
+        logger.info("GET '/api/public/lab' was called with onlyActive=" + onlyActive);
         List<Lab> labs = labService.getLabs(onlyActive);
         logger.info("GET '/api/public/lab' was succesful with {} item", labs.size());
         return labs;
