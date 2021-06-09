@@ -1,15 +1,18 @@
 package com.ksteindl.chemstore.domain.input;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@AllArgsConstructor
+@Builder
 public class LabInput implements Input{
 
     @NotBlank(message = "key of lab is required")
@@ -20,7 +23,7 @@ public class LabInput implements Input{
     private String name;
 
     @NotEmpty(message = "The labManagerId is required")
-    private List<Long> labManagerIds;
+    private List<String> labManagerUsernames;
 
 
 

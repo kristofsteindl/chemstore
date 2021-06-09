@@ -62,8 +62,6 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
                 return new UserDetailsImpl(appUser);
     }
 
-
-
     public AppUser crateUser(AppUserInput appUserInput) {
         AppUser appUser = new AppUser();
         throwExceptionIfNotUnique(appUserInput);
@@ -173,14 +171,14 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
                 .stream()
                 .map(role -> roleService.findByRole(role))
                 .collect(Collectors.toSet());
-        List<Lab> labsAsUser = appUserInput.getLabIdsAsUser()
+        List<Lab> labsAsUser = appUserInput.getLabKeysAsUser()
                 .stream()
-                .map(labId -> labService.findById(labId))
+                .map(labKey -> labService.getLabByKey(labKey))
                 .collect(Collectors.toList());
         appUser.setLabsAsUser(labsAsUser);
-        List<Lab> labsAsAdmin = appUserInput.getLabIdsAsAdmin()
+        List<Lab> labsAsAdmin = appUserInput.getLabKeysAsAdmin()
                 .stream()
-                .map(labId -> labService.findById(labId))
+                .map(labKey -> labService.getLabByKey(labKey))
                 .collect(Collectors.toList());
 
         appUser.setLabsAsAdmin(labsAsAdmin);
