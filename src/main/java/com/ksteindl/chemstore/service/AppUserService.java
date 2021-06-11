@@ -8,7 +8,6 @@ import com.ksteindl.chemstore.domain.input.AppUserInput;
 import com.ksteindl.chemstore.domain.repositories.AppUserRepository;
 import com.ksteindl.chemstore.security.UserDetailsImpl;
 import com.ksteindl.chemstore.security.role.Role;
-import com.ksteindl.chemstore.security.role.RoleRepository;
 import com.ksteindl.chemstore.security.role.RoleService;
 import com.ksteindl.chemstore.service.wrapper.AppUserCard;
 import com.ksteindl.chemstore.util.Lang;
@@ -16,9 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,6 +68,10 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
     public AppUser updateUser(AppUserInput appUserInput, Long id) {
         AppUser appUser = appUserRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, id));
         throwExceptionIfNotUnique(appUserInput, id);
+        if (!appUser.getUsername().equals(appUserInput.getUsername())) {
+            throw new ValidationException(Lang.APP_USER_USERNAME_ATTRIBUTE_NAME,
+                    String.format(Lang.USERNAME_CANNOT_BE_CHANGED, appUser.getUsername(), appUserInput.getUsername()));
+        }
         validateAndSetAppUser(appUser, appUserInput);
         return appUserRepository.save(appUser);
     }
@@ -129,11 +128,11 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
         appUserRepository.save(appUser);
     }
 
-    public AppUser findByName(String name) {
-        return findByName(name, true);
+    public AppUser findByUsername(String username) {
+        return findByUsername(username, true);
     }
 
-    public AppUser findByName(String username, boolean onlyActive) {
+    public AppUser findByUsername(String username, boolean onlyActive) {
         AppUser appUser = appUserRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username));
         if (onlyActive && appUser.getDeleted()) {
             throw new ValidationException(Lang.APP_USER_ENTITY_NAME, String.format(Lang.APP_USER_IS_DELETED, appUser.getUsername()));

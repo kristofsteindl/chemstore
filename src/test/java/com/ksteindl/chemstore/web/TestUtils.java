@@ -8,21 +8,24 @@ import java.util.List;
 
 public class TestUtils {
 
+
     public static final String ACCOUNT_MANAGER_USERNAME = "aman@account.com";
     public static final String ACCOUNT_MANAGER_FULL_NAME = "Account Manager";
     public static final String ACCOUNT_MANAGER_PASSWORD = "aman";
-    public static AppUserInput ACCOUNT_MANAGER_INPUT = AppUserInput.builder()
-            .username(ACCOUNT_MANAGER_USERNAME)
-            .fullName(ACCOUNT_MANAGER_FULL_NAME)
-            .password(ACCOUNT_MANAGER_PASSWORD)
-            .password2(ACCOUNT_MANAGER_PASSWORD)
-            .roles(List.of(Authority.ACCOUNT_MANAGER))
-            .build();
+    public static AppUserInput getAccountManagerInput(){
+        return AppUserInput.builder()
+                .username(ACCOUNT_MANAGER_USERNAME)
+                .fullName(ACCOUNT_MANAGER_FULL_NAME)
+                .password(ACCOUNT_MANAGER_PASSWORD)
+                .password2(ACCOUNT_MANAGER_PASSWORD)
+                .roles(List.of(Authority.ACCOUNT_MANAGER))
+                .build();
+    }
 
     public static final String NEW_ACCOUNT_MANAGER_INPUT_USERNAME = "newaman@account.com";
     public static final String NEW_ACCOUNT_MANAGER_INPUT_FULL_NAME = "New Account Manager";
     public static final String NEW_ACCOUNT_MANAGER_PASSWORD = "newaman";
-    public static AppUserInput getNewAccountManagerInput() {
+    public static AppUserInput getNewAccountManagerInputWithoutLabs() {
         return AppUserInput.builder()
                 .username(NEW_ACCOUNT_MANAGER_INPUT_USERNAME)
                 .fullName(NEW_ACCOUNT_MANAGER_INPUT_FULL_NAME)
@@ -32,6 +35,13 @@ public class TestUtils {
                 .labKeysAsUser(List.of(TestUtils.ALPHA_LAB_KEY))
                 .labKeysAsAdmin(List.of(TestUtils.BETA_LAB_KEY))
                 .build();
+    }
+
+    public static AppUserInput getNewAccountManagerInputWithSomeLabs() {
+        AppUserInput managerInput = getNewAccountManagerInputWithoutLabs();
+        managerInput.setLabKeysAsAdmin(List.of(ALPHA_LAB_KEY));
+        managerInput.setLabKeysAsUser(List.of(BETA_LAB_KEY));
+        return  managerInput;
     }
 
     public static final String ALPHA_LAB_MANAGER_USERNAME = "alabman@account.com";
@@ -98,12 +108,14 @@ public class TestUtils {
     public static final String ALPHA_LAB_USER_USERNAME = "alabuser@account.com";
     public static final String ALPHA_LAB_USER_FULL_NAME = "Alpha Lab User";
     public static final String ALPHA_LAB_USER_PASSWORD = "alabuser";
-    public static AppUserInput ALPHA_LAB_USER_INPUT = AppUserInput.builder()
-            .username(ALPHA_LAB_USER_USERNAME)
-            .fullName(ALPHA_LAB_USER_FULL_NAME)
-            .password(ALPHA_LAB_USER_PASSWORD)
-            .password2(ALPHA_LAB_USER_PASSWORD)
-            .build();
+    public static AppUserInput getAlphaLabUserInput() {
+        return AppUserInput.builder()
+                .username(ALPHA_LAB_USER_USERNAME)
+                .fullName(ALPHA_LAB_USER_FULL_NAME)
+                .password(ALPHA_LAB_USER_PASSWORD)
+                .password2(ALPHA_LAB_USER_PASSWORD)
+                .build();
+    }
 
     public static final String BETA_LAB_USER_USERNAME = "blabuser@account.com";
     public static final String BETA_LAB_USER_FULL_NAME = "Beta Lab User";
@@ -150,4 +162,7 @@ public class TestUtils {
             .name(BETA_LAB_NAME)
             .labManagerUsernames(List.of(BETA_LAB_MANAGER_USERNAME, ALPHA_BETA_LAB_MANAGER_USERNAME))
             .build();
+
+    public static final List<String> LAB_KEYS_WITH_INVALID_AND_VALID = List.of(ALPHA_LAB_KEY, "this-is-invalid", BETA_LAB_KEY);
+
 }

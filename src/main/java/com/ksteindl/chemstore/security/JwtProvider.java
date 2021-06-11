@@ -27,7 +27,7 @@ public class JwtProvider {
     }
 
     public String generateToken(String username) {
-        AppUser appUser = appUserService.findByName(username);
+        AppUser appUser = appUserService.findByUsername(username);
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME_IN_SECONDS * 1000);
         String userId = Long.toString(appUser.getId());
