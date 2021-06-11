@@ -24,7 +24,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.ArrayList;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -128,7 +127,7 @@ class AccountManagerControllerTest {
 
     @Test
     @Rollback
-    void testUpdateAlabuserAppUser_whenEmpty1_gotNOK(@Autowired AppUserService appUserService) throws Exception {
+    void testUpdateAlphaLabUserAppUser_whenEmpty1_gotNOK(@Autowired AppUserService appUserService) throws Exception {
 
         AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
         AppUserInput alabuserInput = TestUtils.getAlphaLabUserInput();
@@ -148,7 +147,7 @@ class AccountManagerControllerTest {
 
     @Test
     @Rollback
-    void testUpdateAlabuserAppUser_whenEmpty2_gotNOK(@Autowired AppUserService appUserService) throws Exception {
+    void testUpdateAlphaLabUserAppUser_whenEmpty2_gotNOK(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
 
@@ -168,7 +167,8 @@ class AccountManagerControllerTest {
 
 
     @Test
-    void testUpdateAlabUser_whenNotEmailUsername_gotNOK(@Autowired AppUserService appUserService) throws Exception {
+    @Rollback
+    void testUpdateAlphaLabUser_whenNotEmailUsername_gotNOK(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
 
@@ -184,126 +184,120 @@ class AccountManagerControllerTest {
         logger.info("status code: " + result.getResponse().getStatus());
         logger.info(result.getResponse().getContentAsString());
     }
-//
-//    @Test
-//    void testCreateAppUser_whenNotUsernameNotUnique_gotNOK() throws Exception {
-//        String url = "/api/account/user";
-//        String token = jwtProvider.generateToken(TestUtils.ACCOUNT_MANAGER_USERNAME);
-//        AppUserInput appUserInput = TestUtils.getNewAccountManagerInput();
-//        appUserInput.setUsername(TestUtils.ACCOUNT_MANAGER_USERNAME);
-//        MvcResult result = mvc.perform(post(url)
-//                .header("Authorization", token)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(asJsonString(appUserInput)))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.message").isNotEmpty())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    void testCreateAppUser_whenNotUsernameEmpty_gotNOK() throws Exception {
-//        String url = "/api/account/user";
-//        String token = jwtProvider.generateToken(TestUtils.ACCOUNT_MANAGER_USERNAME);
-//        AppUserInput appUserInput = TestUtils.getNewAccountManagerInput();
-//        appUserInput.setUsername("");
-//        MvcResult result = mvc.perform(post(url)
-//                .header("Authorization", token)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(asJsonString(appUserInput)))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.username").isNotEmpty())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    void testCreateAppUser_whenFullNameEmpty_gotNOK() throws Exception {
-//        String url = "/api/account/user";
-//        String token = jwtProvider.generateToken(TestUtils.ACCOUNT_MANAGER_USERNAME);
-//        AppUserInput appUserInput = TestUtils.getNewAccountManagerInput();
-//        appUserInput.setFullName("");
-//        MvcResult result = mvc.perform(post(url)
-//                .header("Authorization", token)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(asJsonString(appUserInput)))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.fullName").isNotEmpty())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    void testCreateAppUser_whenPasswordEmpty_gotNOK() throws Exception {
-//        String url = "/api/account/user";
-//        String token = jwtProvider.generateToken(TestUtils.ACCOUNT_MANAGER_USERNAME);
-//        AppUserInput appUserInput = TestUtils.getNewAccountManagerInput();
-//        appUserInput.setPassword("");
-//        MvcResult result = mvc.perform(post(url)
-//                .header("Authorization", token)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(asJsonString(appUserInput)))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.password").isNotEmpty())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    void testCreateAppUser_whenPasswordNotTheSame_gotNOK() throws Exception {
-//        String url = "/api/account/user";
-//        String token = jwtProvider.generateToken(TestUtils.ACCOUNT_MANAGER_USERNAME);
-//        AppUserInput appUserInput = TestUtils.getNewAccountManagerInput();
-//        appUserInput.setPassword("fooooo");
-//        appUserInput.setPassword2("barrrrr");
-//        MvcResult result = mvc.perform(post(url)
-//                .header("Authorization", token)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(asJsonString(appUserInput)))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.password").isNotEmpty())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
 
-//    @Test
-//    void testCreateAppUser_whenOneOfLabAsAdminKeyIsInvalid_gotNOK() throws Exception {
-//        String url = "/api/account/user";
-//        String token = jwtProvider.generateToken(TestUtils.ACCOUNT_MANAGER_USERNAME);
-//        AppUserInput appUserInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
-//        appUserInput.setLabKeysAsAdmin(TestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
-//        MvcResult result = mvc.perform(post(url)
-//                .header("Authorization", token)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(asJsonString(appUserInput)))
-//                .andExpect(status().is(404))
-//                .andExpect(jsonPath("$.lab").isNotEmpty())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    void testCreateAppUser_whenOneOfLabAsUserKeyIsInvalid_gotNOK() throws Exception {
-//        String url = "/api/account/user";
-//        String token = jwtProvider.generateToken(TestUtils.ACCOUNT_MANAGER_USERNAME);
-//        AppUserInput appUserInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
-//        appUserInput.setLabKeysAsUser(TestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
-//        MvcResult result = mvc.perform(post(url)
-//                .header("Authorization", token)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(asJsonString(appUserInput)))
-//                .andExpect(status().is(404))
-//                .andExpect(jsonPath("$.lab").isNotEmpty())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
+    @Test
+    @Rollback
+    void testUpdateAlphaLabUser_whenUsernameEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+
+        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
+        appUserInput.setUsername("");
+        MvcResult result = mvc.perform(put(url)
+                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(appUserInput)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.username").isNotEmpty())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    void testUpdateAlphaLabUser_whenFullNameEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+
+        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
+        appUserInput.setFullName("");
+        MvcResult result = mvc.perform(put(url)
+                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(appUserInput)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fullName").isNotEmpty())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    void testUpdateAlphaLabUser_whenPasswordEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+
+        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
+        appUserInput.setPassword("");
+        MvcResult result = mvc.perform(put(url)
+                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(appUserInput)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.password").isNotEmpty())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    void testUpdateAlphaLabUser_whenPasswordsAreNotTheSame_gotNOK(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+
+        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
+        appUserInput.setPassword("fooooo");
+        appUserInput.setPassword("baaaaar");
+        MvcResult result = mvc.perform(put(url)
+                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(appUserInput)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.password").isNotEmpty())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    void testUpdateAlphaLabUser_whenOneOfLabAsAdminKeyIsInvalid_gotNOK(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+
+        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
+        appUserInput.setLabKeysAsAdmin(TestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
+        MvcResult result = mvc.perform(put(url)
+                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(appUserInput)))
+                .andExpect(status().is(404))
+                .andExpect(jsonPath("$.lab").isNotEmpty())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    void testUpdateAlphaLabUser_whenOneOfLabAsUserKeyIsInvalid_gotNOK(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+
+        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
+        appUserInput.setLabKeysAsUser(TestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
+        MvcResult result = mvc.perform(put(url)
+                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(appUserInput)))
+                .andExpect(status().is(404))
+                .andExpect(jsonPath("$.lab").isNotEmpty())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
 
     // CREATE
     @Test
@@ -518,6 +512,8 @@ class AccountManagerControllerTest {
         mvc.perform(get(url).header("Authorization", token))
                 .andExpect(status().isForbidden());
     }
+
+    // DELETE
 
 
 

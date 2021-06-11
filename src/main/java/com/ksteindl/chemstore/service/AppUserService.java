@@ -67,7 +67,6 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
 
     public AppUser updateUser(AppUserInput appUserInput, Long id) {
         AppUser appUser = appUserRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, id));
-        throwExceptionIfNotUnique(appUserInput, id);
         if (!appUser.getUsername().equals(appUserInput.getUsername())) {
             throw new ValidationException(Lang.APP_USER_USERNAME_ATTRIBUTE_NAME,
                     String.format(Lang.USERNAME_CANNOT_BE_CHANGED, appUser.getUsername(), appUserInput.getUsername()));
