@@ -163,6 +163,16 @@ public class TestUtils {
             .labManagerUsernames(List.of(BETA_LAB_MANAGER_USERNAME, ALPHA_BETA_LAB_MANAGER_USERNAME))
             .build();
 
+    public static final String GAMMA_LAB_KEY = "glab";
+    public static final String GAMMA_LAB_NAME = "Gamma Lab";
+    public static LabInput getGammaLabInput() {
+        return LabInput.builder()
+                .key(GAMMA_LAB_KEY)
+                .name(GAMMA_LAB_NAME)
+                .labManagerUsernames(List.of(BETA_LAB_MANAGER_USERNAME, ALPHA_BETA_LAB_MANAGER_USERNAME))
+                .build();
+    }
+
     public static final List<String> LAB_KEYS_WITH_INVALID_AND_VALID = List.of(ALPHA_LAB_KEY, "this-is-invalid", BETA_LAB_KEY);
 
 }

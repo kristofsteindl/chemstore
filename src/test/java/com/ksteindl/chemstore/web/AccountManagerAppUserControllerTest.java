@@ -10,6 +10,7 @@ import com.ksteindl.chemstore.service.LabService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -17,24 +18,29 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import javax.transaction.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@Transactional
+@Rollback
 @ActiveProfiles("test")
-class AccountManagerControllerTest {
+class AccountManagerAppUserControllerTest {
 
-    private static final Logger logger = LogManager.getLogger(AccountManagerControllerTest.class);
+    private static final Logger logger = LogManager.getLogger(AccountManagerAppUserControllerTest.class);
 
     @Autowired
     JwtProvider jwtProvider;
@@ -71,14 +77,15 @@ class AccountManagerControllerTest {
 
     // UPDATE
     @Test
+    @Transactional
     @Rollback
     void testUpdateAlabUser_whenAuthorized_got201AndAuthorizedForGetAllUser(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
         AppUserInput alabuserInput = TestUtils.getAlphaLabUserInput();
         String newFullName = "Changed Alpha Lab User";
         alabuserInput.setFullName(newFullName);
 
-        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         MvcResult result = mvc.perform(put(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
@@ -92,7 +99,30 @@ class AccountManagerControllerTest {
         testGetAllAppUser_whenAuthorized_gotValidResponse(TestUtils.ACCOUNT_MANAGER_USERNAME);
     }
 
+    // UPDATE
     @Test
+    @Transactional
+    @Rollback
+    void testUpdateDeletedAlphaLabUser_whenAuthorized_got400(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        appUserService.deleteAppUser(persistedAlphaLabUser.getId());
+        AppUserInput alabuserInput = TestUtils.getAlphaLabUserInput();
+        String newFullName = "Changed Alpha Lab User";
+        alabuserInput.setFullName(newFullName);
+
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
+
+        MvcResult result = mvc.perform(put(url)
+                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(alabuserInput)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Transactional
     @Rollback
     void testUpdateAppUserWhenIdAndUsernameDoesNotMatch_whenAuthorized_got400(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedNewAccountManager = appUserService.findByUsername(TestUtils.ACCOUNT_MANAGER_USERNAME);
@@ -113,6 +143,7 @@ class AccountManagerControllerTest {
     }
 
     @Test
+    @Transactional
     @Rollback
     void testUpdateAppUserWithNonExistingId_whenAuthorized_got400(@Autowired AppUserService appUserService) throws Exception {
         String url = "/api/account/user/" + Integer.MAX_VALUE;
@@ -129,12 +160,12 @@ class AccountManagerControllerTest {
     @Rollback
     void testUpdateAlphaLabUserAppUser_whenEmpty1_gotNOK(@Autowired AppUserService appUserService) throws Exception {
 
-        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
         AppUserInput alabuserInput = TestUtils.getAlphaLabUserInput();
         String newFullName = "Changed Alpha Lab User";
         alabuserInput.setFullName(newFullName);
 
-        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
         MvcResult result = mvc.perform(put(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -148,8 +179,8 @@ class AccountManagerControllerTest {
     @Test
     @Rollback
     void testUpdateAlphaLabUserAppUser_whenEmpty2_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
-        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput alabuserInput = TestUtils.getAlphaLabUserInput();
         String newFullName = "Changed Alpha Lab User";
@@ -169,8 +200,8 @@ class AccountManagerControllerTest {
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenNotEmailUsername_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
-        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
         appUserInput.setUsername("newaman");
@@ -188,8 +219,8 @@ class AccountManagerControllerTest {
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenUsernameEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
-        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
         appUserInput.setUsername("");
@@ -207,8 +238,8 @@ class AccountManagerControllerTest {
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenFullNameEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
-        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
         appUserInput.setFullName("");
@@ -226,8 +257,8 @@ class AccountManagerControllerTest {
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenPasswordEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
-        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
         appUserInput.setPassword("");
@@ -245,8 +276,8 @@ class AccountManagerControllerTest {
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenPasswordsAreNotTheSame_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
-        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
         appUserInput.setPassword("fooooo");
@@ -265,8 +296,8 @@ class AccountManagerControllerTest {
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenOneOfLabAsAdminKeyIsInvalid_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
-        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
         appUserInput.setLabKeysAsAdmin(TestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
@@ -282,9 +313,10 @@ class AccountManagerControllerTest {
     }
 
     @Test
+    @Rollback
     void testUpdateAlphaLabUser_whenOneOfLabAsUserKeyIsInvalid_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUserManager = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
-        String url = "/api/account/user/" + persistedAlphaLabUserManager.getId();
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
         appUserInput.setLabKeysAsUser(TestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
@@ -304,15 +336,16 @@ class AccountManagerControllerTest {
     void testCreateAppUserWithManagerRole_whenAuthorized_got201AndAuthorizedForGetAllUser() throws Exception {
         String url = "/api/account/user";
 
+        AppUserInput newmanInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
         MvcResult result = mvc.perform(post(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(TestUtils.getNewAccountManagerInputWithSomeLabs())))
+                .content(asJsonString(newmanInput)))
                 .andExpect(status().isCreated())
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
         logger.info(result.getResponse().getContentAsString());
         // tests must check only one thing, so this is an antipattern, but I want to check if the freshly created user has the proper privlilige
-        testGetAllAppUser_whenAuthorized_gotValidResponse("newaman@account.com");
+        testGetAllAppUser_whenAuthorized_gotValidResponse(newmanInput.getUsername());
     }
 
     @Test
@@ -514,6 +547,119 @@ class AccountManagerControllerTest {
     }
 
     // DELETE
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteAlphaLabUser_whenAuthorized_got204(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
+
+        MvcResult result = mvc.perform(delete(url)
+                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+    }
+
+    @Test
+    @Disabled // TODO ResourceNotFound Exception is expected, else fail()
+    @Rollback
+    @Transactional
+    void testDeleteAlphaLabUser_whenAuthorized_gotResourceNotFoundException(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
+        mvc.perform(delete(url).header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON));
+        AppUser deletedAppUser = appUserService.findById(persistedAlphaLabUser.getId());
+
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteAlphaLabUser_whenAuthorized_gotDeletedFromService(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
+        mvc.perform(delete(url).header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON));
+        AppUser deletedAppUser = appUserService.findById(persistedAlphaLabUser.getId(), false);
+        Assertions.assertTrue(deletedAppUser.getDeleted());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteAlphaLabUserTwoTimes_whenAuthorized_got400SocondTime(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
+
+        MvcResult result1 = mvc.perform(delete(url)
+                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn();
+        MvcResult result2 = mvc.perform(delete(url)
+                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        logger.info("status code: " + result1.getResponse().getStatus());
+        logger.info("status code: " + result2.getResponse().getStatus());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteAlphaLabUserWithNonExistingId_whenAuthorized_got404(@Autowired AppUserService appUserService) throws Exception {
+        String url = "/api/account/user/" + Integer.MAX_VALUE;
+
+        MvcResult result = mvc.perform(delete(url)
+                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteAlphaLabUser_withAlphaLabManager_got403(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
+
+        String token = jwtProvider.generateToken(TestUtils.ALPHA_LAB_MANAGER_USERNAME);
+        MvcResult result = mvc.perform(delete(url)
+                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteAlphaLabUser_withAlphaLabAdmin_got403(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
+
+        String token = jwtProvider.generateToken(TestUtils.ALPHA_LAB_ADMIN_USERNAME);
+        MvcResult result = mvc.perform(delete(url)
+                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteAlphaLabUser_withBetaLabUser_got403(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
+
+        String token = jwtProvider.generateToken(TestUtils.BETA_LAB_USER_USERNAME);
+        MvcResult result = mvc.perform(delete(url)
+                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+    }
 
 
 

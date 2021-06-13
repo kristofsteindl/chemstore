@@ -77,7 +77,7 @@ public class AccountManagerController {
         mapValidationErrorService.throwExceptionIfNotValid(bindingResult);
         Lab lab = labService.createLab(labInput);
         logger.info("POST '/lab' was succesful with returned result{}", lab);
-        return ResponseEntity.ok().body(lab);
+        return ResponseEntity.status(HttpStatus.CREATED).body(lab);
     }
 
     @PutMapping("/lab/{id}")
