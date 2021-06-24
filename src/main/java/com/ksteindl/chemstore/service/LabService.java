@@ -57,7 +57,7 @@ public class LabService implements UniqueEntityInput<LabInput> {
     }
 
     public void deleteLab(Long id) {
-        Lab lab = labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, id));
+        Lab lab = findById(id);
         lab.setDeleted(true);
         lab.getLabManagers().clear();
         appUserService.removeLabsFromAppUsers(lab);
@@ -72,7 +72,7 @@ public class LabService implements UniqueEntityInput<LabInput> {
     }
 
     public Lab findById(Long id) {
-        return findById(id, false);
+        return findById(id, true);
     }
 
     public Lab findById(Long id, Boolean onlyActive) {

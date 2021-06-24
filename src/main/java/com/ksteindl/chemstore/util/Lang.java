@@ -8,7 +8,7 @@ public class Lang {
     public static final String MANUFACTURER_ENTITY_NAME = "manufacturer";
     public static final String MANUFACTURER_WITH_SAME_NAME_FOUND_TEMPLATE = "Manufacturer with name '%s' is already exists";
 
-    public static final String APP_USER_ENTITY_NAME = "app user";
+    public static final String APP_USER_ENTITY_NAME = "app-user";
     public static final String APP_USER_USERNAME_ATTRIBUTE_NAME = "username";
     public static final String APP_USER_PASSWORD_ATTRIBUTE_NAME = "password";
     public static final String APP_USER_PASSWORD2_ATTRIBUTE_NAME = "password2";

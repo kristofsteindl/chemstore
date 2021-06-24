@@ -149,11 +149,13 @@ public class TestUtils {
 
     public static final String ALPHA_LAB_KEY = "alab";
     public static final String ALPHA_LAB_NAME = "Alpha Lab";
-    public static LabInput ALPHA_LAB_INPUT = LabInput.builder()
-            .key(ALPHA_LAB_KEY)
-            .name(ALPHA_LAB_NAME)
-            .labManagerUsernames(List.of(ALPHA_LAB_MANAGER_USERNAME, ALPHA_BETA_LAB_MANAGER_USERNAME))
-            .build();
+    public static LabInput getAlphaLabInput() {
+        return LabInput.builder()
+                .key(ALPHA_LAB_KEY)
+                .name(ALPHA_LAB_NAME)
+                .labManagerUsernames(List.of(ALPHA_LAB_MANAGER_USERNAME, ALPHA_BETA_LAB_MANAGER_USERNAME))
+                .build();
+    }
 
     public static final String BETA_LAB_KEY = "blab";
     public static final String BETA_LAB_NAME = "Beta Lab";

@@ -44,7 +44,7 @@ public class Lab {
     }
 
     @JsonProperty("labManagerUsernames")
-    public List<String> getLabManagerUsername() {
+    public List<String> getLabManagerUsernames() {
         return labManagers.stream().map(manager -> manager.getUsername()).collect(Collectors.toList());
     }
 
