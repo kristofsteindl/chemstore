@@ -1,4 +1,4 @@
-package com.ksteindl.chemstore.web;
+package com.ksteindl.chemstore.web.utils;
 
 import com.ksteindl.chemstore.domain.input.AppUserInput;
 import com.ksteindl.chemstore.domain.input.LabInput;
@@ -6,7 +6,7 @@ import com.ksteindl.chemstore.security.Authority;
 
 import java.util.List;
 
-public class TestUtils {
+public class AccountManagerTestUtils {
 
 
     public static final String ACCOUNT_MANAGER_USERNAME = "aman@account.com";
@@ -32,8 +32,8 @@ public class TestUtils {
                 .password(NEW_ACCOUNT_MANAGER_PASSWORD)
                 .password2(NEW_ACCOUNT_MANAGER_PASSWORD)
                 .roles(List.of(Authority.ACCOUNT_MANAGER))
-                .labKeysAsUser(List.of(TestUtils.ALPHA_LAB_KEY))
-                .labKeysAsAdmin(List.of(TestUtils.BETA_LAB_KEY))
+                .labKeysAsUser(List.of(AccountManagerTestUtils.ALPHA_LAB_KEY))
+                .labKeysAsAdmin(List.of(AccountManagerTestUtils.BETA_LAB_KEY))
                 .build();
     }
 
@@ -47,63 +47,75 @@ public class TestUtils {
     public static final String ALPHA_LAB_MANAGER_USERNAME = "alabman@account.com";
     public static final String ALPHA_LAB_MANAGER_FULL_NAME = "Alpha Lab Manager";
     public static final String ALPHA_LAB_MANAGER_PASSWORD = "alabman";
-    public static AppUserInput ALPHA_LAB_MANAGER_INPUT = AppUserInput.builder()
-            .username(ALPHA_LAB_MANAGER_USERNAME)
-            .fullName(ALPHA_LAB_MANAGER_FULL_NAME)
-            .password(ALPHA_LAB_MANAGER_PASSWORD)
-            .password2(ALPHA_LAB_MANAGER_PASSWORD)
-            .build();
+    public static AppUserInput getAlphaLabManagerInput() {
+        return AppUserInput.builder()
+                .username(ALPHA_LAB_MANAGER_USERNAME)
+                .fullName(ALPHA_LAB_MANAGER_FULL_NAME)
+                .password(ALPHA_LAB_MANAGER_PASSWORD)
+                .password2(ALPHA_LAB_MANAGER_PASSWORD)
+                .build();
+    }
 
     public static final String BETA_LAB_MANAGER_USERNAME = "blabman@account.com";
     public static final String BETA_LAB_MANAGER_FULL_NAME = "Beta Lab Manager";
     public static final String BETA_LAB_MANAGER_PASSWORD = "blabman";
 
-    public static AppUserInput BETA_LAB_MANAGER_INPUT = AppUserInput.builder()
-            .username(BETA_LAB_MANAGER_USERNAME)
-            .fullName(BETA_LAB_MANAGER_FULL_NAME)
-            .password(BETA_LAB_MANAGER_PASSWORD)
-            .password2(BETA_LAB_MANAGER_PASSWORD)
-            .build();
+    public static AppUserInput getBetaLabManagerInput() {
+        return AppUserInput.builder()
+                .username(BETA_LAB_MANAGER_USERNAME)
+                .fullName(BETA_LAB_MANAGER_FULL_NAME)
+                .password(BETA_LAB_MANAGER_PASSWORD)
+                .password2(BETA_LAB_MANAGER_PASSWORD)
+                .build();
+    }
 
     public static final String ALPHA_BETA_LAB_MANAGER_USERNAME = "ablabman@account.com";
     public static final String ALPHA_BETA_LAB_MANAGER_FULL_NAME = "Alpha Beta Lab Manager";
     public static final String ALPHA_BETA_LAB_MANAGER_PASSWORD = "ablabman";
-    public static AppUserInput ALPHA_BETA_LAB_MANAGER_INPUT = AppUserInput.builder()
-            .username(ALPHA_BETA_LAB_MANAGER_USERNAME)
-            .fullName(ALPHA_BETA_LAB_MANAGER_FULL_NAME)
-            .password(ALPHA_BETA_LAB_MANAGER_PASSWORD)
-            .password2(ALPHA_BETA_LAB_MANAGER_PASSWORD)
-            .build();
+    public static AppUserInput getAlphaBetaLabManagerInput() {
+        return AppUserInput.builder()
+                .username(ALPHA_BETA_LAB_MANAGER_USERNAME)
+                .fullName(ALPHA_BETA_LAB_MANAGER_FULL_NAME)
+                .password(ALPHA_BETA_LAB_MANAGER_PASSWORD)
+                .password2(ALPHA_BETA_LAB_MANAGER_PASSWORD)
+                .build();
+    }
 
     public static final String ALPHA_LAB_ADMIN_USERNAME = "alabadmin@account.com";
     public static final String ALPHA_LAB_ADMIN_FULL_NAME = "Alpha Lab Admin";
     public static final String ALPHA_LAB_ADMIN_PASSWORD = "alabadmin";
-    public static AppUserInput ALPHA_LAB_ADMIN_INPUT = AppUserInput.builder()
-            .username(ALPHA_LAB_ADMIN_USERNAME)
-            .fullName(ALPHA_LAB_ADMIN_FULL_NAME)
-            .password(ALPHA_LAB_ADMIN_PASSWORD)
-            .password2(ALPHA_LAB_ADMIN_PASSWORD)
-            .build();
+    public static AppUserInput getAlphaLabAdminInput() {
+        return AppUserInput.builder()
+                .username(ALPHA_LAB_ADMIN_USERNAME)
+                .fullName(ALPHA_LAB_ADMIN_FULL_NAME)
+                .password(ALPHA_LAB_ADMIN_PASSWORD)
+                .password2(ALPHA_LAB_ADMIN_PASSWORD)
+                .build();
+    }
 
     public static final String BETA_LAB_ADMIN_USERNAME = "blabadmin@account.com";
     public static final String BETA_LAB_ADMIN_FULL_NAME = "Beta Lab Admin";
     public static final String BETA_LAB_ADMIN_PASSWORD = "blabadmin";
-    public static AppUserInput BETA_LAB_ADMIN_INPUT = AppUserInput.builder()
-            .username(BETA_LAB_ADMIN_USERNAME)
-            .fullName(BETA_LAB_ADMIN_FULL_NAME)
-            .password(BETA_LAB_ADMIN_PASSWORD)
-            .password2(BETA_LAB_ADMIN_PASSWORD)
-            .build();
+    public static AppUserInput getBetaLabAdminInput() {
+        return AppUserInput.builder()
+                .username(BETA_LAB_ADMIN_USERNAME)
+                .fullName(BETA_LAB_ADMIN_FULL_NAME)
+                .password(BETA_LAB_ADMIN_PASSWORD)
+                .password2(BETA_LAB_ADMIN_PASSWORD)
+                .build();
+    }
 
     public static final String ALPHA_BETA_LAB_ADMIN_USERNAME = "ablabadmin@account.com";
     public static final String ALPHA_BETA_LAB_ADMIN_FULL_NAME = "Alpha Beta Lab Admin";
     public static final String ALPHA_BETA_LAB_ADMIN_PASSWORD = "ablabadmin";
-    public static AppUserInput ALPHA_BETA_LAB_ADMIN_INPUT = AppUserInput.builder()
-            .username(ALPHA_BETA_LAB_ADMIN_USERNAME)
-            .fullName(ALPHA_BETA_LAB_ADMIN_FULL_NAME)
-            .password(ALPHA_BETA_LAB_ADMIN_PASSWORD)
-            .password2(ALPHA_BETA_LAB_ADMIN_PASSWORD)
-            .build();
+    public static AppUserInput getAlphaBetaLabAdminInput() {
+        return AppUserInput.builder()
+                .username(ALPHA_BETA_LAB_ADMIN_USERNAME)
+                .fullName(ALPHA_BETA_LAB_ADMIN_FULL_NAME)
+                .password(ALPHA_BETA_LAB_ADMIN_PASSWORD)
+                .password2(ALPHA_BETA_LAB_ADMIN_PASSWORD)
+                .build();
+    }
 
     public static final String ALPHA_LAB_USER_USERNAME = "alabuser@account.com";
     public static final String ALPHA_LAB_USER_FULL_NAME = "Alpha Lab User";
@@ -120,22 +132,26 @@ public class TestUtils {
     public static final String BETA_LAB_USER_USERNAME = "blabuser@account.com";
     public static final String BETA_LAB_USER_FULL_NAME = "Beta Lab User";
     public static final String BETA_LAB_USER_PASSWORD = "blabuser";
-    public static AppUserInput BETA_LAB_USER_INPUT = AppUserInput.builder()
-            .username(BETA_LAB_USER_USERNAME)
-            .fullName(BETA_LAB_USER_FULL_NAME)
-            .password(BETA_LAB_USER_PASSWORD)
-            .password2(BETA_LAB_USER_PASSWORD)
-            .build();
+    public static AppUserInput getBetaLabUserInput() {
+        return AppUserInput.builder()
+                .username(BETA_LAB_USER_USERNAME)
+                .fullName(BETA_LAB_USER_FULL_NAME)
+                .password(BETA_LAB_USER_PASSWORD)
+                .password2(BETA_LAB_USER_PASSWORD)
+                .build();
+    }
 
     public static final String ALPHA_BETA_LAB_USER_USERNAME = "ablabuser@account.com";
     public static final String ALPHA_BETA_LAB_USER_FULL_NAME = "Alpha Beta Lab User";
     public static final String ALPHA_BETA_LAB_USER_PASSWORD = "ablabuser";
-    public static AppUserInput ALPHA_BETA_LAB_USER_INPUT = AppUserInput.builder()
-            .username(ALPHA_BETA_LAB_USER_USERNAME)
-            .fullName(ALPHA_BETA_LAB_USER_FULL_NAME)
-            .password(ALPHA_BETA_LAB_USER_PASSWORD)
-            .password2(ALPHA_BETA_LAB_USER_PASSWORD)
-            .build();
+    public static AppUserInput getAlphaBetaLabUserInput() {
+        return AppUserInput.builder()
+                .username(ALPHA_BETA_LAB_USER_USERNAME)
+                .fullName(ALPHA_BETA_LAB_USER_FULL_NAME)
+                .password(ALPHA_BETA_LAB_USER_PASSWORD)
+                .password2(ALPHA_BETA_LAB_USER_PASSWORD)
+                .build();
+    }
 
     public static final String ALPHA_BETA_LAB_DELETED_USER_USERNAME = "ablabdeleteduser@account.com";
     public static final String ALPHA_BETA_LAB_DELETED_USER_FULL_NAME = "Alpha Beta Lab Deleted User";

@@ -2,16 +2,14 @@ package com.ksteindl.chemstore.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ksteindl.chemstore.domain.entities.AppUser;
-import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.AppUserService;
-import com.ksteindl.chemstore.service.LabService;
+import com.ksteindl.chemstore.web.utils.AccountManagerTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,8 +48,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateAlabUser_whenAuthorized_got201AndAuthorizedForGetAllUser(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
-        AppUserInput alabuserInput = TestUtils.getAlphaLabUserInput();
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUserInput alabuserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         String newFullName = "Changed Alpha Lab User";
         alabuserInput.setFullName(newFullName);
 
@@ -66,7 +64,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
         logger.info("status code: " + result.getResponse().getStatus());
         logger.info(result.getResponse().getContentAsString());
         // tests must check only one thing, so this is an antipattern, but I want to check if the freshly created user has the proper privlilige
-        testGetAllAppUser_whenAuthorized_gotValidResponse(TestUtils.ACCOUNT_MANAGER_USERNAME);
+        testGetAllAppUser_whenAuthorized_gotValidResponse(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
     }
 
     // UPDATE
@@ -74,9 +72,9 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateDeletedAlphaLabUser_whenAuthorized_got400(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         appUserService.deleteAppUser(persistedAlphaLabUser.getId());
-        AppUserInput alabuserInput = TestUtils.getAlphaLabUserInput();
+        AppUserInput alabuserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         String newFullName = "Changed Alpha Lab User";
         alabuserInput.setFullName(newFullName);
 
@@ -95,12 +93,12 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateAppUserWhenIdAndUsernameDoesNotMatch_whenAuthorized_got400(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedNewAccountManager = appUserService.findByUsername(TestUtils.ACCOUNT_MANAGER_USERNAME);
+        AppUser persistedNewAccountManager = appUserService.findByUsername(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
         logger.debug("in test 2, persistedNewAccountManager fullName: " + persistedNewAccountManager.getFullName());
-        AppUserInput amanInput = TestUtils.getAccountManagerInput();
+        AppUserInput amanInput = AccountManagerTestUtils.getAccountManagerInput();
         String newFullName = "Changed Account Manager";
         amanInput.setFullName(newFullName);
-        Long alabuserId = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME).getId();
+        Long alabuserId = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).getId();
         String url = "/api/account/user/" + alabuserId;
 
         MvcResult result = mvc.perform(put(url)
@@ -119,7 +117,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
         String url = "/api/account/user/" + Integer.MAX_VALUE;
         MvcResult result = mvc.perform(put(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(TestUtils.getAccountManagerInput())))
+                .content(asJsonString(AccountManagerTestUtils.getAccountManagerInput())))
                 .andExpect(status().isNotFound())
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -130,8 +128,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     void testUpdateAlphaLabUserAppUser_whenEmpty1_gotNOK(@Autowired AppUserService appUserService) throws Exception {
 
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
-        AppUserInput alabuserInput = TestUtils.getAlphaLabUserInput();
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUserInput alabuserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         String newFullName = "Changed Alpha Lab User";
         alabuserInput.setFullName(newFullName);
 
@@ -149,10 +147,10 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUserAppUser_whenEmpty2_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
-        AppUserInput alabuserInput = TestUtils.getAlphaLabUserInput();
+        AppUserInput alabuserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         String newFullName = "Changed Alpha Lab User";
         alabuserInput.setFullName(newFullName);
 
@@ -170,10 +168,10 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenNotEmailUsername_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
-        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
+        AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         appUserInput.setUsername("newaman");
         MvcResult result = mvc.perform(put(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
@@ -189,10 +187,10 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenUsernameEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
-        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
+        AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         appUserInput.setUsername("");
         MvcResult result = mvc.perform(put(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
@@ -208,10 +206,10 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenFullNameEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
-        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
+        AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         appUserInput.setFullName("");
         MvcResult result = mvc.perform(put(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
@@ -227,10 +225,10 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenPasswordEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
-        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
+        AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         appUserInput.setPassword("");
         MvcResult result = mvc.perform(put(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
@@ -246,10 +244,10 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenPasswordsAreNotTheSame_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
-        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
+        AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         appUserInput.setPassword("fooooo");
         appUserInput.setPassword("baaaaar");
         MvcResult result = mvc.perform(put(url)
@@ -266,11 +264,11 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenOneOfLabAsAdminKeyIsInvalid_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
-        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
-        appUserInput.setLabKeysAsAdmin(TestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
+        AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
+        appUserInput.setLabKeysAsAdmin(AccountManagerTestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
         MvcResult result = mvc.perform(put(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -285,11 +283,11 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenOneOfLabAsUserKeyIsInvalid_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
-        AppUserInput appUserInput = TestUtils.getAlphaLabUserInput();
-        appUserInput.setLabKeysAsUser(TestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
+        AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
+        appUserInput.setLabKeysAsUser(AccountManagerTestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
         MvcResult result = mvc.perform(put(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -306,7 +304,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     void testCreateAppUserWithManagerRole_whenAuthorized_got201AndAuthorizedForGetAllUser() throws Exception {
         String url = "/api/account/user";
 
-        AppUserInput newmanInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
+        AppUserInput newmanInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
         MvcResult result = mvc.perform(post(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(newmanInput)))
@@ -349,7 +347,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     void testCreateAppUser_whenNotEmailUsername_gotNOK() throws Exception {
         String url = "/api/account/user";
-        AppUserInput appUserInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
+        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
         appUserInput.setUsername("newaman");
         MvcResult result = mvc.perform(post(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
@@ -365,8 +363,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     void testCreateAppUser_whenNotUsernameNotUnique_gotNOK() throws Exception {
         String url = "/api/account/user";
-        AppUserInput appUserInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
-        appUserInput.setUsername(TestUtils.ACCOUNT_MANAGER_USERNAME);
+        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
+        appUserInput.setUsername(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
         MvcResult result = mvc.perform(post(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -381,7 +379,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     void testCreateAppUser_whenNotUsernameEmpty_gotNOK() throws Exception {
         String url = "/api/account/user";
-        AppUserInput appUserInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
+        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
         appUserInput.setUsername("");
         MvcResult result = mvc.perform(post(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
@@ -397,7 +395,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     void testCreateAppUser_whenFullNameEmpty_gotNOK() throws Exception {
         String url = "/api/account/user";
-        AppUserInput appUserInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
+        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
         appUserInput.setFullName("");
         MvcResult result = mvc.perform(post(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
@@ -413,7 +411,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     void testCreateAppUser_whenPasswordEmpty_gotNOK() throws Exception {
         String url = "/api/account/user";
-        AppUserInput appUserInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
+        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
         appUserInput.setPassword("");
         MvcResult result = mvc.perform(post(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
@@ -429,7 +427,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     void testCreateAppUser_whenPasswordNotTheSame_gotNOK() throws Exception {
         String url = "/api/account/user";
-        AppUserInput appUserInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
+        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
         appUserInput.setPassword("fooooo");
         appUserInput.setPassword2("barrrrr");
         MvcResult result = mvc.perform(post(url)
@@ -446,8 +444,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     void testCreateAppUser_whenOneOfLabAsAdminKeyIsInvalid_gotNOK() throws Exception {
         String url = "/api/account/user";
-        AppUserInput appUserInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
-        appUserInput.setLabKeysAsAdmin(TestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
+        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
+        appUserInput.setLabKeysAsAdmin(AccountManagerTestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
         MvcResult result = mvc.perform(post(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -462,8 +460,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     void testCreateAppUser_whenOneOfLabAsUserKeyIsInvalid_gotNOK() throws Exception {
         String url = "/api/account/user";
-        AppUserInput appUserInput = TestUtils.getNewAccountManagerInputWithSomeLabs();
-        appUserInput.setLabKeysAsUser(TestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
+        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
+        appUserInput.setLabKeysAsUser(AccountManagerTestUtils.LAB_KEYS_WITH_INVALID_AND_VALID);
         MvcResult result = mvc.perform(post(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -478,10 +476,10 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     // READ
     @Test
     void testGetAllAppUsers_whenAuthorized_gotValidResponse() throws Exception {
-        testGetAllAppUser_whenAuthorized_gotValidResponse(TestUtils.ACCOUNT_MANAGER_USERNAME);
+        testGetAllAppUser_whenAuthorized_gotValidResponse(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
     }
 
-    @Disabled // TODO Fixme! Insead of checking whether there is a deleted appUser, I should ALPHA_BETA_LAB_DELETED_USER_INPUT is deleted
+    //@Disabled // TODO Fixme! Instead of checking whether there is a deleted appUser, I should ALPHA_BETA_LAB_DELETED_USER_INPUT is deleted
     @Test
     void testGetAllAppUsers_whenAuthorizedOnlyActiveFalse_gotDeletedUser() throws Exception {
         String url = "/api/account/user";
@@ -489,13 +487,14 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
                     .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
                     .param("only-active", "false"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[*].deleted").value(Matchers.arrayContainingInAnyOrder(true,false)));
+                .andExpect(jsonPath("$[*].deleted", Matchers.hasItem(true)))
+                .andExpect(jsonPath("$[*].deleted", Matchers.hasItem(false)));
     }
 
     @Test
     void testGetAllAppUser_whenLabManager_got403() throws Exception {
         String url = "/api/account/user";
-        String token = jwtProvider.generateToken(TestUtils.ALPHA_BETA_LAB_MANAGER_USERNAME);
+        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_MANAGER_USERNAME);
         mvc.perform(get(url).header("Authorization", token))
                 .andExpect(status().isForbidden());
     }
@@ -503,7 +502,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     void testGetAllAppUser_whenLabAdmin_got403() throws Exception {
         String url = "/api/account/user";
-        String token = jwtProvider.generateToken(TestUtils.ALPHA_BETA_LAB_ADMIN_USERNAME);
+        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_ADMIN_USERNAME);
         mvc.perform(get(url).header("Authorization", token))
                 .andExpect(status().isForbidden());
     }
@@ -511,7 +510,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     void testGetAllAppUser_whenUser_got403() throws Exception {
         String url = "/api/account/user";
-        String token = jwtProvider.generateToken(TestUtils.ALPHA_BETA_LAB_USER_USERNAME);
+        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_USER_USERNAME);
         mvc.perform(get(url).header("Authorization", token))
                 .andExpect(status().isForbidden());
     }
@@ -521,7 +520,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_whenAuthorized_got204(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         MvcResult result = mvc.perform(delete(url)
@@ -536,7 +535,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_whenAuthorized_gotResourceNotFoundException(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
         mvc.perform(delete(url).header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON));
         AppUser deletedAppUser = appUserService.findById(persistedAlphaLabUser.getId());
@@ -547,7 +546,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_whenAuthorized_gotDeletedFromService(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
         mvc.perform(delete(url).header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON));
         AppUser deletedAppUser = appUserService.findById(persistedAlphaLabUser.getId(), false);
@@ -558,7 +557,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUserTwoTimes_whenAuthorized_got400SocondTime(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         MvcResult result1 = mvc.perform(delete(url)
@@ -590,10 +589,10 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_withAlphaLabManager_got403(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
-        String token = jwtProvider.generateToken(TestUtils.ALPHA_LAB_MANAGER_USERNAME);
+        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
         MvcResult result = mvc.perform(delete(url)
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden())
@@ -605,10 +604,10 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_withAlphaLabAdmin_got403(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
-        String token = jwtProvider.generateToken(TestUtils.ALPHA_LAB_ADMIN_USERNAME);
+        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
         MvcResult result = mvc.perform(delete(url)
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden())
@@ -620,10 +619,10 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_withBetaLabUser_got403(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(TestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
-        String token = jwtProvider.generateToken(TestUtils.BETA_LAB_USER_USERNAME);
+        String token = jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_USER_USERNAME);
         MvcResult result = mvc.perform(delete(url)
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden())
@@ -635,10 +634,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
 
     private void testGetAllAppUser_whenAuthorized_gotValidResponse(String username) throws Exception {
         String url = "/api/account/user";
-        HttpHeaders headers = new HttpHeaders();
         String token = jwtProvider.generateToken(username);
-        headers.set("Authorization", token);
-        headers.setBearerAuth(token);
 
         MvcResult result = mvc.perform(get(url).header("Authorization", token))
                 .andExpect(status().isOk())

@@ -44,8 +44,8 @@ public class LabAdminController {
     @PutMapping("/manufacturer/{id}")
     public ResponseEntity<Manufacturer> updateManufacturer(
             @Valid @RequestBody ManufacturerInput manufacturerInput,
-            @PathVariable  Long id,
-            BindingResult result) {
+            BindingResult result,
+            @PathVariable  Long id) {
         logger.info("PUT '/manufacturer/{id}' was called with id {} and input {}", id, manufacturerInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
         Manufacturer manufacturer = manufacturerService.updateManufacturer(manufacturerInput, id);
@@ -54,9 +54,10 @@ public class LabAdminController {
     }
 
     @GetMapping("/manufacturer")
-    public ResponseEntity<List<Manufacturer>> getManufactures() {
-        logger.info("GET '/manufacturer' was called");
-        List<Manufacturer> manufacturers = manufacturerService.getManufacturers();
+    public ResponseEntity<List<Manufacturer>> getManufactures(
+            @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
+        logger.info("GET '/manufacturer' was called, with onlyActive {}", onlyActive);
+        List<Manufacturer> manufacturers = manufacturerService.getManufacturers(onlyActive);
         logger.info("GET '/manufacturer' was succesful with {} item", manufacturers.size());
         return new ResponseEntity<>(manufacturers, HttpStatus.OK);
     }
