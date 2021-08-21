@@ -1,30 +1,25 @@
 package com.ksteindl.chemstore.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
-import com.ksteindl.chemstore.domain.input.AppUserInput;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
 import com.ksteindl.chemstore.security.JwtProvider;
-import com.ksteindl.chemstore.service.AppUserService;
 import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.ManufacturerService;
 import com.ksteindl.chemstore.web.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.web.utils.LabAdminTestUtils;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hamcrest.Matchers;
 import org.hamcrest.core.IsNot;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
@@ -32,12 +27,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.AssertionErrors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import javax.transaction.Transactional;
 
 import java.util.Optional;
 
+import static com.ksteindl.chemstore.web.utils.AccountManagerTestUtils.*;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -59,8 +54,164 @@ class LabAdminControllerTest extends BaseControllerTest{
     private final String BASE_URL = "/api/lab-admin";
     private final String MANUFACTURER_URL = BASE_URL + "/manufacturer";
     private final String CHEMICAL_URL = BASE_URL + "/chemical";
+    private final String CHANGED_ETHANOL_EXACT_NAME = "Changed ethanol exact name";
 
 //CHEMICAL
+    //UPDATE
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_withLabAdmin_got201(@Autowired ChemicalService chemicalService) throws Exception {
+        testUpdateChemicalExactName_got201(chemicalService, ALPHA_LAB_ADMIN_USERNAME);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_withLabManager_got201(@Autowired ChemicalService chemicalService) throws Exception {
+        testUpdateChemicalExactName_got201(chemicalService, ALPHA_LAB_MANAGER_USERNAME);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_withAccountManager_got201(@Autowired ChemicalService chemicalService) throws Exception {
+        testUpdateChemicalExactName_got201(chemicalService, ACCOUNT_MANAGER_USERNAME);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_withAlphaLabUser_got403(@Autowired ChemicalService chemicalService) throws Exception {
+        testUpdateEthanolExactName(chemicalService, ALPHA_LAB_USER_USERNAME, 403);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_withEmptyInput1_got400(@Autowired ChemicalService chemicalService) throws Exception {
+        testUpdateEthanolGot400(chemicalService, "");
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_withEmptyInput2_got400(@Autowired ChemicalService chemicalService) throws Exception {
+        testUpdateEthanolGot400(chemicalService, "{}");
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_withEmptyShortName1_got400(@Autowired ChemicalService chemicalService) throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        input.setShortName(null);
+        testUpdateEthanolGot400(chemicalService, asJsonString(input));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_withEmptyShortName2_got400(@Autowired ChemicalService chemicalService) throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        input.setShortName("");
+        testUpdateEthanolGot400(chemicalService, asJsonString(input));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_withEmptyExactName1_got400(@Autowired ChemicalService chemicalService) throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        input.setExactName(null);
+        testUpdateEthanolGot400(chemicalService, asJsonString(input));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_withEmptyExactName2_got400(@Autowired ChemicalService chemicalService) throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        input.setExactName("");
+        testUpdateEthanolGot400(chemicalService, asJsonString(input));
+    }
+
+
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_whenShortNameAlreadyExists_got400(@Autowired ChemicalService chemicalService) throws Exception {
+        ChemicalInput ethanolInput = LabAdminTestUtils.getEtOHInput();
+        Chemical ethanol = chemicalService.getChemicals().stream()
+                .filter(chemical -> chemical.getShortName().equals(LabAdminTestUtils.ETHANOL_SHORT_NAME))
+                .findAny()
+                .get();
+        ethanolInput.setShortName(LabAdminTestUtils.ISOPROPYL_ALCHOL_SHORT_NAME);
+        MvcResult result = mvc.perform(put(CHEMICAL_URL + "/" + ethanol.getId())
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(ethanolInput)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_whenExactNameAlreadyExists_got400() throws Exception {
+//        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+//        input.setExactName(LabAdminTestUtils.ETHANOL_EXACT_NAME);
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                .content(asJsonString(input)))
+//                .andExpect(status().is(400))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+
+    private void testUpdateEthanolGot400(ChemicalService chemicalService, String ethanolInput) throws Exception {
+        Chemical ethanol = chemicalService.getChemicals().stream()
+                .filter(chemical -> chemical.getShortName().equals(LabAdminTestUtils.ETHANOL_SHORT_NAME))
+                .findAny()
+                .get();
+        MvcResult result = mvc.perform(put(CHEMICAL_URL + "/" + ethanol.getId())
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(ethanolInput))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    private void testUpdateChemicalExactName_got201(ChemicalService chemicalService, String username) throws Exception {
+        Long ethanolId = testUpdateEthanolExactName(chemicalService, username, 201);
+        Chemical ethanol = chemicalService.getChemicalById(ethanolId);
+        Assertions.assertEquals(CHANGED_ETHANOL_EXACT_NAME, ethanol.getExactName());
+    }
+
+
+    private Long testUpdateEthanolExactName(ChemicalService chemicalService, String username, Integer statusCode) throws Exception {
+        ChemicalInput ethanolInput = LabAdminTestUtils.getEtOHInput();
+        String token = jwtProvider.generateToken(username);
+        Chemical ethanol = chemicalService.getChemicals().stream()
+                .filter(chemical -> chemical.getShortName().equals(LabAdminTestUtils.ETHANOL_SHORT_NAME))
+                .findAny()
+                .get();
+        ethanolInput.setExactName(CHANGED_ETHANOL_EXACT_NAME);
+        MvcResult result = mvc.perform(put(CHEMICAL_URL + "/" + ethanol.getId())
+                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(ethanolInput)))
+                .andExpect(status().is(statusCode))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+        return ethanol.getId();
+    }
+
+
     //CREATE
     @Test
     @Rollback
@@ -252,7 +403,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         logger.info(result.getResponse().getContentAsString());
     }
 
-    
+
 
 //MANUFACTURER
     //DELETE
@@ -395,14 +546,14 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testUpdateManufacturer_withLabAdmin_got201(@Autowired ManufacturerService manufacturerService) throws Exception {
-        testUpdateManufacturer_got201(manufacturerService, AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
+        testUpdateManufacturer_got201(manufacturerService, ALPHA_LAB_ADMIN_USERNAME);
     }
 
     @Test
     @Rollback
     @Transactional
     void testUpdateManufacturer_withAccountManager_got201(@Autowired ManufacturerService manufacturerService) throws Exception {
-        testUpdateManufacturer_got201(manufacturerService, AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
+        testUpdateManufacturer_got201(manufacturerService, ACCOUNT_MANAGER_USERNAME);
     }
 
     @Test
@@ -416,7 +567,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testUpdateManufacturer_withAlphaLabUser_got403(@Autowired ManufacturerService manufacturerService) throws Exception {
-        testUpdateManufacturer_got403(manufacturerService, AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        testUpdateManufacturer_got403(manufacturerService, ALPHA_LAB_USER_USERNAME);
     }
 
     private void testUpdateManufacturer_got201(ManufacturerService manufacturerService, String username) throws Exception {

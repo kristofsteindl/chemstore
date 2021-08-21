@@ -19,6 +19,10 @@ public class ChemicalService implements UniqueEntityInput<ChemicalInput> {
     @Autowired
     private ChemicalRepository chemicalRepository;
 
+    public Chemical getChemicalById(Long id) {
+        return chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
+    }
+
     public Chemical createChemical(ChemicalInput chemicalInput) {
         throwExceptionIfNotUnique(chemicalInput);
         Chemical chemical = new Chemical();
@@ -41,17 +45,17 @@ public class ChemicalService implements UniqueEntityInput<ChemicalInput> {
 
     @Override
     public void throwExceptionIfNotUnique(ChemicalInput chemicalInput, Long id) {
-        Optional<Chemical> foundChemical = chemicalRepository.findByShortNameOrExactName(
+        List<Chemical> foundChemical = chemicalRepository.findByShortNameOrExactName(
                 chemicalInput.getShortName(),
                 chemicalInput.getExactName());
-        foundChemical.ifPresent(chemical -> {
-            if (!chemical.getId().equals(id)) {
-                throw new ValidationException(String.format(
+        foundChemical.stream()
+                .filter(chemical -> !chemical.getId().equals(id))
+                .findAny()
+                .ifPresent(chemical -> {
+                    throw new ValidationException(String.format(
                         Lang.CHEMICAL_SAME_NAME_FOUND_TEMPLATE,
                         chemical.getShortName(),
-                        chemical.getExactName()));
-            }
-        });
+                        chemical.getExactName()));});
     }
 
     public List<Chemical> getChemicals() {
@@ -59,7 +63,7 @@ public class ChemicalService implements UniqueEntityInput<ChemicalInput> {
     }
 
     public void deleteChemical(Long id) {
-        Chemical chemical = chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
+        Chemical chemical = getChemicalById(id);
         chemical.setDeleted(true);
         chemicalRepository.save(chemical);
     }

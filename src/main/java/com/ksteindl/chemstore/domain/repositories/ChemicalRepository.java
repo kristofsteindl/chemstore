@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface ChemicalRepository extends CrudRepository<Chemical, Long> {
 
-    Optional<Chemical> findByShortNameOrExactName(String shortName, String exactName);
+    List<Chemical> findByShortNameOrExactName(String shortName, String exactName);
 
     List<Chemical> findAllByOrderByShortNameAsc();
 
