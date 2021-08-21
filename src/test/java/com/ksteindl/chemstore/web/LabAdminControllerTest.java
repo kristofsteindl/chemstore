@@ -33,6 +33,7 @@ import javax.transaction.Transactional;
 import java.util.Optional;
 
 import static com.ksteindl.chemstore.web.utils.AccountManagerTestUtils.*;
+import static com.ksteindl.chemstore.web.utils.LabAdminTestUtils.*;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -57,6 +58,125 @@ class LabAdminControllerTest extends BaseControllerTest{
     private final String CHANGED_ETHANOL_EXACT_NAME = "Changed ethanol exact name";
 
 //CHEMICAL
+    //READ
+
+    @Test
+    void testGetAllChemicals_whenAuthorized_gotValidArray(@Autowired ChemicalService chemicalService) throws Exception {
+        mvc.perform(get(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(200))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[0].id").isNumber())
+                .andExpect(jsonPath("$[0].shortName").isString())
+                .andExpect(jsonPath("$[0].shortName").isNotEmpty())
+                .andExpect(jsonPath("$", hasSize(chemicalService.getChemicals().size())));
+    }
+
+
+    @Test
+    void testGetAllChemicals_whenAuthorized_gotArrayWithoutDeleted() throws Exception {
+        mvc.perform(get(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(200))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))));
+    }
+
+    @Test
+    void testGetAllChemicals_whenAuthorized_gotArrayWithDeleted() throws Exception {
+        mvc.perform(get(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON).param("only-active", "false"))
+                .andExpect(status().is(200))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", hasItem(true)));
+    }
+
+
+    //DELETE
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteEthanol_whenAuthorized_got204(@Autowired ChemicalService chemicalService) throws Exception {
+        Chemical ethanol = chemicalService.getChemicalByShortName(ETHANOL_SHORT_NAME);
+        String url = MANUFACTURER_URL + "/" + ethanol.getId();
+
+        MvcResult result = mvc.perform(delete(url)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteEthanol_whenUser_got403(@Autowired ChemicalService chemicalService) throws Exception {
+        Chemical ethanol = chemicalService.getChemicalByShortName(ETHANOL_SHORT_NAME);
+        String url = MANUFACTURER_URL + "/" + ethanol.getId();
+
+        MvcResult result = mvc.perform(delete(url)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteEthanolTwoTimes_whenAuthorized_got400SocondTime(@Autowired ChemicalService chemicalService) throws Exception {
+        Chemical ethanol = chemicalService.getChemicalByShortName(ETHANOL_SHORT_NAME);
+        String url = MANUFACTURER_URL + "/" + ethanol.getId();
+
+        MvcResult result1 = mvc.perform(delete(url)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn();
+        logger.info("status code: " + result1.getResponse().getStatus());
+        MvcResult result2 = mvc.perform(delete(url)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result2.getResponse().getStatus());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testChemicalWithNoExistingId_whenAuthorized_got404(@Autowired ChemicalService chemicalService) throws Exception {
+        String url = MANUFACTURER_URL + "/" + Integer.MAX_VALUE;
+
+        MvcResult result = mvc.perform(delete(url)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(404))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteDeletedChemical_whenAuthorized_got400(@Autowired ChemicalService chemicalService) throws Exception {
+        Chemical ipa = chemicalService.getChemicalByShortName(ISOPROPYL_ALCHOL_SHORT_NAME);
+        String url = MANUFACTURER_URL + "/" + ipa.getId();
+
+        MvcResult result = mvc.perform(delete(url)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+    }
+
+
+
     //UPDATE
     @Test
     @Rollback
@@ -156,21 +276,25 @@ class LabAdminControllerTest extends BaseControllerTest{
         logger.info("status code: " + result.getResponse().getStatus());
         logger.info(result.getResponse().getContentAsString());
     }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateChemical_whenExactNameAlreadyExists_got400() throws Exception {
-//        ChemicalInput input = LabAdminTestUtils.getAcnInput();
-//        input.setExactName(LabAdminTestUtils.ETHANOL_EXACT_NAME);
-//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
-//                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateChemical_whenExactNameAlreadyExists_got400(@Autowired ChemicalService chemicalService) throws Exception {
+        ChemicalInput ethanolInput = LabAdminTestUtils.getEtOHInput();
+        Chemical ethanol = chemicalService.getChemicals().stream()
+                .filter(chemical -> chemical.getShortName().equals(LabAdminTestUtils.ETHANOL_SHORT_NAME))
+                .findAny()
+                .get();
+        ethanolInput.setExactName(LabAdminTestUtils.ISOPROPYL_ALCHOL_EXACT_NAME);
+        MvcResult result = mvc.perform(put(CHEMICAL_URL + "/" + ethanol.getId())
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(ethanolInput)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
 
     private void testUpdateEthanolGot400(ChemicalService chemicalService, String ethanolInput) throws Exception {
         Chemical ethanol = chemicalService.getChemicals().stream()
@@ -458,7 +582,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     @Transactional
-    void testDeleteManufacturerWithNonExistingId_whenAuthorized_got204(@Autowired ManufacturerService manufacturerService) throws Exception {
+    void testDeleteManufacturerWithNonExistingId_whenAuthorized_got404(@Autowired ManufacturerService manufacturerService) throws Exception {
        String url = MANUFACTURER_URL + "/" + Integer.MAX_VALUE;
 
         MvcResult result = mvc.perform(delete(url)

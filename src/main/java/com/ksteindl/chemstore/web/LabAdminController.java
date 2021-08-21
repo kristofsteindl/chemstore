@@ -94,9 +94,10 @@ public class LabAdminController {
     }
 
     @GetMapping("/chemical")
-    public ResponseEntity<List<Chemical>> getChemicals() {
+    public ResponseEntity<List<Chemical>> getChemicals(
+            @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
         logger.info("GET '/chemical' was called");
-        List<Chemical> chemicals = chemicalService.getChemicals();
+        List<Chemical> chemicals = chemicalService.getChemicals(onlyActive);
         logger.info("GET '/chemical' was succesful with {} item", chemicals.size());
         return new ResponseEntity<>(chemicals, HttpStatus.OK);
     }

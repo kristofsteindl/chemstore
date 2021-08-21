@@ -7,6 +7,7 @@ import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.repositories.ChemicalRepository;
 import com.ksteindl.chemstore.util.Lang;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,12 +16,17 @@ import java.util.Optional;
 @Service
 public class ChemicalService implements UniqueEntityInput<ChemicalInput> {
 
+    private final static Sort SORT_BY_SHORT_NAME = Sort.by(Sort.Direction.ASC, "shortName");
 
     @Autowired
     private ChemicalRepository chemicalRepository;
 
     public Chemical getChemicalById(Long id) {
         return chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
+    }
+
+    public Chemical getChemicalByShortName(String shortName) {
+        return chemicalRepository.findByShortName(shortName).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, shortName));
     }
 
     public Chemical createChemical(ChemicalInput chemicalInput) {
@@ -58,8 +64,15 @@ public class ChemicalService implements UniqueEntityInput<ChemicalInput> {
                         chemical.getExactName()));});
     }
 
+    public List<Chemical> getChemicals(Boolean onlyActive) {
+        return onlyActive ?
+                chemicalRepository.findAllActive(SORT_BY_SHORT_NAME) :
+                chemicalRepository.findAll(SORT_BY_SHORT_NAME);
+    }
+
     public List<Chemical> getChemicals() {
-        return chemicalRepository.findAllByOrderByShortNameAsc();
+        return getChemicals(true);
+
     }
 
     public void deleteChemical(Long id) {
