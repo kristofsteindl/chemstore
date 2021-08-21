@@ -1,12 +1,15 @@
 package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.domain.entities.AppUser;
+import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
+import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.AppUserService;
+import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.LabService;
 import com.ksteindl.chemstore.service.ManufacturerService;
 import com.ksteindl.chemstore.web.utils.AccountManagerTestUtils;
@@ -20,6 +23,8 @@ public class BaseControllerTest {
 
     protected static String TOKEN_FOR_ACCOUNT_MANAGER;
     protected static String TOKEN_FOR_ALPHA_LAB_ADMIN;
+    protected static String TOKEN_FOR_ALPHA_LAB_MANAGER;
+    protected static String TOKEN_FOR_ALPHA_LAB_USER;
     protected static boolean firstRun = true;
 
     @BeforeAll
@@ -27,6 +32,7 @@ public class BaseControllerTest {
             @Autowired AppUserService appUserService,
             @Autowired LabService labService,
             @Autowired ManufacturerService manufacturerService,
+            @Autowired ChemicalService chemicalService,
             @Autowired JwtProvider jwtProvider) {
         if (firstRun) {
             AppUser aman = appUserService.crateUser(AccountManagerTestUtils.getAccountManagerInput());
@@ -71,6 +77,7 @@ public class BaseControllerTest {
             AppUser ablabdeleteduser = appUserService.crateUser(AccountManagerTestUtils.ALPHA_BETA_LAB_DELETED_USER_INPUT);
             appUserService.deleteAppUser(ablabdeleteduser.getId());
 
+            // MANUFACTURER
             ManufacturerInput omegaManufacturerInput = LabAdminTestUtils.getOmegaManufacturerInput();
             manufacturerService.createManufacturer(omegaManufacturerInput);
 
@@ -78,8 +85,18 @@ public class BaseControllerTest {
             Manufacturer deletedManufacturer = manufacturerService.createManufacturer(deltaManufacturerInput);
             manufacturerService.deleteManufacturer(deletedManufacturer.getId());
 
+            // CHEMICAL
+            ChemicalInput ethanolInput = LabAdminTestUtils.getEtOHInput();
+            Chemical ethanol = chemicalService.createChemical(ethanolInput);
+
+            ChemicalInput ipaInput = LabAdminTestUtils.getIpaInput();
+            Chemical ipa = chemicalService.createChemical(ipaInput);
+            chemicalService.deleteChemical(ipa.getId());
+
             TOKEN_FOR_ACCOUNT_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
             TOKEN_FOR_ALPHA_LAB_ADMIN = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
+            TOKEN_FOR_ALPHA_LAB_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);;
+            TOKEN_FOR_ALPHA_LAB_USER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);;
 
 
 

@@ -2,11 +2,14 @@ package com.ksteindl.chemstore.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ksteindl.chemstore.domain.entities.AppUser;
+import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
+import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.AppUserService;
+import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.ManufacturerService;
 import com.ksteindl.chemstore.web.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.web.utils.LabAdminTestUtils;
@@ -55,7 +58,202 @@ class LabAdminControllerTest extends BaseControllerTest{
 
     private final String BASE_URL = "/api/lab-admin";
     private final String MANUFACTURER_URL = BASE_URL + "/manufacturer";
+    private final String CHEMICAL_URL = BASE_URL + "/chemical";
+
+//CHEMICAL
+    //CREATE
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_withLabAdmin_got201() throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(input)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_withAccountManager_got201() throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(input)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_withAlphaLabManager_got201() throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(input)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_withAlphaLabUser_got403() throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_withLabAdmin_fetchedFromDbIsExpected(@Autowired ChemicalService chemicalService) throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(input)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+        Optional<Chemical> optional = chemicalService.getChemicals().stream().filter(chemical -> chemical.getShortName().equals(input.getShortName())).findAny();
+        if (optional.isEmpty()) {
+            AssertionErrors.fail("Chemical was not found after the calling succesfully POST " + MANUFACTURER_URL);
+        }
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_withEmptyInput1_got400() throws Exception {
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_withEmptyInput2_got400() throws Exception {
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content("{}"))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_withEmptyShortName1_got400() throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        input.setShortName(null);
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_withEmptyShortName2_got400() throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        input.setShortName("");
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_withEmptyExactName1_got400() throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        input.setExactName(null);
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_withEmptyExactName2_got400() throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        input.setExactName("");
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_whenShortNameAlreadyExists_got400() throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        input.setShortName(LabAdminTestUtils.ETHANOL_SHORT_NAME);
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateChemical_whenExactNameAlreadyExists_got400() throws Exception {
+        ChemicalInput input = LabAdminTestUtils.getAcnInput();
+        input.setExactName(LabAdminTestUtils.ETHANOL_EXACT_NAME);
+        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
     
+
 //MANUFACTURER
     //DELETE
     @Test
@@ -63,11 +261,10 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testDeleteOmegaManufacturer_whenAuthorized_got204(@Autowired ManufacturerService manufacturerService) throws Exception {
         Manufacturer persistedOmegaManufacturer = manufacturerService.getManufacturers().stream().filter(man -> man.getName().equals(LabAdminTestUtils.OMEGA_MANUFACTURER_NAME)).findAny().get();
-        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
         String url = MANUFACTURER_URL + "/" + persistedOmegaManufacturer.getId();
 
         MvcResult result = mvc.perform(delete(url)
-                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -93,16 +290,15 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testDeleteOmegaManufacturerTwoTimes_whenAuthorized_got400SocondTime(@Autowired ManufacturerService manufacturerService) throws Exception {
         Manufacturer persistedOmegaManufacturer = manufacturerService.getManufacturers().stream().filter(man -> man.getName().equals(LabAdminTestUtils.OMEGA_MANUFACTURER_NAME)).findAny().get();
-        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
         String url = MANUFACTURER_URL + "/" + persistedOmegaManufacturer.getId();
 
         MvcResult result1 = mvc.perform(delete(url)
-                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andReturn();
         logger.info("status code: " + result1.getResponse().getStatus());
         MvcResult result2 = mvc.perform(delete(url)
-                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
         logger.info("status code: " + result2.getResponse().getStatus());
@@ -112,11 +308,10 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteManufacturerWithNonExistingId_whenAuthorized_got204(@Autowired ManufacturerService manufacturerService) throws Exception {
-        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
-        String url = MANUFACTURER_URL + "/" + Integer.MAX_VALUE;
+       String url = MANUFACTURER_URL + "/" + Integer.MAX_VALUE;
 
         MvcResult result = mvc.perform(delete(url)
-                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -125,14 +320,13 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     @Transactional
-    void testDeleteDeletedManufacturer_whenAuthorized_got404(@Autowired ManufacturerService manufacturerService) throws Exception {
+    void testDeleteDeletedManufacturer_whenAuthorized_got400(@Autowired ManufacturerService manufacturerService) throws Exception {
         Manufacturer persistedDeletedManufacturer = manufacturerService.getManufacturers(false).stream().filter(man -> man.getName().equals(LabAdminTestUtils.DELTA_MANUFACTURER_NAME)).findAny().get();
-        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
         String url = MANUFACTURER_URL + "/" + persistedDeletedManufacturer.getId();
 
         MvcResult result = mvc.perform(delete(url)
-                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(404))
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(400))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
     }
@@ -157,9 +351,8 @@ class LabAdminControllerTest extends BaseControllerTest{
     //READ
     @Test
     void testGetAllManufacturers_whenAuthorized_gotValidArray(@Autowired ManufacturerService manufacturerService) throws Exception {
-        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
-        mvc.perform(get(MANUFACTURER_URL)
-                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
+       mvc.perform(get(MANUFACTURER_URL)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -172,9 +365,8 @@ class LabAdminControllerTest extends BaseControllerTest{
 
     @Test
     void testGetAllManufacturers_whenAuthorized_gotArrayWithoutDeleted() throws Exception {
-        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
         mvc.perform(get(MANUFACTURER_URL)
-                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -185,9 +377,8 @@ class LabAdminControllerTest extends BaseControllerTest{
 
     @Test
     void testGetAllManufacturersWithOnlyActiveFalse_whenAuthorized_gotArrayWithDeleted() throws Exception {
-        String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
         mvc.perform(get(MANUFACTURER_URL)
-                .header("Authorization", token).contentType(MediaType.APPLICATION_JSON).param("only-active", "false"))
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON).param("only-active", "false"))
                 .andExpect(status().is(200))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -274,7 +465,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         logger.info(result.getResponse().getContentAsString());
         Optional<Manufacturer> optional = manufacturerService.getManufacturers().stream().filter(manufacturer -> manufacturer.getName().equals(changedName)).findAny();
         if (optional.isEmpty()) {
-            AssertionErrors.fail("Manufacturer was found after the calling succesfully POST " + MANUFACTURER_URL);
+            AssertionErrors.fail("Manufacturer was not found after the calling succesfully POST " + MANUFACTURER_URL);
         }
     }
 
