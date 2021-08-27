@@ -22,13 +22,13 @@ public class LabManagerController {
     private AppUserService appUserService;
 
     @GetMapping("/user")
-    public Map<String, List<AppUser>> getUersFromMyLabs(Principal principal) {
+    public Map<String, List<AppUser>> getUersFromManagedLabs(Principal principal) {
         logger.info("'/lab-manager/user' was called by {}", principal.getName());
-        return appUserService.getUsersFromMyLabs(principal);
+        return appUserService.getUsersFromManagedLabs(principal);
     }
 
     @GetMapping("/user/{labKey}")
-    public List<AppUser> getUersFromMyLab(@PathVariable String labKey, Principal principal) {
+    public List<AppUser> getUersFromManagedLab(@PathVariable String labKey, Principal principal) {
         logger.info("'/lab-manager/user/{labKey}' was called by {}", principal.getName());
         return appUserService.getUsersFromManagedLab(principal, labKey);
     }

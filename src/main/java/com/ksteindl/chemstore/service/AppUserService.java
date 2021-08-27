@@ -97,7 +97,7 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
                 .orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username));
     }
 
-    public Map<String, List<AppUser>> getUsersFromMyLabs(Principal principal) {
+    public Map<String, List<AppUser>> getUsersFromManagedLabs(Principal principal) {
         AppUser manager = getMyAppUser(principal);
         return manager.getManagedLabs().stream()
                 .collect(Collectors.toMap(lab -> lab.getKey(), lab -> appUserRepository.findByLabsAsUser(lab)));
