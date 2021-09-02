@@ -1,5 +1,6 @@
 package com.ksteindl.chemstore.service;
 
+import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.domain.entities.Chemical;
@@ -21,8 +22,16 @@ public class ChemicalService implements UniqueEntityInput<ChemicalInput> {
     @Autowired
     private ChemicalRepository chemicalRepository;
 
-    public Chemical getChemicalById(Long id) {
-        return chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
+    public Chemical findById(Long id) {
+        return findById(id, true);
+    }
+
+    public Chemical findById(Long id, Boolean onlyActive) {
+        Chemical chemical = chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
+        if (onlyActive && chemical.getDeleted()) {
+            throw new ValidationException(Lang.CHEMICAL_ENTITY_NAME, String.format(Lang.CHEMICAL_IS_DELETED, chemical.getShortName()));
+        }
+        return chemical;
     }
 
     public Chemical getChemicalByShortName(String shortName) {
@@ -76,7 +85,7 @@ public class ChemicalService implements UniqueEntityInput<ChemicalInput> {
     }
 
     public void deleteChemical(Long id) {
-        Chemical chemical = getChemicalById(id);
+        Chemical chemical = findById(id);
         chemical.setDeleted(true);
         chemicalRepository.save(chemical);
     }

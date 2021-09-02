@@ -32,6 +32,15 @@ public class LabAdminTestUtils {
         return chemicalInput;
     }
 
+    public static final String METHANOL_EXACT_NAME = "Methyl alcohol, pure";
+    public static final String METHANOL_SHORT_NAME = "MeOH";
+    public static ChemicalInput getMeOHInput() {
+        ChemicalInput chemicalInput = new ChemicalInput();
+        chemicalInput.setExactName(METHANOL_EXACT_NAME);
+        chemicalInput.setShortName(METHANOL_SHORT_NAME);
+        return chemicalInput;
+    }
+
     public static final String ALPHA_MANUFACTURER_NAME = "Alpha Manufacturer";
     public static ManufacturerInput getAlphaManufacturerInput() {
         ManufacturerInput alphaManufacturerInput = new ManufacturerInput();
@@ -44,6 +53,13 @@ public class LabAdminTestUtils {
     public static ManufacturerInput getOmegaManufacturerInput() {
         ManufacturerInput alphaManufacturerInput = new ManufacturerInput();
         alphaManufacturerInput.setName(OMEGA_MANUFACTURER_NAME);
+        return alphaManufacturerInput;
+    }
+
+    public static final String GAMMA_MANUFACTURER_NAME = "Gamma Manufacturer";
+    public static ManufacturerInput getGammaManufacturerInput() {
+        ManufacturerInput alphaManufacturerInput = new ManufacturerInput();
+        alphaManufacturerInput.setName(GAMMA_MANUFACTURER_NAME);
         return alphaManufacturerInput;
     }
 

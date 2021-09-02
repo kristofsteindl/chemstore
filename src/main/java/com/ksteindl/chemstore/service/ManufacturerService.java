@@ -62,7 +62,7 @@ public class ManufacturerService implements UniqueEntityInput<ManufacturerInput>
     public Manufacturer findById(Long id, Boolean onlyActive) {
         Manufacturer manufacturer = manufacturerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.MANUFACTURER_ENTITY_NAME, id));
         if (onlyActive && manufacturer.getDeleted()) {
-            throw new ValidationException(Lang.MANUFACTURER_ENTITY_NAME, String.format(Lang.LAB_IS_DELETED, manufacturer.getName()));
+            throw new ValidationException(Lang.MANUFACTURER_ENTITY_NAME, String.format(Lang.MANUFACTURER_IS_DELETED, manufacturer.getName()));
         }
         return manufacturer;
     }

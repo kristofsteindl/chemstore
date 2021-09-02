@@ -166,7 +166,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testDeleteDeletedChemical_whenAuthorized_got400(@Autowired ChemicalService chemicalService) throws Exception {
         Chemical ipa = chemicalService.getChemicalByShortName(ISOPROPYL_ALCHOL_SHORT_NAME);
-        String url = MANUFACTURER_URL + "/" + ipa.getId();
+        String url = CHEMICAL_URL + "/" + ipa.getId();
 
         MvcResult result = mvc.perform(delete(url)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -312,7 +312,7 @@ class LabAdminControllerTest extends BaseControllerTest{
 
     private void testUpdateChemicalExactName_got201(ChemicalService chemicalService, String username) throws Exception {
         Long ethanolId = testUpdateEthanolExactName(chemicalService, username, 201);
-        Chemical ethanol = chemicalService.getChemicalById(ethanolId);
+        Chemical ethanol = chemicalService.findById(ethanolId);
         Assertions.assertEquals(CHANGED_ETHANOL_EXACT_NAME, ethanol.getExactName());
     }
 

@@ -81,6 +81,9 @@ public class BaseControllerTest {
             ManufacturerInput omegaManufacturerInput = LabAdminTestUtils.getOmegaManufacturerInput();
             manufacturerService.createManufacturer(omegaManufacturerInput);
 
+            ManufacturerInput gammaManufacturerInput = LabAdminTestUtils.getGammaManufacturerInput();
+            manufacturerService.createManufacturer(gammaManufacturerInput);
+
             ManufacturerInput deltaManufacturerInput = LabAdminTestUtils.getDeltaManufacturerInput();
             Manufacturer deletedManufacturer = manufacturerService.createManufacturer(deltaManufacturerInput);
             manufacturerService.deleteManufacturer(deletedManufacturer.getId());
@@ -88,6 +91,9 @@ public class BaseControllerTest {
             // CHEMICAL
             ChemicalInput ethanolInput = LabAdminTestUtils.getEtOHInput();
             Chemical ethanol = chemicalService.createChemical(ethanolInput);
+
+            ChemicalInput methanolInput = LabAdminTestUtils.getMeOHInput();
+            Chemical methanol = chemicalService.createChemical(methanolInput);
 
             ChemicalInput ipaInput = LabAdminTestUtils.getIpaInput();
             Chemical ipa = chemicalService.createChemical(ipaInput);

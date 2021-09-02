@@ -4,9 +4,12 @@ public class Lang {
 
     public static final String CHEMICAL_ENTITY_NAME = "chemical";
     public static final String CHEMICAL_SAME_NAME_FOUND_TEMPLATE = "Chemical with same name(s) was found (short name: '%s', exact name: '%s')";
+    public static final String CHEMICAL_IS_DELETED = "Chemical %s is deleted, operation is aborted";
 
     public static final String MANUFACTURER_ENTITY_NAME = "manufacturer";
     public static final String MANUFACTURER_WITH_SAME_NAME_FOUND_TEMPLATE = "Manufacturer with name '%s' is already exists";
+    public static final String MANUFACTURER_IS_DELETED = "Manufacturer %s is deleted, operation is aborted";
+
 
     public static final String APP_USER_ENTITY_NAME = "app-user";
     public static final String APP_USER_USERNAME_ATTRIBUTE_NAME = "username";
