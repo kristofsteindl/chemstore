@@ -11,7 +11,7 @@ public class AccountManagerTestUtils {
 
     public static final String ACCOUNT_MANAGER_USERNAME = "aman@account.com";
     public static final String ACCOUNT_MANAGER_FULL_NAME = "Account Manager";
-    public static final String ACCOUNT_MANAGER_PASSWORD = "aman";
+    public static final String ACCOUNT_MANAGER_PASSWORD = "amannn";
     public static AppUserInput getAccountManagerInput(){
         return AppUserInput.builder()
                 .username(ACCOUNT_MANAGER_USERNAME)

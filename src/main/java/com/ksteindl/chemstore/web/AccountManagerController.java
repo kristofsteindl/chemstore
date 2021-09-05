@@ -36,7 +36,7 @@ public class AccountManagerController {
     public ResponseEntity<AppUser> createUser(@RequestBody @Valid AppUserInput appUserInput, BindingResult result) {
         logger.info("POST '/user' was called with {}", appUserInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        AppUser appUser = appUserService.crateUser(appUserInput);
+        AppUser appUser = appUserService.createUser(appUserInput);
         logger.info("POST '/user' was succesful with returned result{}", appUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(appUser);
     }

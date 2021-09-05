@@ -21,7 +21,7 @@ public class JwtProvider {
     @Autowired
     private AppUserService appUserService;
 
-    public static final Long EXPIRATION_TIME_IN_SECONDS = 120l;
+    public static final Long EXPIRATION_TIME_IN_SECONDS = 1200l;
     public static final String SECRET_KEY = "thisIsASecret";
 
     public String generateToken(Authentication authentication) {

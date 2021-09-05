@@ -35,46 +35,46 @@ public class BaseControllerTest {
             @Autowired ChemicalService chemicalService,
             @Autowired JwtProvider jwtProvider) {
         if (firstRun) {
-            AppUser aman = appUserService.crateUser(AccountManagerTestUtils.getAccountManagerInput());
+            AppUser aman = appUserService.createUser(AccountManagerTestUtils.getAccountManagerInput());
             System.out.println("Account Manager id " + aman.getId());
 
             AppUserInput alabmanInput = AccountManagerTestUtils.getAlphaLabManagerInput();
-            AppUser alabman = appUserService.crateUser(alabmanInput);
+            AppUser alabman = appUserService.createUser(alabmanInput);
 
             AppUserInput blabmanInput = AccountManagerTestUtils.getBetaLabManagerInput();
-            AppUser blabman = appUserService.crateUser(blabmanInput);
+            AppUser blabman = appUserService.createUser(blabmanInput);
 
             AppUserInput ablabmanInput = AccountManagerTestUtils.getAlphaBetaLabManagerInput();
-            AppUser ablabman = appUserService.crateUser(ablabmanInput);
+            AppUser ablabman = appUserService.createUser(ablabmanInput);
 
             Lab alab = labService.createLab(AccountManagerTestUtils.getAlphaLabInput());
             Lab blab = labService.createLab(AccountManagerTestUtils.BETA_LAB_INPUT);
 
             AppUserInput alabAdminInput = AccountManagerTestUtils.getAlphaLabAdminInput();
             alabAdminInput.setLabKeysAsAdmin(List.of(AccountManagerTestUtils.ALPHA_LAB_KEY));
-            AppUser alabadmin = appUserService.crateUser(alabAdminInput);
+            AppUser alabadmin = appUserService.createUser(alabAdminInput);
 
             AppUserInput blabadminInput = AccountManagerTestUtils.getBetaLabAdminInput();
             blabadminInput.setLabKeysAsAdmin(List.of(AccountManagerTestUtils.BETA_LAB_KEY));
-            AppUser blabadmin = appUserService.crateUser(blabadminInput);
+            AppUser blabadmin = appUserService.createUser(blabadminInput);
 
             AppUserInput ablabadminInput = AccountManagerTestUtils.getAlphaBetaLabAdminInput();
             ablabadminInput.setLabKeysAsAdmin(List.of(AccountManagerTestUtils.ALPHA_LAB_KEY, AccountManagerTestUtils.BETA_LAB_KEY));
-            AppUser ablabadmin = appUserService.crateUser(ablabadminInput);
+            AppUser ablabadmin = appUserService.createUser(ablabadminInput);
 
             AppUserInput alabUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
             alabUserInput.setLabKeysAsUser(List.of(AccountManagerTestUtils.ALPHA_LAB_KEY));
-            AppUser alabuser = appUserService.crateUser(alabUserInput);
+            AppUser alabuser = appUserService.createUser(alabUserInput);
 
             AppUserInput blabUserInput = AccountManagerTestUtils.getBetaLabUserInput();
             alabUserInput.setLabKeysAsUser(List.of(AccountManagerTestUtils.BETA_LAB_KEY));
-            AppUser blabuser = appUserService.crateUser(blabUserInput);
+            AppUser blabuser = appUserService.createUser(blabUserInput);
 
             AppUserInput ablabUserInput = AccountManagerTestUtils.getAlphaBetaLabUserInput();
             ablabUserInput.setLabKeysAsUser(List.of(AccountManagerTestUtils.ALPHA_LAB_KEY, AccountManagerTestUtils.BETA_LAB_KEY));
-            AppUser ablabuser = appUserService.crateUser(ablabUserInput);
+            AppUser ablabuser = appUserService.createUser(ablabUserInput);
 
-            AppUser ablabdeleteduser = appUserService.crateUser(AccountManagerTestUtils.ALPHA_BETA_LAB_DELETED_USER_INPUT);
+            AppUser ablabdeleteduser = appUserService.createUser(AccountManagerTestUtils.ALPHA_BETA_LAB_DELETED_USER_INPUT);
             appUserService.deleteAppUser(ablabdeleteduser.getId());
 
             // MANUFACTURER

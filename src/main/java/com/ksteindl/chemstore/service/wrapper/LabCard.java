@@ -1,30 +1,30 @@
 package com.ksteindl.chemstore.service.wrapper;
 
 import com.ksteindl.chemstore.domain.entities.AppUser;
-import lombok.Data;
+import com.ksteindl.chemstore.domain.entities.Lab;
 
 /**
  * AppUserCard is a wrapper of AppUser for returning to client a light-weight data representation,
  * containing only publicly available (non confidential) information about user
  * Feel free to extend with NON confidential data, if the necessary.
  */
-public class AppUserCard {
+public class LabCard {
 
-    private final AppUser appUser;
+    private final Lab lab;
 
-    public AppUserCard(AppUser appUser) {
-        this.appUser = appUser;
+    public LabCard(Lab lab) {
+        this.lab = lab;
     }
 
     public Long getId() {
-        return appUser.getId();
+        return lab.getId();
     }
 
-    public String getUsername() {
-        return appUser.getUsername();
+    public String getKey() {
+        return lab.getKey();
     }
 
-    public String getFullName() {
-        return appUser.getFullName();
+    public String getName() {
+        return lab.getName();
     }
 }

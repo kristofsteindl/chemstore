@@ -48,4 +48,14 @@ public class Lab {
         return labManagers.stream().map(manager -> manager.getUsername()).collect(Collectors.toList());
     }
 
+    @Override
+    public String toString() {
+        return "Lab{" +
+                "id=" + id +
+                ", key='" + key + '\'' +
+                ", name='" + name + '\'' +
+                ", labManagers=" + getLabManagerUsernames() +
+                ", deleted=" + deleted +
+                '}';
+    }
 }

@@ -72,6 +72,18 @@ public class AppUser {
         this.updatedAt = OffsetDateTime.now();
     }
 
+    @Override
+    public String toString() {
+        return "AppUser{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", deleted=" + deleted +
+                ", labsAsUser=" + labsAsUser +
+                ", labsAsAdmin=" + labsAsAdmin +
+                ", roles=" + roles +
+                '}';
+    }
 
     /*
     * https://javabydeveloper.com/many-many-unidirectional-association/

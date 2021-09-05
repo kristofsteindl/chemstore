@@ -57,7 +57,7 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
                 return new UserDetailsImpl(appUser);
     }
 
-    public AppUser crateUser(AppUserInput appUserInput) {
+    public AppUser createUser(AppUserInput appUserInput) {
         AppUser appUser = new AppUser();
         throwExceptionIfNotUnique(appUserInput);
         validateAndSetAppUser(appUser, appUserInput);
