@@ -127,16 +127,15 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
         appUserRepository.save(appUser);
     }
 
-    public AppUser findByUsername(String username) {
+    public Optional<AppUser> findByUsername(String username) {
         return findByUsername(username, true);
     }
 
-    public AppUser findByUsername(String username, boolean onlyActive) {
-        AppUser appUser = appUserRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username));
-        if (onlyActive && appUser.getDeleted()) {
-            throw new ValidationException(Lang.APP_USER_ENTITY_NAME, String.format(Lang.APP_USER_IS_DELETED, appUser.getUsername()));
+    public Optional<AppUser> findByUsername(String username, boolean onlyActive) {
+        if (onlyActive) {
+            return appUserRepository.findByUsernameOnlyActive(username);
         }
-        return appUser;
+        return appUserRepository.findByUsername(username);
     }
 
     public AppUser findById(Long id) {
@@ -173,22 +172,25 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
                 .stream()
                 .map(labKey -> labService.getLabByKey(labKey))
                 .collect(Collectors.toList());
-        appUser.setLabsAsUser(labsAsUser);
         List<Lab> labsAsAdmin = appUserInput.getLabKeysAsAdmin()
                 .stream()
                 .map(labKey -> labService.getLabByKey(labKey))
                 .collect(Collectors.toList());
-
-        appUser.setLabsAsAdmin(labsAsAdmin);
         appUser.setUsername(appUserInput.getUsername());
         appUser.setFullName(appUserInput.getFullName());
         appUser.setRoles(roles);
+        appUser.setLabsAsUser(labsAsUser);
+        appUser.setLabsAsAdmin(labsAsAdmin);
         validateAndSetPassword(appUser, appUserInput);
     }
 
     private void validateAndSetPassword(AppUser appUser, AppUserInput appUserInput) {
         String password = appUserInput.getPassword();
         String password2 = appUserInput.getPassword2();
+        Integer minPasswordLength = 6;
+        if (password.length() < minPasswordLength) {
+            throw new ValidationException(Lang.APP_USER_PASSWORD_ATTRIBUTE_NAME, String.format(Lang.PASSWORD_TOO_SHORT, minPasswordLength.toString()) );
+        }
         if (!password.equals(password2)) {
             Map<String, String> errors = Map.of(
                     Lang.APP_USER_PASSWORD_ATTRIBUTE_NAME, Lang.PASSWORDS_MUST_BE_THE_SAME,

@@ -1,7 +1,9 @@
 package com.ksteindl.chemstore.security;
 
 import com.ksteindl.chemstore.domain.entities.AppUser;
+import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.service.AppUserService;
+import com.ksteindl.chemstore.util.Lang;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -27,7 +29,7 @@ public class JwtProvider {
     }
 
     public String generateToken(String username) {
-        AppUser appUser = appUserService.findByUsername(username);
+        AppUser appUser = appUserService.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username));
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME_IN_SECONDS * 1000);
         String userId = Long.toString(appUser.getId());

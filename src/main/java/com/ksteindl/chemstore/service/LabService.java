@@ -85,7 +85,11 @@ public class LabService implements UniqueEntityInput<LabInput> {
 
     private void updateAttributes(Lab lab, LabInput labInput) {
         lab.setName(labInput.getName());
-        List<AppUser> managers = labInput.getLabManagerUsernames().stream().map(username -> appUserService.findByUsername(username)).collect(Collectors.toList());
+        List<AppUser> managers = labInput.getLabManagerUsernames().stream()
+                .map(username -> appUserService
+                        .findByUsername(username)
+                        .orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username)))
+                .collect(Collectors.toList());
         lab.setLabManagers(managers);
     }
 

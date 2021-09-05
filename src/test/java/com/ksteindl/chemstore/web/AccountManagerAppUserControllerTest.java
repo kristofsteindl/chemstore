@@ -48,7 +48,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateAlabUser_whenAuthorized_got201AndAuthorizedForGetAllUser(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         AppUserInput alabuserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         String newFullName = "Changed Alpha Lab User";
         alabuserInput.setFullName(newFullName);
@@ -72,7 +72,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateDeletedAlphaLabUser_whenAuthorized_got400(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         appUserService.deleteAppUser(persistedAlphaLabUser.getId());
         AppUserInput alabuserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         String newFullName = "Changed Alpha Lab User";
@@ -93,12 +93,12 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateAppUserWhenIdAndUsernameDoesNotMatch_whenAuthorized_got400(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedNewAccountManager = appUserService.findByUsername(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
+        AppUser persistedNewAccountManager = appUserService.findByUsername(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME).get();
         logger.debug("in test 2, persistedNewAccountManager fullName: " + persistedNewAccountManager.getFullName());
         AppUserInput amanInput = AccountManagerTestUtils.getAccountManagerInput();
         String newFullName = "Changed Account Manager";
         amanInput.setFullName(newFullName);
-        Long alabuserId = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).getId();
+        Long alabuserId = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get().getId();
         String url = "/api/account/user/" + alabuserId;
 
         MvcResult result = mvc.perform(put(url)
@@ -128,7 +128,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     void testUpdateAlphaLabUserAppUser_whenEmpty1_gotNOK(@Autowired AppUserService appUserService) throws Exception {
 
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         AppUserInput alabuserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         String newFullName = "Changed Alpha Lab User";
         alabuserInput.setFullName(newFullName);
@@ -147,7 +147,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUserAppUser_whenEmpty2_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput alabuserInput = AccountManagerTestUtils.getAlphaLabUserInput();
@@ -168,7 +168,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenNotEmailUsername_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
@@ -187,7 +187,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenUsernameEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
@@ -206,7 +206,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenFullNameEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
@@ -225,7 +225,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenPasswordEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
@@ -244,7 +244,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenPasswordsAreNotTheSame_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
@@ -264,7 +264,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenOneOfLabAsAdminKeyIsInvalid_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
@@ -283,7 +283,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Test
     @Rollback
     void testUpdateAlphaLabUser_whenOneOfLabAsUserKeyIsInvalid_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
@@ -520,7 +520,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_whenAuthorized_got204(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         MvcResult result = mvc.perform(delete(url)
@@ -535,7 +535,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_whenAuthorized_gotResourceNotFoundException(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
         mvc.perform(delete(url).header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON));
         AppUser deletedAppUser = appUserService.findById(persistedAlphaLabUser.getId());
@@ -546,7 +546,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_whenAuthorized_gotDeletedFromService(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
         mvc.perform(delete(url).header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON));
         AppUser deletedAppUser = appUserService.findById(persistedAlphaLabUser.getId(), false);
@@ -557,7 +557,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUserTwoTimes_whenAuthorized_got400SocondTime(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         MvcResult result1 = mvc.perform(delete(url)
@@ -589,7 +589,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_withAlphaLabManager_got403(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
@@ -604,7 +604,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_withAlphaLabAdmin_got403(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
@@ -619,7 +619,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabUser_withBetaLabUser_got403(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
         String url = "/api/account/user/" + persistedAlphaLabUser.getId();
 
         String token = jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_USER_USERNAME);

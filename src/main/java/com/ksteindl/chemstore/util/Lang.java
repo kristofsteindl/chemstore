@@ -29,6 +29,9 @@ public class Lang {
 
     public static final String ROLE_ENTITY_NAME = "role";
 
+    public static final String PASSWORD_TOO_SHORT = APP_USER_PASSWORD_ATTRIBUTE_NAME + " must be equal or greater than %s";
+
+
 
 
 
