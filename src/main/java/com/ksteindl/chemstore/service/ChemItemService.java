@@ -12,4 +12,8 @@ public class ChemItemService {
     public ChemItem createChemItem(ChemItemInput chemItemInput) {
         return null;
     }
+
+    public ChemItem findById(Long id) {
+        return null;
+    }
 }

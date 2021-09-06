@@ -23,10 +23,10 @@ public class ChemItemInput implements Input{
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate arrivalDate;
 
-    @NotNull(message = "The chemicalId is required")
+    @NotNull(message = "Chemical name is required (chemicalShortName)")
     private String chemicalShortName;
 
-    @NotNull(message = "The manifacturerId is required")
+    @NotNull(message = "Manufacturer naem is required (manufacturerName)")
     private String manufacturerName;
 
     @NotBlank(message = "Batch number of chemical cannot be blank")

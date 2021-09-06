@@ -31,6 +31,6 @@ public class ChemItemController {
         mapValidationErrorService.throwExceptionIfNotValid(result);
         ChemItem chemItem = chemItemService.createChemItem(chemItemInput);
         logger.info("POST '/chem-item' was succesful with returned result{}", chemItem);
-        ResponseEntity.status(HttpStatus.CREATED).body(chemItem);
+        return ResponseEntity.status(HttpStatus.CREATED).body(chemItem);
     }
 }
