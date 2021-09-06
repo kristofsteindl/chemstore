@@ -27,6 +27,17 @@ public class Lang {
     public static final String LAB_KEY_CANNOT_BE_CHANGED = "key of the lab cannot be updated (%s, %s)";
     public static final String LAB_IS_DELETED = "Lab %s is deleted, operation is aborted";
 
+    public static final String CHEM_ITEM_LAB_KEY_ATTRIBUTE_NAME = "labKey";
+    public static final String CHEM_ITEM_ARRIVAL_DATE_ATTRIBUTE_NAME = "arrivalDate";
+    public static final String CHEM_ITEM_CHEMICAL_SHORT_NAME_ATTRIBUTE_NAME = "chemicalShortName";
+    public static final String CHEM_ITEM_MANUFACTURER_SHORT_NAME_ATTRIBUTE_NAME = "manufacturerName";
+    public static final String CHEM_ITEM_BATCH_NUMBER_ATTRIBUTE_NAME = "batchNumber";
+    public static final String CHEM_ITEM_QUANTITY_ATTRIBUTE_NAME = "quantity";
+    public static final String CHEM_ITEM_UNIT_ATTRIBUTE_NAME = "unit";
+
+    public static final String CHEM_ITEM_CREATION_NOT_AUTHORIZED = "Adding new chemical to %s is forbidden. %s has to be assigned to lab as user or as lab admin, or has to be the manager of the lab";
+    public static final String CHEM_ITEM_ARRIVAL_DATE_IS_FUTURE = "Arrival date of the chemical item (%s) (arrivalDate) cannot be in the future";
+
     public static final String ROLE_ENTITY_NAME = "role";
 
     public static final String PASSWORD_TOO_SHORT = APP_USER_PASSWORD_ATTRIBUTE_NAME + " must be equal or greater than %s";

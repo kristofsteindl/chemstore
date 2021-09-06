@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Entity
@@ -46,6 +47,19 @@ public class Lab {
     @JsonProperty("labManagerUsernames")
     public List<String> getLabManagerUsernames() {
         return labManagers.stream().map(manager -> manager.getUsername()).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Lab lab = (Lab) o;
+        return Objects.equals(key, lab.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
     }
 
     @Override
