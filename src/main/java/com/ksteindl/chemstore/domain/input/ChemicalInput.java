@@ -12,4 +12,7 @@ public class ChemicalInput implements Input{
 
     @NotBlank(message = "Exact name of chemical cannot be blank")
     private String exactName;
+
+    @NotBlank(message = "Chemical type cannot be blank (chemicalTypeId)")
+    private Long chemicalTypeId;
 }

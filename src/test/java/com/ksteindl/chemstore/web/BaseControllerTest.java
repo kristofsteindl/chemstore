@@ -1,17 +1,13 @@
 package com.ksteindl.chemstore.web;
 
-import com.ksteindl.chemstore.domain.entities.AppUser;
-import com.ksteindl.chemstore.domain.entities.Chemical;
-import com.ksteindl.chemstore.domain.entities.Lab;
-import com.ksteindl.chemstore.domain.entities.Manufacturer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ksteindl.chemstore.domain.entities.*;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
+import com.ksteindl.chemstore.domain.input.ChemTypeInput;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
 import com.ksteindl.chemstore.security.JwtProvider;
-import com.ksteindl.chemstore.service.AppUserService;
-import com.ksteindl.chemstore.service.ChemicalService;
-import com.ksteindl.chemstore.service.LabService;
-import com.ksteindl.chemstore.service.ManufacturerService;
+import com.ksteindl.chemstore.service.*;
 import com.ksteindl.chemstore.web.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.web.utils.LabAdminTestUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,6 +29,7 @@ public class BaseControllerTest {
             @Autowired LabService labService,
             @Autowired ManufacturerService manufacturerService,
             @Autowired ChemicalService chemicalService,
+            @Autowired ChemTypeService chemTypeService,
             @Autowired JwtProvider jwtProvider) {
         if (firstRun) {
             AppUser aman = appUserService.createUser(AccountManagerTestUtils.getAccountManagerInput());
@@ -88,6 +85,15 @@ public class BaseControllerTest {
             Manufacturer deletedManufacturer = manufacturerService.createManufacturer(deltaManufacturerInput);
             manufacturerService.deleteManufacturer(deletedManufacturer.getId());
 
+            // CHEM TYPE
+            ChemTypeInput solidCompundInput = LabAdminTestUtils.getSolidCompoundInput();
+            ChemType solidCompund = chemTypeService.createChemType(solidCompundInput);
+
+            ChemTypeInput posphateSolutionInput = LabAdminTestUtils.getPhosphateSolutionInput();
+            ChemType posphateSolution = chemTypeService.createChemType(posphateSolutionInput);
+            chemTypeService.deleteChemType(posphateSolution.getId());
+
+
             // CHEMICAL
             ChemicalInput ethanolInput = LabAdminTestUtils.getEtOHInput();
             Chemical ethanol = chemicalService.createChemical(ethanolInput);
@@ -109,5 +115,14 @@ public class BaseControllerTest {
             firstRun = false;
         }
 
+
+
+    }
+    public String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

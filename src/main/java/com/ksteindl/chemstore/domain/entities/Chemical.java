@@ -18,5 +18,8 @@ public class Chemical {
     @Column(unique = true) // for backup, duplicate supposed to be checked in service
     private String exactName;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ChemType chemType;
+
     private Boolean deleted = false;
 }

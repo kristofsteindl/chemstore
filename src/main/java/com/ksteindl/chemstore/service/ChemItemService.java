@@ -25,6 +25,7 @@ public class ChemItemService {
         AppUser appUser = appUserService.getMyAppUser(principal);
         Lab lab = getLabAndValidateAuthority(chemItemInput.getLabKey(), appUser);
         LocalDate arrivalDate = getArrivalDateAndValidate(chemItemInput.getArrivalDate());
+        return null;
 
     }
 

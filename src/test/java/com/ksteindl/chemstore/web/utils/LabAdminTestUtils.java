@@ -1,5 +1,6 @@
 package com.ksteindl.chemstore.web.utils;
 
+import com.ksteindl.chemstore.domain.input.ChemTypeInput;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
 
@@ -69,4 +70,27 @@ public class LabAdminTestUtils {
         deltaManufacturerInput.setName(DELTA_MANUFACTURER_NAME);
         return deltaManufacturerInput;
     }
+
+    public static final String ORGANIC_SOLVANT_NAME = "Organic Solvant";
+    public static ChemTypeInput getOrganicSolvantInput() {
+        ChemTypeInput organicSolvant = new ChemTypeInput();
+        organicSolvant.setName(ORGANIC_SOLVANT_NAME);
+        return organicSolvant;
+    }
+
+    public static final String SOLID_COMPOUND_NAME = "Solid Compound";
+    public static ChemTypeInput getSolidCompoundInput() {
+        ChemTypeInput solidCompound = new ChemTypeInput();
+        solidCompound.setName(SOLID_COMPOUND_NAME);
+        return solidCompound;
+    }
+
+    public static final String PHOSPHATE_SOLUTION_NAME = "Poshate Solution";
+    public static ChemTypeInput getPhosphateSolutionInput() {
+        ChemTypeInput poshateInput = new ChemTypeInput();
+        poshateInput.setName(PHOSPHATE_SOLUTION_NAME);
+        return poshateInput;
+    }
+
+
 }

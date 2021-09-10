@@ -1,11 +1,17 @@
 package com.ksteindl.chemstore.exceptions;
 
+import com.ksteindl.chemstore.util.Lang;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class ValidationException extends RuntimeException{
 
     private Map<String, String> errorMap = new HashMap<>();
+
+    public static void throwEntityIsDeletedException(String entityName, String deletedName) {
+        throw new ValidationException(entityName, String.format(Lang.ENTITY_IS_DELETED, entityName, deletedName));
+    }
 
     public ValidationException(String message) {
         super(message);

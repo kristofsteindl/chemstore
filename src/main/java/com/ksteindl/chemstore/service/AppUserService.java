@@ -145,7 +145,7 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
     public AppUser findById(Long id, Boolean onlyActive) {
         AppUser appUser = appUserRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, id));
         if (onlyActive && appUser.getDeleted()) {
-            throw new ValidationException(Lang.APP_USER_ENTITY_NAME, String.format(Lang.APP_USER_IS_DELETED, appUser.getUsername()));
+            ValidationException.throwEntityIsDeletedException(Lang.APP_USER_ENTITY_NAME, appUser.getUsername());
         }
         return appUser;
     }

@@ -78,7 +78,7 @@ public class LabService implements UniqueEntityInput<LabInput> {
     public Lab findById(Long id, Boolean onlyActive) {
         Lab lab = labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, id));
         if (onlyActive && lab.getDeleted()) {
-            throw new ValidationException(Lang.LAB_ENTITY_NAME, String.format(Lang.LAB_IS_DELETED, lab.getName()));
+            ValidationException.throwEntityIsDeletedException(Lang.LAB_ENTITY_NAME, lab.getName());
         }
         return lab;
     }

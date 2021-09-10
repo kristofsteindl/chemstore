@@ -1,6 +1,5 @@
 package com.ksteindl.chemstore.service;
 
-import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
@@ -62,7 +61,7 @@ public class ManufacturerService implements UniqueEntityInput<ManufacturerInput>
     public Manufacturer findById(Long id, Boolean onlyActive) {
         Manufacturer manufacturer = manufacturerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.MANUFACTURER_ENTITY_NAME, id));
         if (onlyActive && manufacturer.getDeleted()) {
-            throw new ValidationException(Lang.MANUFACTURER_ENTITY_NAME, String.format(Lang.MANUFACTURER_IS_DELETED, manufacturer.getName()));
+            ValidationException.throwEntityIsDeletedException(Lang.MANUFACTURER_ENTITY_NAME, manufacturer.getName());
         }
         return manufacturer;
     }

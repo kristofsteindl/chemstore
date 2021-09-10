@@ -650,14 +650,6 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest{
         logger.info(result.getResponse().getContentAsString());
     }
 
-    public static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
 
 }

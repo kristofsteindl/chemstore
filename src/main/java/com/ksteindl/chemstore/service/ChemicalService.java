@@ -29,7 +29,7 @@ public class ChemicalService implements UniqueEntityInput<ChemicalInput> {
     public Chemical findById(Long id, Boolean onlyActive) {
         Chemical chemical = chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
         if (onlyActive && chemical.getDeleted()) {
-            throw new ValidationException(Lang.CHEMICAL_ENTITY_NAME, String.format(Lang.CHEMICAL_IS_DELETED, chemical.getShortName()));
+            ValidationException.throwEntityIsDeletedException(Lang.CHEMICAL_ENTITY_NAME, chemical.getExactName());
         }
         return chemical;
     }

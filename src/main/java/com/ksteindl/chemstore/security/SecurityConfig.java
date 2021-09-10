@@ -66,7 +66,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .antMatchers("/api/account/**").hasAuthority(
                             Authority.ACCOUNT_MANAGER)
-                    .antMatchers("/api/lab-manager/**").hasAuthority(
+                    .antMatchers("/api/lab-manager/**").hasAnyAuthority(
+                        Authority.ACCOUNT_MANAGER,
                             Authority.LAB_MANAGER)
                     .antMatchers("/api/lab-admin/**").hasAnyAuthority(
                             Authority.ACCOUNT_MANAGER,

@@ -26,7 +26,7 @@ public class ChemItemInput implements Input{
     @NotNull(message = "Chemical name is required (chemicalShortName)")
     private String chemicalShortName;
 
-    @NotNull(message = "Manufacturer naem is required (manufacturerName)")
+    @NotNull(message = "Manufacturer name is required (manufacturerName)")
     private String manufacturerName;
 
     @NotBlank(message = "Batch number of chemical cannot be blank")
