@@ -51,6 +51,75 @@ public class LabManagerControllerTest extends BaseControllerTest {
     private MockMvc mvc;
 
     @Test
+    void testGetAllChemTypes_whenLabManager_got200(@Autowired ChemTypeService chemTypeService) throws Exception {
+        mvc.perform(get(URL_CHEM_TYPE)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(200));
+    }
+
+    @Test
+    void testGetAllChemTypes_whenAccountManager_got200(@Autowired ChemTypeService chemTypeService) throws Exception {
+        mvc.perform(get(URL_CHEM_TYPE)
+                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(200));
+    }
+
+    @Test
+    void testGetAllChemTypes_whenLabAdmin_got403(@Autowired ChemTypeService chemTypeService) throws Exception {
+        mvc.perform(get(URL_CHEM_TYPE)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    void testGetAllChemTypes_whenLabUser_got403(@Autowired ChemTypeService chemTypeService) throws Exception {
+        mvc.perform(get(URL_CHEM_TYPE)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    void testGetAllChemTypes_whenLabManager_gotValidArray(@Autowired ChemTypeService chemTypeService) throws Exception {
+        mvc.perform(get(URL_CHEM_TYPE)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[0].id").isNumber())
+                .andExpect(jsonPath("$[0].name").isString())
+                .andExpect(jsonPath("$[0].name").isNotEmpty())
+                .andExpect(jsonPath("$", hasSize(chemTypeService.getChemTypes().size())));
+    }
+
+    @Test
+    void testGetAllChemTypes_whenLabManager_gotArrayWIthoutDeleted(@Autowired ChemTypeService chemTypeService) throws Exception {
+        mvc.perform(get(URL_CHEM_TYPE)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))));
+    }
+
+    @Test
+    void testGetAllChemTypes_WithOnlyActiveFalse_gotArrayWithDeleted(@Autowired ChemTypeService chemTypeService) throws Exception {
+        mvc.perform(get(URL_CHEM_TYPE)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("only-active", "false"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", hasItem(true)));
+    }
+
+
+    //DELETE
+    @Test
     @Rollback
     @Transactional
     void testDeleteChemType_whenLabManager_got204(@Autowired ChemTypeService chemTypeService) throws Exception {
