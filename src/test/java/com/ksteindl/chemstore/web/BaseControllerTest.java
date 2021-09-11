@@ -74,7 +74,7 @@ public class BaseControllerTest {
             AppUser ablabdeleteduser = appUserService.createUser(AccountManagerTestUtils.ALPHA_BETA_LAB_DELETED_USER_INPUT);
             appUserService.deleteAppUser(ablabdeleteduser.getId());
 
-            // MANUFACTURER
+            //MANUFACTURER
             ManufacturerInput omegaManufacturerInput = LabAdminTestUtils.getOmegaManufacturerInput();
             manufacturerService.createManufacturer(omegaManufacturerInput);
 
@@ -85,7 +85,7 @@ public class BaseControllerTest {
             Manufacturer deletedManufacturer = manufacturerService.createManufacturer(deltaManufacturerInput);
             manufacturerService.deleteManufacturer(deletedManufacturer.getId());
 
-            // CHEM TYPE
+            //CHEM TYPE
             ChemTypeInput solidCompundInput = LabAdminTestUtils.getSolidCompoundInput();
             ChemType solidCompund = chemTypeService.createChemType(solidCompundInput);
 
@@ -94,12 +94,20 @@ public class BaseControllerTest {
             chemTypeService.deleteChemType(posphateSolution.getId());
 
 
-            // CHEMICAL
+            //CHEMICAL
             ChemicalInput ethanolInput = LabAdminTestUtils.getEtOHInput();
             Chemical ethanol = chemicalService.createChemical(ethanolInput);
 
             ChemicalInput methanolInput = LabAdminTestUtils.getMeOHInput();
+            methanolInput.setChemTypeId(solidCompund.getId());
             Chemical methanol = chemicalService.createChemical(methanolInput);
+
+            ChemicalInput chemWithTypeInput = LabAdminTestUtils.getChemWithTypeInput();
+            chemWithTypeInput.setChemTypeId(solidCompund.getId());
+            Chemical chemWithType = chemicalService.createChemical(chemWithTypeInput);
+
+            ChemicalInput chemWithoutTypeInput = LabAdminTestUtils.getChemWithoutTypeInput();
+            Chemical chemWithoutType = chemicalService.createChemical(chemWithoutTypeInput);
 
             ChemicalInput ipaInput = LabAdminTestUtils.getIpaInput();
             Chemical ipa = chemicalService.createChemical(ipaInput);

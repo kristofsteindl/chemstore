@@ -12,6 +12,7 @@ public class LabAdminTestUtils {
         ChemicalInput chemicalInput = new ChemicalInput();
         chemicalInput.setExactName(ACETONITRIL_EXACT_NAME);
         chemicalInput.setShortName(ACETONITRIL_SHORT_NAME);
+        chemicalInput.setChemTypeId(1l);
         return chemicalInput;
     }
 
@@ -41,6 +42,25 @@ public class LabAdminTestUtils {
         chemicalInput.setShortName(METHANOL_SHORT_NAME);
         return chemicalInput;
     }
+
+    public static final String CHEMICAL_WITH_CHEM_TYPE_EXACT_NAME = "Chemical with chem tpye";
+    public static final String CHEMICAL_WITH_CHEM_TYPE_SHORT_NAME = "Chem with type";
+    public static ChemicalInput getChemWithTypeInput() {
+        ChemicalInput chemicalInput = new ChemicalInput();
+        chemicalInput.setExactName(CHEMICAL_WITH_CHEM_TYPE_EXACT_NAME);
+        chemicalInput.setShortName(CHEMICAL_WITH_CHEM_TYPE_SHORT_NAME);
+        return chemicalInput;
+    }
+
+    public static final String CHEMICAL_WITHOUT_CHEM_TYPE_EXACT_NAME = "Chemical without chem tpye";
+    public static final String CHEMICAL_WITHOUT_CHEM_TYPE_SHORT_NAME = "Chem without type";
+    public static ChemicalInput getChemWithoutTypeInput() {
+        ChemicalInput chemicalInput = new ChemicalInput();
+        chemicalInput.setExactName(CHEMICAL_WITHOUT_CHEM_TYPE_EXACT_NAME);
+        chemicalInput.setShortName(CHEMICAL_WITHOUT_CHEM_TYPE_SHORT_NAME);
+        return chemicalInput;
+    }
+
 
     public static final String ALPHA_MANUFACTURER_NAME = "Alpha Manufacturer";
     public static ManufacturerInput getAlphaManufacturerInput() {
