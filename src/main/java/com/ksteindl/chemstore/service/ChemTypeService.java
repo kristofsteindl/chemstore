@@ -5,7 +5,6 @@ import com.ksteindl.chemstore.domain.input.ChemTypeInput;
 import com.ksteindl.chemstore.domain.repositories.ChemTypeRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
-import com.ksteindl.chemstore.util.ExceptionUtil;
 import com.ksteindl.chemstore.util.Lang;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ChemTypeService implements UniqueEntityInput<ChemTypeInput>{
+public class ChemTypeService implements UniqueEntityService<ChemTypeInput> {
 
     @Autowired
     private ChemTypeRepository chemTypeRepository;

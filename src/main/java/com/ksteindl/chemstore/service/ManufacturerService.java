@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ManufacturerService implements UniqueEntityInput<ManufacturerInput> {
+public class ManufacturerService implements UniqueEntityService<ManufacturerInput> {
 
     private static final Logger logger = LogManager.getLogger(ManufacturerService.class);
     private final static Sort SORT_BY_NAME = Sort.by(Sort.Direction.ASC, "name");

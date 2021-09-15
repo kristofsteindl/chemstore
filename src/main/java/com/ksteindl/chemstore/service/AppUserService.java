@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDetailsService {
+public class AppUserService implements UniqueEntityService<AppUserInput>, UserDetailsService {
 
     private static final Logger logger
             = LoggerFactory.getLogger(AppUserService.class);
@@ -105,7 +105,7 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
 
     public List<AppUser> getUsersFromManagedLab(Principal managerPrincipal, String labKey) {
         AppUser manager = getMyAppUser(managerPrincipal);
-        Lab managedLab = labService.getLabByKey(labKey);
+        Lab managedLab = labService.findLabByKey(labKey);
         if (!managedLab.getLabManagers().stream().anyMatch(appUser -> appUser.equals(manager))) {
             throw new ValidationException("authorization", "User " + manager.getUsername() + " is not manager of " + managedLab.getKey() + ", please the account admin");
         }
@@ -170,11 +170,11 @@ public class AppUserService implements UniqueEntityInput<AppUserInput>, UserDeta
                 .collect(Collectors.toSet());
         List<Lab> labsAsUser = appUserInput.getLabKeysAsUser()
                 .stream()
-                .map(labKey -> labService.getLabByKey(labKey))
+                .map(labKey -> labService.findLabByKey(labKey))
                 .collect(Collectors.toList());
         List<Lab> labsAsAdmin = appUserInput.getLabKeysAsAdmin()
                 .stream()
-                .map(labKey -> labService.getLabByKey(labKey))
+                .map(labKey -> labService.findLabByKey(labKey))
                 .collect(Collectors.toList());
         appUser.setUsername(appUserInput.getUsername());
         appUser.setFullName(appUserInput.getFullName());

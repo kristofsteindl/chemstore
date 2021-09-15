@@ -2,10 +2,13 @@ package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
+import com.ksteindl.chemstore.domain.entities.ShelfLife;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
+import com.ksteindl.chemstore.domain.input.ShelfLifeInput;
 import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.ManufacturerService;
+import com.ksteindl.chemstore.service.ShelfLifeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -30,6 +34,8 @@ public class LabAdminController {
     private ManufacturerService manufacturerService;
     @Autowired
     private ChemicalService chemicalService;
+    @Autowired
+    private ShelfLifeService shelfLifeService;
 
     // MANUFACTURER
     @PostMapping("/manufacturer")
@@ -109,4 +115,40 @@ public class LabAdminController {
         chemicalService.deleteChemical(id);
         logger.info("DELETE '/chemical/{id}' was successfull");
     }
+
+    //SHELF LIFE
+    @PostMapping("/shelf-life")
+    public ResponseEntity<ShelfLife> createShelfLife(
+            @Valid @RequestBody ShelfLifeInput shelfLifeInput,
+            BindingResult result,
+            Principal principal) {
+        logger.info("POST '/shelf-life' was called with {}", shelfLifeInput);
+        ShelfLife shelfLife = shelfLifeService.createShelfLife(shelfLifeInput, result, principal);
+        logger.info("POST '/shelf-life' was succesful with returned result{}", shelfLife);
+        return new ResponseEntity<>(shelfLife, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/shelf-life/{id}")
+    public ResponseEntity<ShelfLife> updateShelfLife(
+            @Valid @RequestBody ShelfLifeInput shelfLifeInput,
+            @PathVariable Long id,
+            BindingResult result,
+            Principal principal) {
+        logger.info("PUT '/shelf-life' was called with {}, with id {}, by {}", shelfLifeInput, id, principal.getName());
+        ShelfLife shelfLife = shelfLifeService.updateShelfLife(shelfLifeInput, id, result, principal);
+        logger.info("PUT '/shelf-life' was succesful with returned result{}", shelfLife);
+        return new ResponseEntity<>(shelfLife, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/shelf-life/{labKey}")
+    public ResponseEntity<List<ShelfLife>> getShelfLifesForLab(
+            @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive,
+            @PathVariable String labKey,
+            Principal principal) {
+        logger.info("GET '/shelf-life/{labKey}' was called with labKey {}", labKey);
+        List<ShelfLife> shelfLifes = shelfLifeService.getShelfLifesForLab(labKey, onlyActive, principal);
+        logger.info("GET 'shelf-life/{labKey}' was succesful with {} item", shelfLifes.size());
+        return new ResponseEntity<>(shelfLifes, HttpStatus.OK);
+    }
+
 }

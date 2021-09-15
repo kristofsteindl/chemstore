@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class LabService implements UniqueEntityInput<LabInput> {
+public class LabService implements UniqueEntityService<LabInput> {
 
     private final static Sort SORT_BY_NAME = Sort.by(Sort.Direction.ASC, "name");
 
@@ -52,7 +52,7 @@ public class LabService implements UniqueEntityInput<LabInput> {
                 labRepository.findAll(SORT_BY_NAME);
     }
 
-    public Lab getLabByKey(String key) {
+    public Lab findLabByKey(String key) {
         return labRepository.findByKey(key).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, key));
     }
 

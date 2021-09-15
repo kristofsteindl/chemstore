@@ -1,6 +1,5 @@
 package com.ksteindl.chemstore.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.LabInput;
 import com.ksteindl.chemstore.security.JwtProvider;
@@ -51,7 +50,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLab_whenAuthorized_got204(@Autowired LabService labService) throws Exception {
-        Lab persistedAlphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab persistedAlphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
 
         MvcResult result = mvc.perform(delete(URL + "/" + persistedAlphaLab.getId())
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -75,7 +74,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLab_whenAuthorized_gotDeletedFromService(@Autowired LabService labService) throws Exception {
-        Lab persistedAlphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab persistedAlphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
 
         mvc.perform(delete(URL + "/" + persistedAlphaLab.getId())
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON));
@@ -87,7 +86,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLabTwoTimes_whenAuthorized_got400SocondTime(@Autowired LabService labService) throws Exception {
-        Lab persistedAlphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab persistedAlphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         String url = URL + "/" + persistedAlphaLab.getId();
         MvcResult result1 = mvc.perform(delete(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -116,7 +115,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLab_withAlphaLabManager_got403(@Autowired LabService labService) throws Exception {
-        Lab persistedAlphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab persistedAlphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
         MvcResult result = mvc.perform(delete(URL + "/" + persistedAlphaLab.getId())
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
@@ -129,7 +128,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLab_withAlphaLabAdmin_got403(@Autowired LabService labService) throws Exception {
-        Lab persistedAlphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab persistedAlphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
         MvcResult result = mvc.perform(delete(URL + "/" + persistedAlphaLab.getId())
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
@@ -142,7 +141,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteAlphaLab_withAlphaLabUser_got403(@Autowired LabService labService) throws Exception {
-        Lab persistedAlphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab persistedAlphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
         MvcResult result = mvc.perform(delete(URL + "/" + persistedAlphaLab.getId())
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
@@ -158,7 +157,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Rollback
     void testUpdateLab_whenAuthorized_got201(@Autowired LabService labService) throws Exception {
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         String changedLabName = "Changed Alpha Lab";
         alphaLabInput.setName(changedLabName);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
@@ -176,7 +175,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
                 .andExpect(jsonPath("$.labManagerUsernames[*]").value(Matchers.containsInAnyOrder(alphaLabInput.getLabManagerUsernames().get(0), alphaLabInput.getLabManagerUsernames().get(1))))
                 .andExpect(status().isOk())
                 .andReturn();
-        Lab changedGammaLab = labService.getLabByKey(alphaLabInput.getKey());
+        Lab changedGammaLab = labService.findLabByKey(alphaLabInput.getKey());
         Assertions.assertEquals(alphaLabInput.getKey(), changedGammaLab.getKey());
         Assertions.assertEquals(alphaLabInput.getName(), changedGammaLab.getName());
         Assertions.assertEquals(alphaLabInput.getLabManagerUsernames(), changedGammaLab.getLabManagerUsernames());
@@ -190,7 +189,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Rollback
     void testUpdateLab_whenAlphaBetaLabManager_got403(@Autowired LabService labService) throws Exception {
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         String changedLabName = "Changed Alpha Lab";
         alphaLabInput.setName(changedLabName);
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_MANAGER_USERNAME);
@@ -208,7 +207,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Rollback
     void testUpdateLab_whenAlphaBetaLabAdmin_got403(@Autowired LabService labService) throws Exception {
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         String changedLabName = "Changed Alpha Lab";
         alphaLabInput.setName(changedLabName);
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_ADMIN_USERNAME);
@@ -227,7 +226,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Rollback
     void testUpdateLab_whenAlphaBetaLabUser_got403(@Autowired LabService labService) throws Exception {
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         String changedLabName = "Changed Alpha Lab";
         alphaLabInput.setName(changedLabName);
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_USER_USERNAME);
@@ -246,7 +245,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateLab_whenEmpty1_gotNOK(@Autowired LabService labService) throws Exception {
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
                 .content(""))
@@ -260,7 +259,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateLab_whenEmpty2_gotNOK(@Autowired LabService labService) throws Exception {
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
@@ -274,7 +273,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateLab_whenKeyIsChanged_got400(@Autowired LabService labService) throws Exception {
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
         alphaLabInput.setKey("changed-key");
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
@@ -291,7 +290,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateLab_whenNameIsEmpty1_got400(@Autowired LabService labService) throws Exception {
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
         alphaLabInput.setName(null);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
@@ -308,7 +307,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateLab_whenNameIsEmpty2_got400(@Autowired LabService labService) throws Exception {
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
         alphaLabInput.setName("");
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
@@ -325,7 +324,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateLab_whenNameIsEmpty3_got400(@Autowired LabService labService) throws Exception {
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
         alphaLabInput.setName("  ");
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
@@ -342,7 +341,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateLab_whenNameIsNotUnique_got400(@Autowired LabService labService) throws Exception {
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
         alphaLabInput.setName(AccountManagerTestUtils.BETA_LAB_NAME);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
@@ -359,7 +358,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateLab_whenLabManagerUsernameIsEmpty1_got400(@Autowired LabService labService) throws Exception {
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
         alphaLabInput.setLabManagerUsernames(null);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
@@ -377,7 +376,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateLab_whenLabManagerUsernameIsEmpty2_got400(@Autowired LabService labService) throws Exception {
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
         alphaLabInput.setLabManagerUsernames(new ArrayList<>());
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
@@ -394,7 +393,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateLab_whenLabManagerUsernameDoesNotExist1_got400(@Autowired LabService labService) throws Exception {
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
         alphaLabInput.setLabManagerUsernames(List.of("nonexistinguser@account.com"));
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
@@ -411,7 +410,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
     @Transactional
     @Rollback
     void testUpdateLab_whenLabManagerUsernameDoesNotExist2_got400(@Autowired LabService labService) throws Exception {
-        Lab alphaLab = labService.getLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         LabInput alphaLabInput = AccountManagerTestUtils.getAlphaLabInput();
         alphaLabInput.setLabManagerUsernames(List.of(AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME, "nonexistinguser@account.com"));
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
@@ -447,7 +446,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest{
                 .andExpect(jsonPath("$.labManagerUsernames[*]").value(Matchers.containsInAnyOrder(labInput.getLabManagerUsernames().get(0), labInput.getLabManagerUsernames().get(1))))
                 .andExpect(status().isCreated())
                 .andReturn();
-        Lab gammaLab = labService.getLabByKey(labInput.getKey());
+        Lab gammaLab = labService.findLabByKey(labInput.getKey());
         Assertions.assertEquals(labInput.getKey(), gammaLab.getKey());
         Assertions.assertEquals(labInput.getName(), gammaLab.getName());
         Assertions.assertEquals(labInput.getLabManagerUsernames(), gammaLab.getLabManagerUsernames());

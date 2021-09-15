@@ -38,6 +38,10 @@ public class Lang {
     public static final String CHEM_TYPE_WITH_SAME_NAME_FOUND_TEMPLATE = "Chemical item with name '%s' is already exists";
     public static final String CHEM_TYPE_ENTITY_NAME = "Chemical type";
 
+    public static final String SHELF_TIME_SET_FORBIDDEN = "Setting self time for %s is forbidden. You have to be either the manager of the lab, or the admin";
+    public static final String SHELF_LIFE_ALREADY_DELETED = "Shelf life of %s in %s is already deleted";
+    public static final String SHELF_LIFE_ALREADY_EXISTS = "Shelf life for %s in %s is already exists";
+
     public static final String ROLE_ENTITY_NAME = "role";
 
     public static final String PASSWORD_TOO_SHORT = APP_USER_PASSWORD_ATTRIBUTE_NAME + " must be equal or greater than %s";

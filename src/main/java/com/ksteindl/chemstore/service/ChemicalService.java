@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ChemicalService implements UniqueEntityInput<ChemicalInput> {
+public class ChemicalService implements UniqueEntityService<ChemicalInput> {
 
     private final static Sort SORT_BY_SHORT_NAME = Sort.by(Sort.Direction.ASC, "shortName");
 

@@ -45,7 +45,7 @@ public class ChemItemService {
 
     private Lab getLabAndValidateAuthority(String labKey, AppUser appUser) {
         String username = appUser.getUsername();
-        Lab lab = labService.getLabByKey(labKey);
+        Lab lab = labService.findLabByKey(labKey);
         if (lab.getLabManagers().stream().anyMatch(manager -> manager.getUsername().equals(username))) {
             return lab;
         }
