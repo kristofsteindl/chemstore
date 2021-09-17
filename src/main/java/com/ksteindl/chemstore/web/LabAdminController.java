@@ -148,7 +148,7 @@ public class LabAdminController {
             @PathVariable String labKey,
             Principal principal) {
         logger.info("GET '/shelf-life/{labKey}' was called with labKey {}", labKey);
-        List<ShelfLife> shelfLifes = shelfLifeService.getShelfLifesForLab(labKey, onlyActive, principal);
+        List<ShelfLife> shelfLifes = shelfLifeService.findShelfLifesByLab(labKey, onlyActive, principal);
         logger.info("GET 'shelf-life/{labKey}' was succesful with {} item", shelfLifes.size());
         return new ResponseEntity<>(shelfLifes, HttpStatus.OK);
     }

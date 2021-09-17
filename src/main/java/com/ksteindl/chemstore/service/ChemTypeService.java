@@ -58,6 +58,10 @@ public class ChemTypeService implements UniqueEntityService<ChemTypeInput> {
         return findById(id, true);
     }
 
+    public Optional<ChemType> findByName(String name) {
+        return chemTypeRepository.findByName(name);
+    }
+
     public ChemType findById(Long id, Boolean onlyActive) {
         ChemType chemType = chemTypeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEM_TYPE_ENTITY_NAME, id));
         if (onlyActive && chemType.getDeleted()) {

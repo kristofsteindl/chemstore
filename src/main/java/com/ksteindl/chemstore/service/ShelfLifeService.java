@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.time.Duration;
@@ -58,50 +57,16 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
         return createOrUpdateShelfLife(validatorWrapper);
     }
 
-    private ShelfLife createOrUpdateShelfLife(ShelfLifeValidatorWrapper validatorWrapper) {
-        ShelfLife shelfLife = validatorWrapper.shelfLife;
-        ShelfLifeInput shelfLifeInput = validatorWrapper.shelfLifeInput;
-        ChemType chemType = chemTypeService.findById(shelfLifeInput.getChemTypeId());
-        Lab lab = getAndValidateLab(shelfLifeInput.getLabKey(), validatorWrapper.principal);
-        throwExceptionIfNotUnique(shelfLifeInput, validatorWrapper.id);
-        shelfLife.setDuration(convertToDuration(shelfLifeInput));
-        shelfLife.setChemType(chemType);
-        shelfLife.setLab(lab);
-        shelfLifeRepositoy.save(shelfLife);
-        return findById(shelfLife.getId());
-    }
-
     public Optional<ShelfLife> findByLabAndChemType(Lab lab, ChemType chemType) {
         return shelfLifeRepositoy.findByLabAndChemType(lab, chemType);
     }
 
-    private Duration convertToDuration(ShelfLifeInput shelfLifeInput) {
-        Integer amount = shelfLifeInput.getAmount();
-        switch (shelfLifeInput.getUnit()) {
-            case "d": return Duration.ofDays(amount);
-            case "w": return Duration.between(LocalDateTime.now(), LocalDateTime.now().plusWeeks(amount));
-            case "m": return Duration.between(LocalDateTime.now(), LocalDateTime.now().plusMonths(amount));
-            case "y": return Duration.between(LocalDateTime.now(), LocalDateTime.now().plusYears(amount));
-        }
-        throw new RuntimeException("Invalid shelfLifeInput.unit. Must be 'd', 'w', 'm' or 'y'");
-    }
-
-    private Lab getAndValidateLab(String labKey, Principal principal) {
-        Lab lab = labService.findLabByKey(labKey);
-        AppUser appUser = appUserService.getMyAppUser(principal);
-        if (!lab.getLabManagers().stream().anyMatch(manager -> manager.equals(appUser))
-                && !appUser.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(lab))) {
-            throw new ValidationException(String.format(Lang.SHELF_TIME_SET_FORBIDDEN, lab.getName()));
-        }
-        return lab;
+    public List<ShelfLife> findShelfLifesByLab(String labKey, Principal principal) {
+        return findShelfLifesByLab(labKey, true, principal);
     }
 
 
-    public List<ShelfLife> getShelfLifesForLab(String labKey, Principal principal) {
-        return getShelfLifesForLab(labKey, true, principal);
-    }
-
-    public List<ShelfLife> getShelfLifesForLab(String labKey, boolean onlyActive, Principal principal) {
+    public List<ShelfLife> findShelfLifesByLab(String labKey, boolean onlyActive, Principal principal) {
         Lab lab = getAndValidateLab(labKey, principal);
         return onlyActive ?
                 shelfLifeRepositoy.findByLab(lab) :
@@ -135,6 +100,42 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
             throw new ValidationException(String.format(Lang.SHELF_LIFE_ALREADY_DELETED, shelfLife.getChemType().getName(), shelfLife.getLab().getName()));
         }
         return shelfLife;
+    }
+
+    private ShelfLife createOrUpdateShelfLife(ShelfLifeValidatorWrapper validatorWrapper) {
+        ShelfLife shelfLife = validatorWrapper.shelfLife;
+        ShelfLifeInput shelfLifeInput = validatorWrapper.shelfLifeInput;
+        ChemType chemType = chemTypeService.findById(shelfLifeInput.getChemTypeId());
+        Lab lab = getAndValidateLab(shelfLifeInput.getLabKey(), validatorWrapper.principal);
+        throwExceptionIfNotUnique(shelfLifeInput, validatorWrapper.id);
+        shelfLife.setDuration(convertToDuration(shelfLifeInput));
+        shelfLife.setChemType(chemType);
+        shelfLife.setLab(lab);
+        shelfLifeRepositoy.save(shelfLife);
+        return findById(shelfLife.getId());
+    }
+
+
+
+    private Duration convertToDuration(ShelfLifeInput shelfLifeInput) {
+        Integer amount = shelfLifeInput.getAmount();
+        switch (shelfLifeInput.getUnit()) {
+            case "d": return Duration.ofDays(amount);
+            case "w": return Duration.between(LocalDateTime.now(), LocalDateTime.now().plusWeeks(amount));
+            case "m": return Duration.between(LocalDateTime.now(), LocalDateTime.now().plusMonths(amount));
+            case "y": return Duration.between(LocalDateTime.now(), LocalDateTime.now().plusYears(amount));
+        }
+        throw new ValidationException("Invalid shelfLifeInput.unit. Must be 'd', 'w', 'm' or 'y'");
+    }
+
+    private Lab getAndValidateLab(String labKey, Principal principal) {
+        Lab lab = labService.findLabByKey(labKey);
+        AppUser appUser = appUserService.getMyAppUser(principal);
+        if (!lab.getLabManagers().stream().anyMatch(manager -> manager.equals(appUser))
+                && !appUser.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(lab))) {
+            throw new ValidationException(String.format(Lang.SHELF_TIME_SET_FORBIDDEN, lab.getName()));
+        }
+        return lab;
     }
 
     @Override

@@ -120,6 +120,13 @@ public class LabAdminTestUtils {
         return input;
     }
 
+    public static final String WATER_CHEM_TYPE_NAME = "Water Chem Type";
+    public static ChemTypeInput getWaterChemTypeInput() {
+        ChemTypeInput input = new ChemTypeInput();
+        input.setName(WATER_CHEM_TYPE_NAME);
+        return input;
+    }
+
     public static final Integer BUFFER_FOR_ALPHA_DAYS = 50;
     public static final Integer BUFFER_FOR_BETA_DAYS = 70;
     public static final Integer SOLID_FOR_ALPHA_YEAR = 1;
@@ -143,6 +150,14 @@ public class LabAdminTestUtils {
                 .amount(LabAdminTestUtils.SOLID_FOR_BETA_YEAR)
                 .unit(LabAdminTestUtils.SOLID_FOR_BETA_UNIT)
                 .labKey(AccountManagerTestUtils.BETA_LAB_KEY)
+                .build();
+    }
+
+    public static ShelfLifeInput getDeletedForAlphaInput() {
+        return ShelfLifeInput.builder()
+                .amount(LabAdminTestUtils.SOLID_FOR_ALPHA_YEAR)
+                .unit(LabAdminTestUtils.SOLID_FOR_ALPHA_UNIT)
+                .labKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
                 .build();
     }
 
