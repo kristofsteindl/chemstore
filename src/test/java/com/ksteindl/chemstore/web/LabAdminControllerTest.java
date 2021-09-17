@@ -49,11 +49,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class LabAdminControllerTest {
-
-    private static final Logger logger = LogManager.getLogger(LabAdminControllerTest.class);
-
     @Autowired
     private Initializator initializator;
+    private static final Logger logger = LogManager.getLogger(LabAdminControllerTest.class);
+
     @Autowired
     private JwtProvider jwtProvider;
     @Autowired

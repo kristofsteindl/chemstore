@@ -16,12 +16,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class Initializator implements ApplicationRunner {
+public class Initializator implements ApplicationListener<ContextRefreshedEvent> {
 
     public String TOKEN_FOR_ACCOUNT_MANAGER;
     public String TOKEN_FOR_ALPHA_LAB_ADMIN;
@@ -40,7 +42,7 @@ public class Initializator implements ApplicationRunner {
     private final String SUPERADMIN = "superadmin";
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void onApplicationEvent(ContextRefreshedEvent event) {
         RoleService.ROLES.stream()
                 .filter(role -> roleRepository.findByRole(role).isEmpty())
                 .forEach(role -> roleRepository.save(new Role(role)));
@@ -152,12 +154,12 @@ public class Initializator implements ApplicationRunner {
             ShelfLifeInput soliodForAlphaInput = ShelfLifeInput.builder()
                     .amount(LabAdminTestUtils.SOLID_FOR_ALPHA_YEAR)
                     .unit(LabAdminTestUtils.SOLID_FOR_ALPHA_UNIT)
-                    .labKey(AccountManagerTestUtils.BETA_LAB_KEY)
+                    .labKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
                     .chemTypeId(bufferSolution.getId()).build();
 
 
             shelfLifeService.createShelfLife(bufferForAlphaInput, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
-            shelfLifeService.createShelfLife(bufferForBetaInput,  AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
+            shelfLifeService.createShelfLife(bufferForBetaInput,  AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
             shelfLifeService.createShelfLife(soliodForAlphaInput,  AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
 
             TOKEN_FOR_ACCOUNT_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);

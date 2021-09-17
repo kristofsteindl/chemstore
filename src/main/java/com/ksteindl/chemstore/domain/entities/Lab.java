@@ -25,7 +25,7 @@ public class Lab {
 
     private String name;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "MANAGER_OF_LAB_TABLE", joinColumns = @JoinColumn(name = "LAB_ID"), inverseJoinColumns = @JoinColumn(name = "APP_USER_ID"))
     @JsonIgnore
     private List<AppUser> labManagers;
