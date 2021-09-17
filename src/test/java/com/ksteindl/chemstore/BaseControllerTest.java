@@ -1,16 +1,14 @@
-package com.ksteindl.chemstore.web;
+package com.ksteindl.chemstore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ksteindl.chemstore.domain.entities.*;
-import com.ksteindl.chemstore.domain.input.AppUserInput;
-import com.ksteindl.chemstore.domain.input.ChemTypeInput;
-import com.ksteindl.chemstore.domain.input.ChemicalInput;
-import com.ksteindl.chemstore.domain.input.ManufacturerInput;
+import com.ksteindl.chemstore.domain.input.*;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.*;
-import com.ksteindl.chemstore.web.utils.AccountManagerTestUtils;
-import com.ksteindl.chemstore.web.utils.LabAdminTestUtils;
+import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
+import com.ksteindl.chemstore.utils.LabAdminTestUtils;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -30,6 +28,7 @@ public class BaseControllerTest {
             @Autowired ManufacturerService manufacturerService,
             @Autowired ChemicalService chemicalService,
             @Autowired ChemTypeService chemTypeService,
+            @Autowired ShelfLifeService shelfLifeService,
             @Autowired JwtProvider jwtProvider) {
         if (firstRun) {
             AppUser aman = appUserService.createUser(AccountManagerTestUtils.getAccountManagerInput());
@@ -89,6 +88,9 @@ public class BaseControllerTest {
             ChemTypeInput solidCompundInput = LabAdminTestUtils.getSolidCompoundInput();
             ChemType solidCompund = chemTypeService.createChemType(solidCompundInput);
 
+            ChemTypeInput bufferSolutionInput = LabAdminTestUtils.getBufferSolutionInput();
+            ChemType bufferSolution = chemTypeService.createChemType(bufferSolutionInput);
+
             ChemTypeInput posphateSolutionInput = LabAdminTestUtils.getPhosphateSolutionInput();
             ChemType posphateSolution = chemTypeService.createChemType(posphateSolutionInput);
             chemTypeService.deleteChemType(posphateSolution.getId());
@@ -112,6 +114,28 @@ public class BaseControllerTest {
             ChemicalInput ipaInput = LabAdminTestUtils.getIpaInput();
             Chemical ipa = chemicalService.createChemical(ipaInput);
             chemicalService.deleteChemical(ipa.getId());
+
+            //SHELF LIFE
+//            ShelfLifeInput bufferForAlphaInput = ShelfLifeInput.builder()
+//                    .amount(LabAdminTestUtils.BUFFER_FOR_ALPHA_DAYS)
+//                    .unit(LabAdminTestUtils.BUFFER_FOR_ALPHA_UNIT)
+//                    .labKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
+//                    .chemTypeId(bufferSolution.getId()).build();
+//            ShelfLifeInput bufferForBetaInput = ShelfLifeInput.builder()
+//                    .amount(LabAdminTestUtils.BUFFER_FOR_BETA_DAYS)
+//                    .unit(LabAdminTestUtils.BUFFER_FOR_BETA_UNIT)
+//                    .labKey(AccountManagerTestUtils.BETA_LAB_KEY)
+//                    .chemTypeId(bufferSolution.getId()).build();
+//            ShelfLifeInput soliodForAlphaInput = ShelfLifeInput.builder()
+//                    .amount(LabAdminTestUtils.SOLID_FOR_ALPHA_YEAR)
+//                    .unit(LabAdminTestUtils.SOLID_FOR_ALPHA_UNIT)
+//                    .labKey(AccountManagerTestUtils.BETA_LAB_KEY)
+//                    .chemTypeId(bufferSolution.getId()).build();
+//
+//
+//            shelfLifeService.createShelfLife(bufferForAlphaInput, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
+//            shelfLifeService.createShelfLife(bufferForBetaInput,  AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
+//            shelfLifeService.createShelfLife(soliodForAlphaInput,  AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
 
             TOKEN_FOR_ACCOUNT_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
             TOKEN_FOR_ALPHA_LAB_ADMIN = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);

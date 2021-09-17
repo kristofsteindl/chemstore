@@ -1,10 +1,11 @@
 package com.ksteindl.chemstore.web;
 
+import com.ksteindl.chemstore.BaseControllerTest;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.LabInput;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.LabService;
-import com.ksteindl.chemstore.web.utils.AccountManagerTestUtils;
+import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hamcrest.Matchers;
@@ -34,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class AccountManagerLabControllerTest extends BaseControllerTest{
+class AccountManagerLabControllerTest extends BaseControllerTest {
 
     private static final Logger logger = LogManager.getLogger(AccountManagerLabControllerTest.class);
 

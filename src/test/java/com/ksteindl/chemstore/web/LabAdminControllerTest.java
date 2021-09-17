@@ -1,6 +1,8 @@
 package com.ksteindl.chemstore.web;
 
-import com.ksteindl.chemstore.domain.entities.ChemItem;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ksteindl.chemstore.BaseControllerTest;
+import com.ksteindl.chemstore.Initializator;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
@@ -9,8 +11,8 @@ import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.ChemTypeService;
 import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.ManufacturerService;
-import com.ksteindl.chemstore.web.utils.AccountManagerTestUtils;
-import com.ksteindl.chemstore.web.utils.LabAdminTestUtils;
+import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
+import com.ksteindl.chemstore.utils.LabAdminTestUtils;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,8 +37,8 @@ import javax.transaction.Transactional;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.ksteindl.chemstore.web.utils.AccountManagerTestUtils.*;
-import static com.ksteindl.chemstore.web.utils.LabAdminTestUtils.*;
+import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.*;
+import static com.ksteindl.chemstore.utils.LabAdminTestUtils.*;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -46,12 +48,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class LabAdminControllerTest extends BaseControllerTest{
+class LabAdminControllerTest {
 
     private static final Logger logger = LogManager.getLogger(LabAdminControllerTest.class);
 
     @Autowired
-    JwtProvider jwtProvider;
+    private Initializator initializator;
+    @Autowired
+    private JwtProvider jwtProvider;
     @Autowired
     private MockMvc mvc;
 
@@ -66,7 +70,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Test
     void testGetAllChemicals_whenLabAdmin_gotValidArray(@Autowired ChemicalService chemicalService) throws Exception {
         mvc.perform(get(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -80,7 +84,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Test
     void testGetAllChemicals_whenLabAdmin_hasChemicalWithChemType(@Autowired ChemicalService chemicalService) throws Exception {
         mvc.perform(get(CHEMICAL_URL)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                        .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$[*].chemType", hasItem(isA(Map.class))))
                 .andExpect(jsonPath("$[*].chemType.name", hasItem(isA(String.class))))
@@ -90,7 +94,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Test
     void testGetAllChemicals_whenLabAdmin_hasChemicalWithoutChemType(@Autowired ChemicalService chemicalService) throws Exception {
         mvc.perform(get(CHEMICAL_URL)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                        .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$[*].chemType", hasItem(nullValue())));
     }
@@ -99,7 +103,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Test
     void testGetAllChemicals_whenAuthorized_gotArrayWithoutDeleted() throws Exception {
         mvc.perform(get(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -111,7 +115,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Test
     void testGetAllChemicals_whenAuthorized_gotArrayWithDeleted() throws Exception {
         mvc.perform(get(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON).param("only-active", "false"))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON).param("only-active", "false"))
                 .andExpect(status().is(200))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -130,7 +134,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         String url = MANUFACTURER_URL + "/" + ethanol.getId();
 
         MvcResult result = mvc.perform(delete(url)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -144,7 +148,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         String url = MANUFACTURER_URL + "/" + ethanol.getId();
 
         MvcResult result = mvc.perform(delete(url)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(403))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -158,12 +162,12 @@ class LabAdminControllerTest extends BaseControllerTest{
         String url = MANUFACTURER_URL + "/" + ethanol.getId();
 
         MvcResult result1 = mvc.perform(delete(url)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andReturn();
         logger.info("status code: " + result1.getResponse().getStatus());
         MvcResult result2 = mvc.perform(delete(url)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400))
                 .andReturn();
         logger.info("status code: " + result2.getResponse().getStatus());
@@ -176,7 +180,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         String url = MANUFACTURER_URL + "/" + Integer.MAX_VALUE;
 
         MvcResult result = mvc.perform(delete(url)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(404))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -190,7 +194,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         String url = CHEMICAL_URL + "/" + ipa.getId();
 
         MvcResult result = mvc.perform(delete(url)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -262,7 +266,7 @@ class LabAdminControllerTest extends BaseControllerTest{
                 .get()
                 .getId();
         MvcResult result = mvc.perform(put(CHEMICAL_URL + "/" + id)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(chemWithType)))
                 .andExpect(status().is(201))
                 .andExpect(jsonPath("$.chemType", is(nullValue())))
@@ -284,7 +288,7 @@ class LabAdminControllerTest extends BaseControllerTest{
                 .get()
                 .getId();
         MvcResult result = mvc.perform(put(CHEMICAL_URL + "/" + id)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(chemWithoutType)))
                 .andExpect(status().is(201))
                 .andExpect(jsonPath("$.chemType.id", is(1)))
@@ -306,7 +310,7 @@ class LabAdminControllerTest extends BaseControllerTest{
                 .get()
                 .getId();
         MvcResult result = mvc.perform(put(CHEMICAL_URL + "/" + id)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(ethanolInput)))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -354,7 +358,7 @@ class LabAdminControllerTest extends BaseControllerTest{
                 .get();
         ethanolInput.setShortName(LabAdminTestUtils.ISOPROPYL_ALCHOL_SHORT_NAME);
         MvcResult result = mvc.perform(put(CHEMICAL_URL + "/" + ethanol.getId())
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(ethanolInput)))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -373,7 +377,7 @@ class LabAdminControllerTest extends BaseControllerTest{
                 .get();
         ethanolInput.setExactName(LabAdminTestUtils.ISOPROPYL_ALCHOL_EXACT_NAME);
         MvcResult result = mvc.perform(put(CHEMICAL_URL + "/" + ethanol.getId())
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(ethanolInput)))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -387,7 +391,7 @@ class LabAdminControllerTest extends BaseControllerTest{
                 .findAny()
                 .get();
         MvcResult result = mvc.perform(put(CHEMICAL_URL + "/" + ethanol.getId())
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(ethanolInput))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -428,7 +432,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     void testCreateChemical_withLabAdmin_got201() throws Exception {
         ChemicalInput input = getAcnInput();
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -442,7 +446,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     void testCreateChemical_withAccountManager_got201() throws Exception {
         ChemicalInput input = getAcnInput();
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -456,7 +460,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     void testCreateChemical_withAlphaLabManager_got201() throws Exception {
         ChemicalInput input = getAcnInput();
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -470,7 +474,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     void testCreateChemical_withAlphaLabUser_got403() throws Exception {
         ChemicalInput input = getAcnInput();
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().is(403))
                 .andReturn();
@@ -484,7 +488,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     void testCreateChemical_withLabAdmin_fetchedFromDbIsExpected(@Autowired ChemicalService chemicalService) throws Exception {
         ChemicalInput input = getAcnInput();
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -503,7 +507,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         ChemicalInput input = getAcnInput();
         input.setChemTypeId(chemTypeService.getChemTypes().stream().filter(chemType -> chemType.getName().equals(SOLID_COMPOUND_NAME)).findAny().get().getId());
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(input)))
                 .andExpect(status().is(201))
                 .andExpect(jsonPath("$.chemType.name", is(SOLID_COMPOUND_NAME)))
@@ -520,7 +524,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testCreateChemical_withEmptyInput1_got400() throws Exception {
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -533,7 +537,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testCreateChemical_withEmptyInput2_got400() throws Exception {
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -548,7 +552,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         ChemicalInput input = getAcnInput();
         input.setShortName(null);
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -563,7 +567,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         ChemicalInput input = getAcnInput();
         input.setShortName("");
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -578,7 +582,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         ChemicalInput input = getAcnInput();
         input.setExactName(null);
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -593,7 +597,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         ChemicalInput input = getAcnInput();
         input.setExactName("");
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -608,7 +612,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         ChemicalInput input = getAcnInput();
         input.setChemTypeId(-1l);
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(input)))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -623,7 +627,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         ChemicalInput input = getAcnInput();
         input.setShortName(LabAdminTestUtils.ETHANOL_SHORT_NAME);
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -638,7 +642,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         ChemicalInput input = getAcnInput();
         input.setExactName(LabAdminTestUtils.ETHANOL_EXACT_NAME);
         MvcResult result = mvc.perform(post(CHEMICAL_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -658,7 +662,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         String url = MANUFACTURER_URL + "/" + persistedOmegaManufacturer.getId();
 
         MvcResult result = mvc.perform(delete(url)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -687,12 +691,12 @@ class LabAdminControllerTest extends BaseControllerTest{
         String url = MANUFACTURER_URL + "/" + persistedOmegaManufacturer.getId();
 
         MvcResult result1 = mvc.perform(delete(url)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andReturn();
         logger.info("status code: " + result1.getResponse().getStatus());
         MvcResult result2 = mvc.perform(delete(url)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
         logger.info("status code: " + result2.getResponse().getStatus());
@@ -705,7 +709,7 @@ class LabAdminControllerTest extends BaseControllerTest{
        String url = MANUFACTURER_URL + "/" + Integer.MAX_VALUE;
 
         MvcResult result = mvc.perform(delete(url)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -719,7 +723,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         String url = MANUFACTURER_URL + "/" + persistedDeletedManufacturer.getId();
 
         MvcResult result = mvc.perform(delete(url)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -746,7 +750,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Test
     void testGetAllManufacturers_whenAuthorized_gotValidArray(@Autowired ManufacturerService manufacturerService) throws Exception {
        mvc.perform(get(MANUFACTURER_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -760,7 +764,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Test
     void testGetAllManufacturers_whenAuthorized_gotArrayWithoutDeleted() throws Exception {
         mvc.perform(get(MANUFACTURER_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -772,7 +776,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Test
     void testGetAllManufacturersWithOnlyActiveFalse_whenAuthorized_gotArrayWithDeleted() throws Exception {
         mvc.perform(get(MANUFACTURER_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON).param("only-active", "false"))
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON).param("only-active", "false"))
                 .andExpect(status().is(200))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -969,7 +973,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     void testCreateManufacturer_withLabAdmin_got201() throws Exception {
         ManufacturerInput input = LabAdminTestUtils.getAlphaManufacturerInput();
         MvcResult result = mvc.perform(post(MANUFACTURER_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -983,7 +987,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     void testCreateManufacturer_withAccountManager_got201() throws Exception {
         ManufacturerInput input = LabAdminTestUtils.getAlphaManufacturerInput();
         MvcResult result = mvc.perform(post(MANUFACTURER_URL)
-                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -1028,7 +1032,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     void testCreateManufacturer_withLabAdmin_fetchedFromDbIsExpected(@Autowired ManufacturerService manufacturerService) throws Exception {
         ManufacturerInput input = LabAdminTestUtils.getAlphaManufacturerInput();
         MvcResult result = mvc.perform(post(MANUFACTURER_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -1045,7 +1049,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testCreateManufacturer_withEmptyInput1_got400() throws Exception {
         MvcResult result = mvc.perform(post(MANUFACTURER_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -1058,7 +1062,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testCreateManufacturer_withEmptyInput2_got400() throws Exception {
         MvcResult result = mvc.perform(post(MANUFACTURER_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
                 .andExpect(status().is(400))
                 .andReturn();
@@ -1073,7 +1077,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         ManufacturerInput input = LabAdminTestUtils.getAlphaManufacturerInput();
         input.setName(null);
         MvcResult result = mvc.perform(post(MANUFACTURER_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().is(400))
                 .andExpect(jsonPath("$.name").isNotEmpty())
@@ -1089,7 +1093,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         ManufacturerInput input = LabAdminTestUtils.getAlphaManufacturerInput();
         input.setName("");
         MvcResult result = mvc.perform(post(MANUFACTURER_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().is(400))
                 .andExpect(jsonPath("$.name").isNotEmpty())
@@ -1104,7 +1108,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     void testCreateManufacturer_whenAlreadyExists_got400() throws Exception {
         ManufacturerInput input = LabAdminTestUtils.getOmegaManufacturerInput();
         MvcResult result = mvc.perform(post(MANUFACTURER_URL)
-                .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", initializator.TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(input)))
                 .andExpect(status().is(400))
                 .andExpect(jsonPath("$.message").isNotEmpty())
@@ -1116,6 +1120,14 @@ class LabAdminControllerTest extends BaseControllerTest{
     private ChemicalInput getAcnInput() {
         ChemicalInput acnInput = LabAdminTestUtils.getAcnInput();
         return acnInput;
+    }
+
+    public String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

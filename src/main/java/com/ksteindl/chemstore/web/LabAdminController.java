@@ -123,7 +123,8 @@ public class LabAdminController {
             BindingResult result,
             Principal principal) {
         logger.info("POST '/shelf-life' was called with {}", shelfLifeInput);
-        ShelfLife shelfLife = shelfLifeService.createShelfLife(shelfLifeInput, result, principal);
+        mapValidationErrorService.throwExceptionIfNotValid(result);
+        ShelfLife shelfLife = shelfLifeService.createShelfLife(shelfLifeInput, principal);
         logger.info("POST '/shelf-life' was succesful with returned result{}", shelfLife);
         return new ResponseEntity<>(shelfLife, HttpStatus.CREATED);
     }
@@ -135,7 +136,8 @@ public class LabAdminController {
             BindingResult result,
             Principal principal) {
         logger.info("PUT '/shelf-life' was called with {}, with id {}, by {}", shelfLifeInput, id, principal.getName());
-        ShelfLife shelfLife = shelfLifeService.updateShelfLife(shelfLifeInput, id, result, principal);
+        mapValidationErrorService.throwExceptionIfNotValid(result);
+        ShelfLife shelfLife = shelfLifeService.updateShelfLife(shelfLifeInput, id, principal);
         logger.info("PUT '/shelf-life' was succesful with returned result{}", shelfLife);
         return new ResponseEntity<>(shelfLife, HttpStatus.CREATED);
     }
@@ -149,6 +151,14 @@ public class LabAdminController {
         List<ShelfLife> shelfLifes = shelfLifeService.getShelfLifesForLab(labKey, onlyActive, principal);
         logger.info("GET 'shelf-life/{labKey}' was succesful with {} item", shelfLifes.size());
         return new ResponseEntity<>(shelfLifes, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/shelf-life/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteShelfLife(@PathVariable Long id, Principal principal) {
+        logger.info("DELETE '/shelf-life' was calledwith id {}, by {}", id, principal.getName());
+        shelfLifeService.deleteShelfLife(id, principal);
+        logger.info("DELETE '/shelf-life' was succesful with 204 status");
     }
 
 }

@@ -10,10 +10,9 @@ import com.ksteindl.chemstore.web.MapValidationErrorService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.time.Duration;
@@ -37,34 +36,31 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
     @Autowired
     private AppUserService appUserService;
 
-    public ShelfLife createShelfLife(@Valid ShelfLifeInput shelfLifeInput, BindingResult result, Principal principal) {
+    public ShelfLife createShelfLife(ShelfLifeInput shelfLifeInput,Principal principal) {
         ShelfLife shelfLife = new ShelfLife();
-        ShelfLifeVlidatorWrapper validatorWrapper = ShelfLifeVlidatorWrapper.builder()
+        ShelfLifeValidatorWrapper validatorWrapper = ShelfLifeValidatorWrapper.builder()
                 .shelfLifeInput(shelfLifeInput)
                 .shelfLife(shelfLife)
                 .id(null)
-                .result(result)
                 .principal(principal)
                 .build();
         return createOrUpdateShelfLife(validatorWrapper);
     }
 
-    public ShelfLife updateShelfLife(@Valid ShelfLifeInput shelfLifeInput, Long id, BindingResult result, Principal principal) {
+    public ShelfLife updateShelfLife(@Valid ShelfLifeInput shelfLifeInput, Long id, Principal principal) {
         ShelfLife shelfLife = findById(id);
-        ShelfLifeVlidatorWrapper validatorWrapper = ShelfLifeVlidatorWrapper.builder()
+        ShelfLifeValidatorWrapper validatorWrapper = ShelfLifeValidatorWrapper.builder()
                 .shelfLifeInput(shelfLifeInput)
                 .shelfLife(shelfLife)
                 .id(id)
-                .result(result)
                 .principal(principal)
                 .build();
         return createOrUpdateShelfLife(validatorWrapper);
     }
 
-    private ShelfLife createOrUpdateShelfLife(ShelfLifeVlidatorWrapper validatorWrapper) {
+    private ShelfLife createOrUpdateShelfLife(ShelfLifeValidatorWrapper validatorWrapper) {
         ShelfLife shelfLife = validatorWrapper.shelfLife;
         ShelfLifeInput shelfLifeInput = validatorWrapper.shelfLifeInput;
-        mapValidationErrorService.throwExceptionIfNotValid(validatorWrapper.result);
         ChemType chemType = chemTypeService.findById(shelfLifeInput.getChemTypeId());
         Lab lab = getAndValidateLab(shelfLifeInput.getLabKey(), validatorWrapper.principal);
         throwExceptionIfNotUnique(shelfLifeInput, validatorWrapper.id);
@@ -122,8 +118,9 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
                 shelfLifeRepositoy.findAll();
     }
 
-    public void deleteSHelfLife(Long id) {
+    public void deleteShelfLife(Long id, Principal principal) {
         ShelfLife shelfLife = findById(id);
+        getAndValidateLab(shelfLife.getLab().getKey(), principal);
         shelfLife.setDeleted(true);
         shelfLifeRepositoy.save(shelfLife);
     }

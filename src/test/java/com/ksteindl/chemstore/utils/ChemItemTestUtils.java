@@ -1,4 +1,4 @@
-package com.ksteindl.chemstore.web.utils;
+package com.ksteindl.chemstore.utils;
 
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
 

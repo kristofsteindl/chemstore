@@ -1,8 +1,9 @@
-package com.ksteindl.chemstore.web.utils;
+package com.ksteindl.chemstore.utils;
 
 import com.ksteindl.chemstore.domain.input.ChemTypeInput;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
+import com.ksteindl.chemstore.domain.input.ShelfLifeInput;
 
 public class LabAdminTestUtils {
 
@@ -111,6 +112,40 @@ public class LabAdminTestUtils {
         poshateInput.setName(PHOSPHATE_SOLUTION_NAME);
         return poshateInput;
     }
+
+    public static final String BUFFER_SOLUTION_NAME = "Buffer Solution";
+    public static ChemTypeInput getBufferSolutionInput() {
+        ChemTypeInput input = new ChemTypeInput();
+        input.setName(BUFFER_SOLUTION_NAME);
+        return input;
+    }
+
+    public static final Integer BUFFER_FOR_ALPHA_DAYS = 50;
+    public static final Integer BUFFER_FOR_BETA_DAYS = 70;
+    public static final Integer SOLID_FOR_ALPHA_YEAR = 1;
+    public static final Integer SOLID_FOR_BETA_YEAR = 2;
+
+    public static final String BUFFER_FOR_ALPHA_UNIT = "d";
+    public static final String BUFFER_FOR_BETA_UNIT = "d";
+    public static final String SOLID_FOR_ALPHA_UNIT = "y";
+    public static final String SOLID_FOR_BETA_UNIT = "y";
+
+    public static ShelfLifeInput getSolidForAlphaInput() {
+        return ShelfLifeInput.builder()
+                .amount(LabAdminTestUtils.SOLID_FOR_ALPHA_YEAR)
+                .unit(LabAdminTestUtils.SOLID_FOR_ALPHA_UNIT)
+                .labKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
+                .build();
+    }
+
+    public static ShelfLifeInput getSolidForBetaInput() {
+        return ShelfLifeInput.builder()
+                .amount(LabAdminTestUtils.SOLID_FOR_BETA_YEAR)
+                .unit(LabAdminTestUtils.SOLID_FOR_BETA_UNIT)
+                .labKey(AccountManagerTestUtils.BETA_LAB_KEY)
+                .build();
+    }
+
 
 
 }

@@ -1,5 +1,6 @@
 package com.ksteindl.chemstore.domain.input;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.time.Duration;
 
 @Getter
 @Setter
+@Builder
 public class ShelfLifeInput implements Input{
 
     @Min(value = 1L, message = "amount of shelf life duration must be a positive integer (amount)")

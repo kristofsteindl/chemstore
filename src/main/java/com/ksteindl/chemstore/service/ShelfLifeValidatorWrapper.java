@@ -10,11 +10,10 @@ import java.security.Principal;
 
 @Data
 @Builder
-public class ShelfLifeVlidatorWrapper {
+public class ShelfLifeValidatorWrapper {
 
     ShelfLifeInput shelfLifeInput;
     ShelfLife shelfLife;
     Long id;
-    BindingResult result;
     Principal principal;
 }

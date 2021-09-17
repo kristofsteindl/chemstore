@@ -1,14 +1,10 @@
 package com.ksteindl.chemstore.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ksteindl.chemstore.BaseControllerTest;
 import com.ksteindl.chemstore.domain.entities.ChemItem;
-import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
-import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.service.ChemItemService;
-import com.ksteindl.chemstore.service.ChemicalService;
-import com.ksteindl.chemstore.web.utils.ChemItemTestUtils;
-import com.ksteindl.chemstore.web.utils.LabAdminTestUtils;
+import com.ksteindl.chemstore.utils.ChemItemTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -22,12 +18,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.util.AssertionErrors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.transaction.Transactional;
-import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,6 +39,8 @@ public class ChemItemControllerTest extends BaseControllerTest {
 
     private final String BASE_URL = "/api/chem-controller";
 
+    //CHEM ITEM
+    //CREATE
     @Test
     @Rollback
     @Transactional

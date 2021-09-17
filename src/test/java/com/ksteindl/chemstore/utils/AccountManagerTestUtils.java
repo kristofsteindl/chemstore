@@ -1,12 +1,16 @@
-package com.ksteindl.chemstore.web.utils;
+package com.ksteindl.chemstore.utils;
 
 import com.ksteindl.chemstore.domain.input.AppUserInput;
 import com.ksteindl.chemstore.domain.input.LabInput;
 import com.ksteindl.chemstore.security.Authority;
 
+import java.security.Principal;
 import java.util.List;
 
 public class AccountManagerTestUtils {
+
+    public static final Principal ALPHA_LAB_MANAGER_PRINCIPAL = new MockPrincipal(AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
+    public static final Principal BETA_LAB_MANAGER_PRINCIPAL = new MockPrincipal(AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME);
 
 
     public static final String ACCOUNT_MANAGER_USERNAME = "aman@account.com";

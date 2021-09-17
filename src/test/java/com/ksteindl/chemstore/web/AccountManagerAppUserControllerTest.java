@@ -1,11 +1,11 @@
 package com.ksteindl.chemstore.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ksteindl.chemstore.BaseControllerTest;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.AppUserService;
-import com.ksteindl.chemstore.web.utils.AccountManagerTestUtils;
+import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hamcrest.Matchers;
@@ -16,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
@@ -34,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class AccountManagerAppUserControllerTest extends BaseControllerTest{
+class AccountManagerAppUserControllerTest extends BaseControllerTest {
 
     private static final Logger logger = LogManager.getLogger(AccountManagerAppUserControllerTest.class);
 

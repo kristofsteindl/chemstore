@@ -1,11 +1,11 @@
 package com.ksteindl.chemstore.web;
 
+import com.ksteindl.chemstore.BaseControllerTest;
 import com.ksteindl.chemstore.security.JwtProvider;
-import com.ksteindl.chemstore.web.utils.AccountManagerTestUtils;
-import com.ksteindl.chemstore.web.utils.LabAdminTestUtils;
+import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
+import com.ksteindl.chemstore.utils.LabAdminTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hamcrest.Matchers;
 import org.hamcrest.core.IsNot;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class PublicControllerTest extends BaseControllerTest{
+public class PublicControllerTest extends BaseControllerTest {
 
     private static final Logger logger = LogManager.getLogger(PublicControllerTest.class);
 

@@ -17,7 +17,7 @@ public class Role {
     private Long id;
     private String role;
 
-    protected Role(String role) {
+    public Role(String role) {
         this.role = role;
     }
 

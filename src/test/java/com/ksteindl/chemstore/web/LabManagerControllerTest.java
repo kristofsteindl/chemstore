@@ -1,13 +1,12 @@
 package com.ksteindl.chemstore.web;
 
+import com.ksteindl.chemstore.BaseControllerTest;
 import com.ksteindl.chemstore.domain.entities.ChemType;
-import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.ChemTypeInput;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.ChemTypeService;
-import com.ksteindl.chemstore.service.ManufacturerService;
-import com.ksteindl.chemstore.web.utils.AccountManagerTestUtils;
-import com.ksteindl.chemstore.web.utils.LabAdminTestUtils;
+import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
+import com.ksteindl.chemstore.utils.LabAdminTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hamcrest.core.IsNot;
