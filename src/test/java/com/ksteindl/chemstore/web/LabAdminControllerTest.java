@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ksteindl.chemstore.BaseControllerTest;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
+import com.ksteindl.chemstore.domain.entities.ShelfLife;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
 import com.ksteindl.chemstore.domain.input.ShelfLifeInput;
@@ -564,6 +565,159 @@ class LabAdminControllerTest extends BaseControllerTest{
         logger.info("status code: " + result.getResponse().getStatus());
         logger.info(result.getResponse().getContentAsString());
     }
+
+    //READ
+    @Test
+    @Rollback
+    @Transactional
+    void testGetShelfLifesForAlphaLab_whenAlphaLabAdmin_gotValidArray() throws Exception {
+        mvc.perform(get(SHELF_LIFE_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[0].id").isNumber())
+                .andExpect(jsonPath("$[0].lab.key").isString())
+                .andExpect(jsonPath("$[0].chemType.name").isString())
+                .andExpect(jsonPath("$", hasSize(shelfLifeService.findByLab(ALPHA_LAB_KEY, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL).size())));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetShelfLifesForLab_whenBetaLabAdmin_got400() throws Exception {
+        mvc.perform(get(SHELF_LIFE_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(400));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetShelfLifesForLab_whenUser_got403() throws Exception {
+        mvc.perform(get(SHELF_LIFE_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testFindShelfLifesByLab_whenLabKeyDoesNotExists_got404() throws Exception {
+        mvc.perform(get(SHELF_LIFE_URL + "/non-existing")
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetShelfLifesForAlphaLab_withOnlyActiveFalse_gotValidArray() throws Exception {
+        mvc.perform(get(SHELF_LIFE_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("onlyActive", "false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))));
+    }
+
+    //DELETE
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteShelfLife_whenLabManager_got204() throws Exception {
+        ShelfLifeInput input = getSolidForAlphaInput();
+        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
+                .findAny().get().getId();
+        MvcResult result = mvc.perform(delete(SHELF_LIFE_URL + "/" + id)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(204))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteShelfLife_whenLabAdmin_got204() throws Exception {
+        ShelfLifeInput input = getSolidForAlphaInput();
+        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
+                .findAny().get().getId();
+        MvcResult result = mvc.perform(delete(SHELF_LIFE_URL + "/" + id)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(204))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteShelfLife_whenNotRelatedManager_got400() throws Exception {
+        ShelfLifeInput input = getSolidForAlphaInput();
+        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
+                .findAny().get().getId();
+        MvcResult result = mvc.perform(delete(SHELF_LIFE_URL + "/" + id)
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteShelfLife_whenUser_got403() throws Exception {
+        ShelfLifeInput input = getSolidForAlphaInput();
+        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
+                .findAny().get().getId();
+        MvcResult result = mvc.perform(delete(SHELF_LIFE_URL + "/" + id)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteShelfLife_whenNonExistingId_got404() throws Exception {
+        MvcResult result = mvc.perform(delete(SHELF_LIFE_URL + "/" + Integer.MAX_VALUE)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(404))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteShelfLife_whenAlreadyDeleted_got404() throws Exception {
+        Long id = shelfLifeService.getShelfLifes(false).stream()
+                .filter(ShelfLife::getDeleted)
+                .findAny().get().getId();
+        MvcResult result = mvc.perform(delete(SHELF_LIFE_URL + "/" + id)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER))
+                .andExpect(status().is(404))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
 
 
 //CHEMICAL
