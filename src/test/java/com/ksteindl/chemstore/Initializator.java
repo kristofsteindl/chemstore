@@ -105,7 +105,7 @@ public class Initializator implements ApplicationListener<ContextRefreshedEvent>
             ChemTypeInput bufferSolutionInput = LabAdminTestUtils.getBufferSolutionInput();
             ChemType bufferSolution = chemTypeService.createChemType(bufferSolutionInput);
 
-            ChemTypeInput waterChemTypeInput = LabAdminTestUtils.getBufferSolutionInput();
+            ChemTypeInput waterChemTypeInput = LabAdminTestUtils.getWaterChemTypeInput();
             ChemType waterChemType = chemTypeService.createChemType(waterChemTypeInput);
 
             ChemTypeInput posphateSolutionInput = LabAdminTestUtils.getPhosphateSolutionInput();

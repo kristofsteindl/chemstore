@@ -1,6 +1,9 @@
 package com.ksteindl.chemstore.service;
 
-import com.ksteindl.chemstore.domain.entities.*;
+import com.ksteindl.chemstore.domain.entities.AppUser;
+import com.ksteindl.chemstore.domain.entities.ChemType;
+import com.ksteindl.chemstore.domain.entities.Lab;
+import com.ksteindl.chemstore.domain.entities.ShelfLife;
 import com.ksteindl.chemstore.domain.input.ShelfLifeInput;
 import com.ksteindl.chemstore.domain.repositories.ShelfLifeRepositoy;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
@@ -57,20 +60,33 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
         return createOrUpdateShelfLife(validatorWrapper);
     }
 
+
+    public ShelfLife findById(Long id) {
+        return findById(id, true);
+    }
+
+    public ShelfLife findById(Long id, Boolean onlyActive) {
+        ShelfLife shelfLife = shelfLifeRepositoy.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.MANUFACTURER_ENTITY_NAME, id));
+        if (onlyActive && shelfLife.getDeleted()) {
+            throw new ResourceNotFoundException(String.format(Lang.SHELF_LIFE_ALREADY_DELETED, shelfLife.getChemType().getName(), shelfLife.getLab().getName()));
+        }
+        return shelfLife;
+    }
+
     public Optional<ShelfLife> findByLabAndChemType(Lab lab, ChemType chemType) {
         return shelfLifeRepositoy.findByLabAndChemType(lab, chemType);
     }
 
-    public List<ShelfLife> findShelfLifesByLab(String labKey, Principal principal) {
-        return findShelfLifesByLab(labKey, true, principal);
+    public List<ShelfLife> findByLab(String labKey, Principal principal) {
+        return findByLab(labKey, true, principal);
     }
 
 
-    public List<ShelfLife> findShelfLifesByLab(String labKey, boolean onlyActive, Principal principal) {
+    public List<ShelfLife> findByLab(String labKey, boolean onlyActive, Principal principal) {
         Lab lab = getAndValidateLab(labKey, principal);
         return onlyActive ?
-                shelfLifeRepositoy.findByLab(lab) :
-                shelfLifeRepositoy.findByLabOnlyActive(lab);
+                shelfLifeRepositoy.findByLabOnlyActive(lab) :
+                shelfLifeRepositoy.findByLab(lab);
     }
 
     public List<ShelfLife> getShelfLifes() {
@@ -88,18 +104,6 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
         getAndValidateLab(shelfLife.getLab().getKey(), principal);
         shelfLife.setDeleted(true);
         shelfLifeRepositoy.save(shelfLife);
-    }
-
-    public ShelfLife findById(Long id) {
-        return findById(id, true);
-    }
-
-    public ShelfLife findById(Long id, Boolean onlyActive) {
-        ShelfLife shelfLife = shelfLifeRepositoy.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.MANUFACTURER_ENTITY_NAME, id));
-        if (onlyActive && shelfLife.getDeleted()) {
-            throw new ValidationException(String.format(Lang.SHELF_LIFE_ALREADY_DELETED, shelfLife.getChemType().getName(), shelfLife.getLab().getName()));
-        }
-        return shelfLife;
     }
 
     private ShelfLife createOrUpdateShelfLife(ShelfLifeValidatorWrapper validatorWrapper) {

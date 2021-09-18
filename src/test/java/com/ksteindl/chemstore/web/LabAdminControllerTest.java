@@ -2,18 +2,16 @@ package com.ksteindl.chemstore.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ksteindl.chemstore.BaseControllerTest;
-import com.ksteindl.chemstore.Initializator;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
-import com.ksteindl.chemstore.security.JwtProvider;
+import com.ksteindl.chemstore.domain.input.ShelfLifeInput;
 import com.ksteindl.chemstore.service.ChemTypeService;
 import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.ManufacturerService;
 import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.utils.LabAdminTestUtils;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hamcrest.core.IsNot;
@@ -33,7 +31,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.transaction.Transactional;
-
 import java.util.Map;
 import java.util.Optional;
 
@@ -58,7 +55,240 @@ class LabAdminControllerTest extends BaseControllerTest{
     private final String BASE_URL = "/api/lab-admin";
     private final String MANUFACTURER_URL = BASE_URL + "/manufacturer";
     private final String CHEMICAL_URL = BASE_URL + "/chemical";
+    private final String SHELF_LIFE_URL = BASE_URL + "/shelf-life";
     private final String CHANGED_ETHANOL_EXACT_NAME = "Changed ethanol exact name";
+
+// SHELF LIFE
+    //CREATE
+    @Test
+    @Rollback
+    @Transactional
+    void testShelfLife_whenLabAdmin_got201() throws Exception {
+        ShelfLifeInput input = getSolidForBetaInput();
+        Long chemTypeId = chemTypeService.getChemTypes().stream()
+                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_COMPOUND_NAME))
+                .findAny()
+                .get()
+                .getId();
+        input.setChemTypeId(chemTypeId);
+        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withAccountManager_got201() throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().isCreated())
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withAlphaLabManager_got201() throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().isCreated())
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withAlphaLabUser_got403() throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().is(403))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withLabAdmin_fetchedFromDbIsExpected(@Autowired ChemicalService chemicalService) throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().isCreated())
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//        Optional<Chemical> optional = chemicalService.getChemicals().stream().filter(chemical -> chemical.getShortName().equals(input.getShortName())).findAny();
+//        if (optional.isEmpty()) {
+//            AssertionErrors.fail("Chemical was not found after the calling succesfully POST " + MANUFACTURER_URL);
+//        }
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withChemType_gotChemicalWithChemType(@Autowired ChemicalService chemicalService, @Autowired ChemTypeService chemTypeService) throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        input.setChemTypeId(chemTypeService.getChemTypes().stream().filter(chemType -> chemType.getName().equals(SOLID_COMPOUND_NAME)).findAny().get().getId());
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().is(201))
+//                .andExpect(jsonPath("$.chemType.name", is(SOLID_COMPOUND_NAME)))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//        JSONObject testChemItemJSONObject = new JSONObject(result.getResponse().getContentAsString());
+//        Chemical fetchedChemical = chemicalService.findById(testChemItemJSONObject.getLong("id"));
+//        Assertions.assertEquals(SOLID_COMPOUND_NAME, fetchedChemical.getChemType().getName());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withEmptyInput1_got400() throws Exception {
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content(""))
+//                .andExpect(status().is(400))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withEmptyInput2_got400() throws Exception {
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content("{}"))
+//                .andExpect(status().is(400))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withEmptyShortName1_got400() throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        input.setShortName(null);
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().is(400))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withEmptyShortName2_got400() throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        input.setShortName("");
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().is(400))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withEmptyExactName1_got400() throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        input.setExactName(null);
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().is(400))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withEmptyExactName2_got400() throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        input.setExactName("");
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().is(400))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_withInvalidChemType_got400() throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        input.setChemTypeId(-1l);
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().is(400))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_whenShortNameAlreadyExists_got400() throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        input.setShortName(LabAdminTestUtils.ETHANOL_SHORT_NAME);
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().is(400))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemical_whenExactNameAlreadyExists_got400() throws Exception {
+//        ChemicalInput input = getAcnInput();
+//        input.setExactName(LabAdminTestUtils.ETHANOL_EXACT_NAME);
+//        MvcResult result = mvc.perform(post(CHEMICAL_URL)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(input)))
+//                .andExpect(status().is(400))
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
 
 //CHEMICAL
 
