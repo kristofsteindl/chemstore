@@ -18,10 +18,15 @@ public class BaseControllerTest {
     private static final Logger logger = LogManager.getLogger(BaseControllerTest.class);
 
     protected static String TOKEN_FOR_ACCOUNT_MANAGER;
+
     protected static String TOKEN_FOR_ALPHA_LAB_ADMIN;
     protected static String TOKEN_FOR_BETA_LAB_ADMIN;
+
     protected static String TOKEN_FOR_ALPHA_LAB_MANAGER;
+    protected static String TOKEN_FOR_BETA_LAB_MANAGER;
+
     protected static String TOKEN_FOR_ALPHA_LAB_USER;
+    protected static String TOKEN_FOR_BETA_LAB_USER;
 
 
     @Autowired
@@ -63,9 +68,11 @@ public class BaseControllerTest {
 
         TOKEN_FOR_ACCOUNT_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
         TOKEN_FOR_ALPHA_LAB_ADMIN = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
-        TOKEN_FOR_ALPHA_LAB_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);;
-        TOKEN_FOR_ALPHA_LAB_USER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);;
-        TOKEN_FOR_BETA_LAB_ADMIN= jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_USER_USERNAME);;
+        TOKEN_FOR_ALPHA_LAB_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
+        TOKEN_FOR_ALPHA_LAB_USER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+        TOKEN_FOR_BETA_LAB_ADMIN= jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_ADMIN_USERNAME);
+        TOKEN_FOR_BETA_LAB_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME);
+        TOKEN_FOR_BETA_LAB_USER = jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_USER_USERNAME);
 
 
 
