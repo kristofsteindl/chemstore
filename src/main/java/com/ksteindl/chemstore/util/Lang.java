@@ -34,6 +34,8 @@ public class Lang {
 
     public static final String CHEM_ITEM_CREATION_NOT_AUTHORIZED = "Adding new chemical to %s is forbidden. %s has to be assigned to lab as user or as lab admin, or has to be the manager of the lab";
     public static final String CHEM_ITEM_ARRIVAL_DATE_IS_FUTURE = "Arrival date of the chemical item (%s) (arrivalDate) cannot be in the future";
+    public static final String CHEM_ITEM_EXP_DATE_IS_IN_PAST = "Expiration Date of item (expirationDateBeforeOpened) (%s) cannot be in the past";
+
 
     public static final String CHEM_TYPE_WITH_SAME_NAME_FOUND_TEMPLATE = "Chemical item with name '%s' is already exists";
     public static final String CHEM_TYPE_ENTITY_NAME = "Chemical type";

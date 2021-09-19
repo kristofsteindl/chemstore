@@ -5,14 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ksteindl.chemstore.service.wrapper.AppUserCard;
 import com.ksteindl.chemstore.service.wrapper.LabCard;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter
+@Setter
 public class ChemItem {
 
     // Maybe @JoinColumn(name = ...) is missing from every @ManyToOne attribute?

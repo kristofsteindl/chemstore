@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/chem-item")
@@ -27,14 +28,14 @@ public class ChemItemController {
     private ChemItemService chemItemService;
 
     @PostMapping
-    public ResponseEntity<ChemItem> createChemItem(
+    public ResponseEntity<List<ChemItem>> createChemItems(
             @RequestBody @Valid ChemItemInput chemItemInput,
             BindingResult result,
             Principal principal) {
         logger.info("POST '/chem-item' was called with {}", chemItemInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        ChemItem chemItem = chemItemService.createChemItem(chemItemInput, principal);
-        logger.info("POST '/chem-item' was succesful with returned result{}", chemItem);
-        return ResponseEntity.status(HttpStatus.CREATED).body(chemItem);
+        List<ChemItem> chemItems = chemItemService.createChemItems(chemItemInput, principal);
+        logger.info("POST '/chem-item' was succesful with returned result{}", chemItems);
+        return ResponseEntity.status(HttpStatus.CREATED).body(chemItems);
     }
 }

@@ -1,10 +1,10 @@
 package com.ksteindl.chemstore.service;
 
-import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
-import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.repositories.ChemicalRepository;
+import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
+import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.util.Lang;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -38,7 +38,7 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
     }
 
 
-    public Chemical getChemicalByShortName(String shortName) {
+    public Chemical findByShortName(String shortName) {
         return chemicalRepository.findByShortName(shortName).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, shortName));
     }
 

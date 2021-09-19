@@ -27,7 +27,7 @@ public class ChemItemInput implements Input{
     private String chemicalShortName;
 
     @NotNull(message = "Manufacturer name is required (manufacturerName)")
-    private String manufacturerName;
+    private Long manufacturerId;
 
     @NotBlank(message = "Batch number of chemical cannot be blank")
     private String batchNumber;
@@ -39,6 +39,9 @@ public class ChemItemInput implements Input{
     @NotBlank(message = "unit is required")
     private String unit;
 
+    @NotBlank(message = "amount is required")
+    private Integer amount;
+
     @JsonFormat(pattern = "yyyy-MM-dd")
     @NotBlank(message = "Expiration date (before opened) is required")
     private LocalDate expirationDateBeforeOpened;
@@ -48,10 +51,11 @@ public class ChemItemInput implements Input{
         private String labKey;
         private LocalDate arrivalDate;
         private String chemicalName;
-        private String manufacturerName;
+        private Long manufacturerId;
         private String batchNumber;
         private Double quantity;
         private String unit;
+        private Integer amount;
         private LocalDate expirationDateBeforeOpened;
 
         public ChemItemInputBuilder setLabKey(String labKey) {
@@ -69,8 +73,8 @@ public class ChemItemInput implements Input{
             return this;
         }
 
-        public ChemItemInputBuilder setManufacturerName(String manufacturerName) {
-            this.manufacturerName = manufacturerName;
+        public ChemItemInputBuilder setManufacturerId(Long manufacturerId) {
+            this.manufacturerId = manufacturerId;
             return this;
         }
 
@@ -89,13 +93,18 @@ public class ChemItemInput implements Input{
             return this;
         }
 
+        public ChemItemInputBuilder setAmount(Integer amount) {
+            this.amount = amount;
+            return this;
+        }
+
         public ChemItemInputBuilder setExpirationDateBeforeOpened(LocalDate expirationDateBeforeOpened) {
             this.expirationDateBeforeOpened = expirationDateBeforeOpened;
             return this;
         }
 
         public ChemItemInput build() {
-            return new ChemItemInput(labKey, arrivalDate, chemicalName, manufacturerName, batchNumber, quantity, unit, expirationDateBeforeOpened);
+            return new ChemItemInput(labKey, arrivalDate, chemicalName, manufacturerId, batchNumber, quantity, unit, amount, expirationDateBeforeOpened);
         }
     }
 

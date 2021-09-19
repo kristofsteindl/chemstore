@@ -796,7 +796,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteEthanol_whenAuthorized_got204(@Autowired ChemicalService chemicalService) throws Exception {
-        Chemical ethanol = chemicalService.getChemicalByShortName(ETHANOL_SHORT_NAME);
+        Chemical ethanol = chemicalService.findByShortName(ETHANOL_SHORT_NAME);
         String url = MANUFACTURER_URL + "/" + ethanol.getId();
 
         MvcResult result = mvc.perform(delete(url)
@@ -810,7 +810,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteEthanol_whenUser_got403(@Autowired ChemicalService chemicalService) throws Exception {
-        Chemical ethanol = chemicalService.getChemicalByShortName(ETHANOL_SHORT_NAME);
+        Chemical ethanol = chemicalService.findByShortName(ETHANOL_SHORT_NAME);
         String url = MANUFACTURER_URL + "/" + ethanol.getId();
 
         MvcResult result = mvc.perform(delete(url)
@@ -824,7 +824,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteEthanolTwoTimes_whenAuthorized_got400SocondTime(@Autowired ChemicalService chemicalService) throws Exception {
-        Chemical ethanol = chemicalService.getChemicalByShortName(ETHANOL_SHORT_NAME);
+        Chemical ethanol = chemicalService.findByShortName(ETHANOL_SHORT_NAME);
         String url = MANUFACTURER_URL + "/" + ethanol.getId();
 
         MvcResult result1 = mvc.perform(delete(url)
@@ -856,7 +856,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteDeletedChemical_whenAuthorized_got400(@Autowired ChemicalService chemicalService) throws Exception {
-        Chemical ipa = chemicalService.getChemicalByShortName(ISOPROPYL_ALCHOL_SHORT_NAME);
+        Chemical ipa = chemicalService.findByShortName(ISOPROPYL_ALCHOL_SHORT_NAME);
         String url = CHEMICAL_URL + "/" + ipa.getId();
 
         MvcResult result = mvc.perform(delete(url)

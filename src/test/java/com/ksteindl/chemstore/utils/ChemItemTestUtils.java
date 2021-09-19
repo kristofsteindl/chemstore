@@ -13,7 +13,7 @@ public class ChemItemTestUtils {
         return ChemItemInput.builder()
                 .setLabKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
                 .setChemicalName(LabAdminTestUtils.ETHANOL_SHORT_NAME)
-                .setManufacturerName(LabAdminTestUtils.ALPHA_MANUFACTURER_NAME)
+                .setManufacturerId(-1l)
                 .setArrivalDate(LocalDate.now())
                 .setBatchNumber(TEST_CHEM_ITEM_BATCH_NUMBER)
                 .setExpirationDateBeforeOpened(LocalDate.now().plusYears(1))

@@ -157,7 +157,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
         Assertions.assertEquals(testChemItemInput.getArrivalDate(), testChemItemJSONObject.getString("arrivalDate"));
         Assertions.assertEquals(testChemItemInput.getBatchNumber(), testChemItemJSONObject.getString("batchNumber"));
         Assertions.assertEquals(testChemItemInput.getChemicalShortName(), testChemItemJSONObject.getJSONObject("chemical").getString("shortName"));
-        Assertions.assertEquals(testChemItemInput.getManufacturerName(), testChemItemJSONObject.getJSONObject("manufacturer").getString("name"));
+        Assertions.assertEquals(testChemItemInput.getManufacturerId(), testChemItemJSONObject.getJSONObject("manufacturer").getString("name"));
         Assertions.assertEquals(testChemItemInput.getExpirationDateBeforeOpened(), testChemItemJSONObject.getString("expirationDateBeforeOpened"));
         Assertions.assertEquals(testChemItemInput.getQuantity(), testChemItemJSONObject.getDouble("quantity"));
         Assertions.assertEquals(testChemItemInput.getUnit(), testChemItemJSONObject.getString("unit"));
@@ -328,9 +328,9 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Test
     @Rollback
     @Transactional
-    void testCreateChemItem_withEmptyManufacturerName1_got400() throws Exception {
+    void testCreateChemItem_withEmptyManufacturerId1_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput();
-        testChemItemInput.setManufacturerName(null);
+        testChemItemInput.setManufacturerId(null);
         MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
@@ -340,27 +340,13 @@ public class ChemItemControllerTest extends BaseControllerTest {
         logger.info(result.getResponse().getContentAsString());
     }
 
-    @Test
-    @Rollback
-    @Transactional
-    void testCreateChemItem_withEmptyManufacturerName2_got400() throws Exception {
-        ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput();
-        testChemItemInput.setManufacturerName("");
-        MvcResult result = mvc.perform(post(BASE_URL)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(testChemItemInput)))
-                .andExpect(status().is(400))
-                .andReturn();
-        logger.info("status code: " + result.getResponse().getStatus());
-        logger.info(result.getResponse().getContentAsString());
-    }
 
     @Test
     @Rollback
     @Transactional
     void testCreateChemItem_withNonExistingManufacturerName_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput();
-        testChemItemInput.setManufacturerName("non-existing");
+        testChemItemInput.setManufacturerId((long)Integer.MAX_VALUE);
         MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
