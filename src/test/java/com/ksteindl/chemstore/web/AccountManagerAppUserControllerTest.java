@@ -124,6 +124,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     @Rollback
     void testUpdateAlphaLabUserAppUser_whenEmpty1_gotNOK(@Autowired AppUserService appUserService) throws Exception {
 
@@ -144,6 +145,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     @Rollback
     void testUpdateAlphaLabUserAppUser_whenEmpty2_gotNOK(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
@@ -165,6 +167,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
 
 
     @Test
+    @Transactional
     @Rollback
     void testUpdateAlphaLabUser_whenNotEmailUsername_gotNOK(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
@@ -184,6 +187,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     @Rollback
     void testUpdateAlphaLabUser_whenUsernameEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
@@ -203,6 +207,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     @Rollback
     void testUpdateAlphaLabUser_whenFullNameEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
@@ -222,6 +227,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     @Rollback
     void testUpdateAlphaLabUser_whenPasswordEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
@@ -241,6 +247,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     @Rollback
     void testUpdateAlphaLabUser_whenPasswordsAreNotTheSame_gotNOK(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
@@ -261,6 +268,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     @Rollback
     void testUpdateAlphaLabUser_whenOneOfLabAsAdminKeyIsInvalid_gotNOK(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
@@ -280,6 +288,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     @Rollback
     void testUpdateAlphaLabUser_whenOneOfLabAsUserKeyIsInvalid_gotNOK(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
@@ -300,6 +309,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
 
     // CREATE
     @Test
+    @Rollback
+    @Transactional
     void testCreateAppUserWithManagerRole_whenAuthorized_got201AndAuthorizedForGetAllUser() throws Exception {
         String url = "/api/account/user";
 
@@ -316,6 +327,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testCreateAppUser_whenEmpty1_gotNOK() throws Exception {
         String url = "/api/account/user";
         MvcResult result = mvc.perform(post(url)
@@ -329,6 +342,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testCreateAppUser_whenEmpty2_gotNOK() throws Exception {
         String url = "/api/account/user";
         MvcResult result = mvc.perform(post(url)
@@ -344,6 +359,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     void testCreateAppUser_whenNotEmailUsername_gotNOK() throws Exception {
         String url = "/api/account/user";
         AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
@@ -360,6 +377,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testCreateAppUser_whenNotUsernameNotUnique_gotNOK() throws Exception {
         String url = "/api/account/user";
         AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
@@ -376,6 +395,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testCreateAppUser_whenNotUsernameEmpty_gotNOK() throws Exception {
         String url = "/api/account/user";
         AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
@@ -392,6 +413,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testCreateAppUser_whenFullNameEmpty_gotNOK() throws Exception {
         String url = "/api/account/user";
         AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
@@ -408,6 +431,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testCreateAppUser_whenPasswordEmpty_gotNOK() throws Exception {
         String url = "/api/account/user";
         AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
@@ -424,6 +449,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testCreateAppUser_whenPasswordNotTheSame_gotNOK() throws Exception {
         String url = "/api/account/user";
         AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
@@ -441,6 +468,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testCreateAppUser_whenOneOfLabAsAdminKeyIsInvalid_gotNOK() throws Exception {
         String url = "/api/account/user";
         AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
@@ -457,6 +486,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testCreateAppUser_whenOneOfLabAsUserKeyIsInvalid_gotNOK() throws Exception {
         String url = "/api/account/user";
         AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
@@ -474,12 +505,16 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
 
     // READ
     @Test
+    @Transactional
+    @Rollback
     void testGetAllAppUsers_whenAuthorized_gotValidResponse() throws Exception {
         testGetAllAppUser_whenAuthorized_gotValidResponse(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
     }
 
     //@Disabled // TODO Fixme! Instead of checking whether there is a deleted appUser, I should ALPHA_BETA_LAB_DELETED_USER_INPUT is deleted
     @Test
+    @Transactional
+    @Rollback
     void testGetAllAppUsers_whenAuthorizedOnlyActiveFalse_gotDeletedUser() throws Exception {
         String url = "/api/account/user";
         mvc.perform(get(url)
@@ -491,6 +526,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllAppUser_whenLabManager_got403() throws Exception {
         String url = "/api/account/user";
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_MANAGER_USERNAME);
@@ -499,6 +535,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllAppUser_whenLabAdmin_got403() throws Exception {
         String url = "/api/account/user";
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_ADMIN_USERNAME);
@@ -507,6 +544,8 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllAppUser_whenUser_got403() throws Exception {
         String url = "/api/account/user";
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_USER_USERNAME);

@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.transaction.Transactional;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -46,6 +47,7 @@ public class PublicControllerTest extends BaseControllerTest {
 
     //CHEMICAL
     @Test
+    @Transactional
     void testGetAllChemicals_whenAlphaLabUserLoggedIn_got200() throws Exception{
         mvc.perform(get(URL_CHEMICAL)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -54,6 +56,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllChemicals_whenAlphaLabUserLoggedIn_hasItemEtOH() throws Exception{
         mvc.perform(get(URL_CHEMICAL)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -64,6 +67,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllChemicals_whenAlphaLabUserLoggedIn_hasItemMeOH() throws Exception{
         mvc.perform(get(URL_CHEMICAL)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -74,6 +78,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+@Transactional
     void testGetAllChemicals_whenAlphaLabUserLoggedIn_hasNoItemIPA() throws Exception{
         mvc.perform(get(URL_CHEMICAL)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -84,6 +89,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllChemicals_whenAlphaLabUserLoggedIn_EtOHHasProperAttributes() throws Exception{
         mvc.perform(get(URL_CHEMICAL)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -97,6 +103,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllChemicals_whenNoUserIsLoggedIn_got401() throws Exception{
         mvc.perform(get(URL_CHEMICAL)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -106,6 +113,7 @@ public class PublicControllerTest extends BaseControllerTest {
 
     //MANUFACTURER
     @Test
+    @Transactional
     void testGetAllManufacturers_whenAlphaLabUserLoggedIn_got200() throws Exception{
         mvc.perform(get(URL_MANUFACTURER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -114,6 +122,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllManufacturers_whenAlphaLabUserLoggedIn_hasItemOmagaManufacturer() throws Exception{
         mvc.perform(get(URL_MANUFACTURER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -124,6 +133,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllManufacturers_whenAlphaLabUserLoggedIn_hasItemGammaManufacturer() throws Exception{
         mvc.perform(get(URL_MANUFACTURER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -134,6 +144,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllManufacturers_whenAlphaLabUserLoggedIn_hasNoItemDeltaManufacturer() throws Exception{
         mvc.perform(get(URL_MANUFACTURER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -144,6 +155,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllManufacturers_whenAlphaLabUserLoggedIn_gammaManufacturerHasProperAttributes() throws Exception{
         mvc.perform(get(URL_MANUFACTURER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -156,6 +168,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllManufacturers_whenNoUserIsLoggedIn_got401() throws Exception{
         mvc.perform(get(URL_MANUFACTURER)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -166,6 +179,7 @@ public class PublicControllerTest extends BaseControllerTest {
 
     //USER
     @Test
+    @Transactional
     void testGetAllAppUsers_whenAlphaLabUserLoggedIn_got200() throws Exception{
         mvc.perform(get(URL_USERS)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -174,6 +188,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllAppUsers_whenAlphaLabUserLoggedIn_hasItemAlphaLabUser() throws Exception{
         mvc.perform(get(URL_USERS)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -184,6 +199,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllAppUsers_whenAlphaLabUserLoggedIn_hasItemBetaLabUser() throws Exception{
         mvc.perform(get(URL_USERS)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -194,6 +210,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllAppUsers_whenAlphaLabUserLoggedIn_hasItemAccountManager() throws Exception{
         mvc.perform(get(URL_USERS)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -204,6 +221,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllAppUsers_whenAlphaLabUserLoggedIn_hasAlphaLabUserHasCardAttributes() throws Exception{
         mvc.perform(get(URL_USERS)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -215,6 +233,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testGetAllAppUser_whenNoUserIsLoggedIn_got401() throws Exception{
         mvc.perform(get(URL_USERS)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -224,6 +243,7 @@ public class PublicControllerTest extends BaseControllerTest {
 
     //ME
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabUserLoggedIn_got200() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -234,6 +254,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenNoUserIsLoggedIn_got401() throws Exception{
         mvc.perform(get(URL_ME)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -242,6 +263,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabUserLoggedIn_simpleAttributesAreCorrect() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -254,6 +276,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabUserLoggedIn_hasNoPassword() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -263,6 +286,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabUserLoggedIn_labsAsUserHasAlphaLab() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -273,6 +297,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabUserLoggedIn_labsAsUserHasNoBetaLab() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -282,6 +307,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabUserLoggedIn_labsAsAdminIsEmpty() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -291,6 +317,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabUserLoggedIn_rolesIsEmpty() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -300,6 +327,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabUserLoggedIn_managedLabsIsEmpty() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -309,6 +337,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabAdminLoggedIn_labsAsAdminHasAlphaLab() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -318,6 +347,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabAdminLoggedIn_labsAsAdminHasNoBetaLab() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -327,6 +357,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabManagerLoggedIn_managedLabsHasAlphaLab() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -335,6 +366,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAlphaLabManagerLoggedIn_managedLabsHasNoBetaLab() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -343,6 +375,7 @@ public class PublicControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
     void testUserProfile_whenAccountManagerLoggedIn_rolesHasAccountManager() throws Exception{
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))

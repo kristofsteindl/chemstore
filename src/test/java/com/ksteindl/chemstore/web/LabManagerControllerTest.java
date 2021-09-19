@@ -26,9 +26,9 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import javax.transaction.Transactional;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,6 +50,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     private MockMvc mvc;
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllChemTypes_whenLabManager_got200(@Autowired ChemTypeService chemTypeService) throws Exception {
         mvc.perform(get(URL_CHEM_TYPE)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -57,6 +59,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllChemTypes_whenAccountManager_got200(@Autowired ChemTypeService chemTypeService) throws Exception {
         mvc.perform(get(URL_CHEM_TYPE)
                         .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -64,6 +68,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllChemTypes_whenLabAdmin_got403(@Autowired ChemTypeService chemTypeService) throws Exception {
         mvc.perform(get(URL_CHEM_TYPE)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -71,6 +77,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllChemTypes_whenLabUser_got403(@Autowired ChemTypeService chemTypeService) throws Exception {
         mvc.perform(get(URL_CHEM_TYPE)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -78,6 +86,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllChemTypes_whenLabManager_gotValidArray(@Autowired ChemTypeService chemTypeService) throws Exception {
         mvc.perform(get(URL_CHEM_TYPE)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER)
@@ -92,6 +102,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllChemTypes_whenLabManager_gotArrayWIthoutDeleted(@Autowired ChemTypeService chemTypeService) throws Exception {
         mvc.perform(get(URL_CHEM_TYPE)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER)
@@ -104,6 +116,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllChemTypes_WithOnlyActiveFalse_gotArrayWithDeleted(@Autowired ChemTypeService chemTypeService) throws Exception {
         mvc.perform(get(URL_CHEM_TYPE)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER)
@@ -577,6 +591,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromManagedLabs_whenAlphaLabManager_gotCorrectResponseObject() throws Exception{
         mvc.perform(get(URL_USER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -589,6 +605,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromManagedLabs_whenAlphaLabManager_hasAlphaLabUserInAlphaLab() throws Exception{
         mvc.perform(get(URL_USER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -598,6 +616,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromManagedLabs_whenAlphaLabManager_doesNotHaveItemBetaLabUser() throws Exception{
         mvc.perform(get(URL_USER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -607,6 +627,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromManagedLabs_whenAlphaLabManager_hasNoBetaLabUsers() throws Exception{
         mvc.perform(get(URL_USER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -617,6 +639,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromManagedLabs_whenAlphaLabUser_got403() throws Exception{
         MvcResult result = mvc.perform(get(URL_USER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -628,6 +652,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromManagedLabs_whenAlphaLabAdmin_got403() throws Exception{
         MvcResult result = mvc.perform(get(URL_USER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -639,6 +665,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromManagedLabs_whenAlphaLabManager_didNotgetBetaLabUsers() throws Exception{
         MvcResult result = mvc.perform(get(URL_USER)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -651,6 +679,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromAlphaLab_whenAlphaLabManager_gotTwoUsers() throws Exception{
         mvc.perform(get(URL_ALPHA_LAB)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -661,6 +691,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromAlphaLab_whenAlphaLabManager_hasItemAlphaLabUser() throws Exception{
         mvc.perform(get(URL_ALPHA_LAB)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -670,6 +702,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromAlphaLab_whenAlphaLabManager_doesNotHaveItemBetaLabUser() throws Exception{
         mvc.perform(get(URL_ALPHA_LAB)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -679,6 +713,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromAlphaLab_whenAlphaLabAdmin_got403() throws Exception{
         MvcResult result = mvc.perform(get(URL_ALPHA_LAB)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -690,6 +726,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     void testGetAllUsersFromAlphaLab_whenAlphaLabUser_got403() throws Exception{
         MvcResult result = mvc.perform(get(URL_ALPHA_LAB)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
