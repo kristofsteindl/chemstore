@@ -9,6 +9,7 @@ import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.utils.LabAdminTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -79,6 +80,7 @@ public class BaseControllerTest {
 
     }
 
+    @BeforeAll
     static void initDb(
             @Autowired AppUserService appUserService,
             @Autowired LabService labService,

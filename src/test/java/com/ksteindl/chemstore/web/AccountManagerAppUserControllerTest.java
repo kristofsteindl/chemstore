@@ -308,23 +308,6 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     }
 
     // CREATE
-    @Test
-    @Rollback
-    @Transactional
-    void testCreateAppUserWithManagerRole_whenAuthorized_got201AndAuthorizedForGetAllUser() throws Exception {
-        String url = "/api/account/user";
-
-        AppUserInput newmanInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
-        MvcResult result = mvc.perform(post(url)
-                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(newmanInput)))
-                .andExpect(status().isCreated())
-                .andReturn();
-        logger.info("status code: " + result.getResponse().getStatus());
-        logger.info(result.getResponse().getContentAsString());
-        // tests must check only one thing, so this is an antipattern, but I want to check if the freshly created user has the proper privlilige
-        testGetAllAppUser_whenAuthorized_gotValidResponse(newmanInput.getUsername());
-    }
 
     @Test
     @Transactional
