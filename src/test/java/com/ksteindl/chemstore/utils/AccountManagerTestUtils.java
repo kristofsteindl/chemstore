@@ -11,6 +11,7 @@ public class AccountManagerTestUtils {
 
     public static final Principal ALPHA_LAB_MANAGER_PRINCIPAL = new MockPrincipal(AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
     public static final Principal BETA_LAB_MANAGER_PRINCIPAL = new MockPrincipal(AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME);
+    public static final Principal ALPHA_LAB_USER_PRINCIPAL = new MockPrincipal(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
 
 
     public static final String ACCOUNT_MANAGER_USERNAME = "aman@account.com";
