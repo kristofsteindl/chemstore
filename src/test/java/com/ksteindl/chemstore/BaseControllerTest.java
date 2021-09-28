@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class BaseControllerTest {
@@ -176,6 +177,38 @@ public class BaseControllerTest {
             Chemical ipa = chemicalService.createChemical(ipaInput);
             chemicalService.deleteChemical(ipa.getId());
             first = false;
+        }
+    }
+
+    public String asJsonString(final ChemItemInput chemItemInput) {
+        try {
+            LocalDate arrivalDate = chemItemInput.getArrivalDate();
+            LocalDate expDate = chemItemInput.getExpirationDateBeforeOpened();
+            chemItemInput.setArrivalDate(null);
+            chemItemInput.setExpirationDateBeforeOpened(null);
+            String raw = new ObjectMapper().writeValueAsString(chemItemInput);
+            chemItemInput.setArrivalDate(arrivalDate);
+            chemItemInput.setExpirationDateBeforeOpened(expDate);
+            StringBuilder builder = new StringBuilder(raw);
+            replaceNullLocalDateAttribute(builder, "arrivalDate", arrivalDate);
+            replaceNullLocalDateAttribute(builder, "expirationDateBeforeOpened", expDate);
+            String serialized = builder.toString();
+            return serialized;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void replaceNullLocalDateAttribute(StringBuilder builder, String attributeName, LocalDate localDate) {
+        if (localDate != null) {
+            String localDateString = new StringBuilder().append(
+                            localDate.getYear()).append("-").
+                    append(localDate.getMonthValue() > 9 ? localDate.getMonthValue() : "0" + Integer.toString(localDate.getMonthValue()))
+                    .append("-").
+                    append(localDate.getDayOfMonth()).toString();
+            String replaced = "\"" + attributeName + "\":null";
+            int index = builder.indexOf(replaced);
+            builder.replace(index, index + replaced.length(), "\"" + attributeName + "\":\"" + localDateString + "\"");
         }
     }
 

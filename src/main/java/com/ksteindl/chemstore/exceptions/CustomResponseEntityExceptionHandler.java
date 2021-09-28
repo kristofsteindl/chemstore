@@ -24,5 +24,10 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     public final ResponseEntity<Map<String, String>> handleFieldValidationException(ValidationException exception, WebRequest request) {
         return new ResponseEntity(exception.getErrorMap(), HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler
+    public final ResponseEntity<String> handleFieldValidationException(ForbiddenException exception, WebRequest request) {
+        return new ResponseEntity(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
 
 }

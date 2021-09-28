@@ -188,7 +188,7 @@ public class LabManagerControllerTest extends BaseControllerTest {
         logger.info("status code: " + result1.getResponse().getStatus());
         MvcResult result2 = mvc.perform(delete(url)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(404))
                 .andReturn();
 
     }
@@ -214,7 +214,7 @@ public class LabManagerControllerTest extends BaseControllerTest {
 
         MvcResult result = mvc.perform(delete(url)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400))
+                .andExpect(status().is(404))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
     }

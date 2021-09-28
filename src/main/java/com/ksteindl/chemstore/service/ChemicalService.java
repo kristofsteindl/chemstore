@@ -39,7 +39,16 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
 
 
     public Chemical findByShortName(String shortName) {
-        return chemicalRepository.findByShortName(shortName).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, shortName));
+        return findByShortName(shortName, true);
+    }
+
+    public Chemical findByShortName(String shortName, Boolean onlyActive) {
+        Chemical chemical = chemicalRepository.findByShortName(shortName).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, shortName));
+        if (onlyActive && chemical.getDeleted()) {
+            throw new ResourceNotFoundException(Lang.MANUFACTURER_ALREADY_DELETED, chemical.getShortName());
+
+        }
+        return chemical;
     }
 
     public List<Chemical> getChemicals(Boolean onlyActive) {
@@ -66,7 +75,7 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
     public Chemical findById(Long id, Boolean onlyActive) {
         Chemical chemical = chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
         if (onlyActive && chemical.getDeleted()) {
-            ValidationException.throwEntityIsDeletedException(Lang.CHEMICAL_ENTITY_NAME, chemical.getExactName());
+            throw new ResourceNotFoundException(Lang.CHEMICAL_ALREADY_DELETED, chemical.getShortName());
         }
         return chemical;
     }

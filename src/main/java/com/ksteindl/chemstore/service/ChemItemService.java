@@ -3,6 +3,8 @@ package com.ksteindl.chemstore.service;
 import com.ksteindl.chemstore.domain.entities.*;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
 import com.ksteindl.chemstore.domain.repositories.ChemItemRepository;
+import com.ksteindl.chemstore.exceptions.ForbiddenException;
+import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.util.Lang;
 import org.slf4j.Logger;
@@ -46,9 +48,9 @@ public class ChemItemService {
     private ChemItemRepository chemItemRepository;
 
 
-    public List<ChemItem> createChemItems(ChemItemInput chemItemInput, Principal principal) {
+    public List<ChemItem> createChemItems(String labKey, ChemItemInput chemItemInput, Principal principal) {
         AppUser appUser = appUserService.getMyAppUser(principal);
-        Lab lab = getLabAndValidateAuthority(chemItemInput.getLabKey(), appUser);
+        Lab lab = getLabAndValidateAuthority(labKey, appUser);
         LocalDate arrivalDate = getArrivalDateAndValidate(chemItemInput.getArrivalDate());
         Chemical chemical = chemicalService.findByShortName(chemItemInput.getChemicalShortName());
         Manufacturer manufacturer = manufacturerService.findById(chemItemInput.getManufacturerId());
@@ -114,7 +116,7 @@ public class ChemItemService {
     }
 
     public ChemItem findById(Long id) {
-        return null;
+        return chemItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEM_ITEM_ENTITY_NAME, id));
     }
 
     private LocalDate getArrivalDateAndValidate(LocalDate arrivalDate) {
@@ -146,6 +148,6 @@ public class ChemItemService {
         if (appUser.getLabsAsUser().stream().anyMatch(labAsUser -> labAsUser.equals(lab))) {
             return lab;
         }
-        throw new ValidationException(Lang.CHEM_ITEM_LAB_KEY_ATTRIBUTE_NAME, String.format(Lang.CHEM_ITEM_CREATION_NOT_AUTHORIZED, lab.getName(), username));
+        throw new ForbiddenException(String.format(Lang.CHEM_ITEM_CREATION_NOT_AUTHORIZED, lab.getName(), username));
     }
 }

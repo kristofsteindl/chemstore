@@ -1,11 +1,11 @@
 package com.ksteindl.chemstore.service;
 
-import com.ksteindl.chemstore.domain.entities.Lab;
-import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
-import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.domain.entities.AppUser;
+import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
 import com.ksteindl.chemstore.domain.repositories.AppUserRepository;
+import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
+import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.security.UserDetailsImpl;
 import com.ksteindl.chemstore.security.role.Role;
 import com.ksteindl.chemstore.security.role.RoleService;
@@ -145,7 +145,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
     public AppUser findById(Long id, Boolean onlyActive) {
         AppUser appUser = appUserRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, id));
         if (onlyActive && appUser.getDeleted()) {
-            ValidationException.throwEntityIsDeletedException(Lang.APP_USER_ENTITY_NAME, appUser.getUsername());
+            throw new ResourceNotFoundException(Lang.APP_USER_ALREADY_DELETED, appUser.getUsername());
         }
         return appUser;
     }

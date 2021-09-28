@@ -1,11 +1,11 @@
 package com.ksteindl.chemstore.service;
 
-import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
-import com.ksteindl.chemstore.exceptions.ValidationException;
+import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.LabInput;
 import com.ksteindl.chemstore.domain.repositories.LabRepository;
-import com.ksteindl.chemstore.domain.entities.AppUser;
+import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
+import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.util.Lang;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -78,7 +78,7 @@ public class LabService implements UniqueEntityService<LabInput> {
     public Lab findById(Long id, Boolean onlyActive) {
         Lab lab = labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, id));
         if (onlyActive && lab.getDeleted()) {
-            ValidationException.throwEntityIsDeletedException(Lang.LAB_ENTITY_NAME, lab.getName());
+            throw new ResourceNotFoundException(Lang.LAB_ALREADY_DELETED, lab.getKey());
         }
         return lab;
     }

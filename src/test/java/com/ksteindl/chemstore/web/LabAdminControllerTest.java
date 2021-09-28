@@ -59,6 +59,29 @@ class LabAdminControllerTest extends BaseControllerTest{
     private final String SHELF_LIFE_URL = BASE_URL + "/shelf-life";
     private final String CHANGED_ETHANOL_EXACT_NAME = "Changed ethanol exact name";
 
+//    @Test
+//    @Rollback
+//    @Transactional
+//    void testCreateChemItem_withAlphaLabUser_got201() throws Exception {
+//        String rawINput = "{\n" +
+//                "        \"chemicalShortName\": \"EtOH\",\n" +
+//                "        \"manufacturerId\": 1,\n" +
+//                "        \"batchNumber\": \"1234\",\n" +
+//                "        \"quantity\": 2500,\n" +
+//                "        \"unit\": \"mA\",\n" +
+//                "        \"amount\": 3,\n" +
+//                "        \"expirationDateBeforeOpened\": \"2025-06-07\"\n" +
+//                "}";
+//        MvcResult result = mvc.perform(post("/api/chem-item/alab")
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(testChemItemInput)))
+//                .andDo(MockMvcResultHandlers.print())
+//                .andExpect(status().isCreated())
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+//
 // SHELF LIFE
     //CREATE
     @Test
@@ -834,7 +857,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         logger.info("status code: " + result1.getResponse().getStatus());
         MvcResult result2 = mvc.perform(delete(url)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400))
+                .andExpect(status().is(404))
                 .andReturn();
         logger.info("status code: " + result2.getResponse().getStatus());
     }
@@ -861,7 +884,7 @@ class LabAdminControllerTest extends BaseControllerTest{
 
         MvcResult result = mvc.perform(delete(url)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400))
+                .andExpect(status().is(404))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
     }
@@ -1363,7 +1386,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         logger.info("status code: " + result1.getResponse().getStatus());
         MvcResult result2 = mvc.perform(delete(url)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(404))
                 .andReturn();
         logger.info("status code: " + result2.getResponse().getStatus());
     }
@@ -1390,7 +1413,7 @@ class LabAdminControllerTest extends BaseControllerTest{
 
         MvcResult result = mvc.perform(delete(url)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400))
+                .andExpect(status().is(404))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
     }

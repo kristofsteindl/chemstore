@@ -1,10 +1,10 @@
 package com.ksteindl.chemstore.service;
 
-import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
-import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
 import com.ksteindl.chemstore.domain.repositories.ManufacturerRepository;
+import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
+import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.util.Lang;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,7 +61,7 @@ public class ManufacturerService implements UniqueEntityService<ManufacturerInpu
     public Manufacturer findById(Long id, Boolean onlyActive) {
         Manufacturer manufacturer = manufacturerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.MANUFACTURER_ENTITY_NAME, id));
         if (onlyActive && manufacturer.getDeleted()) {
-            ValidationException.throwEntityIsDeletedException(Lang.MANUFACTURER_ENTITY_NAME, manufacturer.getName());
+            throw new ResourceNotFoundException(String.format(Lang.MANUFACTURER_ALREADY_DELETED, manufacturer.getName()));
         }
         return manufacturer;
     }

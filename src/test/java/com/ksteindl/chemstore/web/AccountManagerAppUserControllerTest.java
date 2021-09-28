@@ -82,7 +82,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
         MvcResult result = mvc.perform(put(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(alabuserInput)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(404))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
         logger.info(result.getResponse().getContentAsString());
@@ -587,7 +587,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
                 .andReturn();
         MvcResult result2 = mvc.perform(delete(url)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(404))
                 .andReturn();
         logger.info("status code: " + result1.getResponse().getStatus());
         logger.info("status code: " + result2.getResponse().getStatus());

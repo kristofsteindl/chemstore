@@ -77,7 +77,7 @@ public class ChemItem {
 
     @JsonProperty("openedBy")
     public AppUserCard getOpenedByCard() {
-        return new AppUserCard(this.openedBy);
+        return this.openedBy == null ? null : new AppUserCard(this.openedBy);
     }
 
 
@@ -94,7 +94,7 @@ public class ChemItem {
 
     @JsonProperty("consumedBy")
     public AppUserCard getConsumedByCard() {
-        return new AppUserCard(this.consumedBy);
+        return this.consumedBy == null ? null : new AppUserCard(this.consumedBy);
     }
 
 
