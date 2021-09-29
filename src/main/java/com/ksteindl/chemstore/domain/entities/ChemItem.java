@@ -8,12 +8,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
-public class ChemItem {
+public class ChemItem implements Serializable, Cloneable {
 
     // Maybe @JoinColumn(name = ...) is missing from every @ManyToOne attribute?
 
@@ -97,5 +98,30 @@ public class ChemItem {
         return this.consumedBy == null ? null : new AppUserCard(this.consumedBy);
     }
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
+    @Override
+    public String toString() {
+        return "ChemItem{" +
+                "id=" + id +
+                ", lab=" + lab.getKey() +
+                ", arrivalDate=" + arrivalDate +
+                ", arrivedBy=" + arrivedBy.getUsername() +
+                ", chemical=" + chemical.getShortName() +
+                ", manufacturer=" + manufacturer.getName() +
+                ", batchNumber='" + batchNumber + '\'' +
+                ", quantity=" + quantity +
+                ", unit='" + unit + '\'' +
+                ", seqNumber=" + seqNumber +
+                ", expirationDateBeforeOpened=" + expirationDateBeforeOpened +
+                ", openingDate=" + openingDate +
+                ", openedBy=" + (openedBy == null ? "null" : openedBy.getUsername()) +
+                ", expirationDate=" + expirationDate +
+                ", consumptionDate=" + consumptionDate +
+                ", consumedBy=" +  (consumedBy == null ? "null" : consumedBy.getUsername()) +
+                '}';
+    }
 }

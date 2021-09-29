@@ -6,10 +6,14 @@ import com.ksteindl.chemstore.domain.repositories.ChemItemRepository;
 import com.ksteindl.chemstore.exceptions.ForbiddenException;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
+import com.ksteindl.chemstore.service.wrapper.PagedList;
 import com.ksteindl.chemstore.util.Lang;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +34,8 @@ public class ChemItemService {
     public static final String UNIT_FILE_NAME = "unit.txt";
 
     private static final Logger logger = LoggerFactory.getLogger(ChemItemService.class);
+
+    private final static Sort SORT_BY_ID_DESC = Sort.by(Sort.Direction.DESC, "id");
 
     public List<String> units;
     public static final List<String> DEFAULT_UNITS = List.of(
@@ -72,6 +78,20 @@ public class ChemItemService {
         return createBatchedChemItems(chemItemTemplate, chemItemInput.getAmount());
     }
 
+
+    public PagedList<ChemItem> findByLab(String labKey, Principal principal, boolean available, Integer page, Integer size) {
+        AppUser appUser = appUserService.getMyAppUser(principal);
+        Lab lab = getLabAndValidateAuthority(labKey, appUser);
+        Pageable paging = PageRequest.of(page - 1, size, SORT_BY_ID_DESC);
+        Page<ChemItem> chemItemPages =
+                available ?
+                chemItemRepository.findAvailableByLab(lab, paging) :
+                chemItemRepository.findByLab(lab, paging);
+        chemItemPages.getContent().forEach(chemItem -> logger.debug(chemItem.toString()));
+        PagedList<ChemItem> pagedList = new PagedList<>(chemItemPages);
+        return pagedList;
+    }
+
     private String getUnitAndValidate(String unit) {
         if (!units.contains(unit)) {
             throw new ValidationException(String.format(Lang.INVALID_UNIT, unit, units.toString()));
@@ -83,8 +103,14 @@ public class ChemItemService {
         Integer nextSeqNumber = getNextSeqNumber(chemItemTemplate);
         ArrayList<ChemItem> chemItems = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
-            chemItemTemplate.setSeqNumber(nextSeqNumber + i);
-            chemItems.add(chemItemRepository.save(chemItemTemplate));
+            try {
+                ChemItem chemItem = (ChemItem)chemItemTemplate.clone();
+                chemItem.setSeqNumber(nextSeqNumber + i);
+                chemItems.add(chemItemRepository.save(chemItem));
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+
         }
         return chemItems;
     }
@@ -150,4 +176,5 @@ public class ChemItemService {
         }
         throw new ForbiddenException(String.format(Lang.CHEM_ITEM_CREATION_NOT_AUTHORIZED, lab.getName(), username));
     }
+
 }
