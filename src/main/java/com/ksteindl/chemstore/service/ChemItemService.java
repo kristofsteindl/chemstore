@@ -78,6 +78,23 @@ public class ChemItemService {
         return createBatchedChemItems(chemItemTemplate, chemItemInput.getAmount());
     }
 
+    public ChemItem openChemItem(Long chemItemId, Principal principal) {
+        ChemItem chemItem = findById(chemItemId);
+        AppUser appUser = appUserService.getMyAppUser(principal);
+        getLabAndValidateAuthority(chemItem.getLab(), appUser);
+        if (chemItem.getOpeningDate() != null) {
+            //TODO
+            throw new ValidationException("");
+        }
+        LocalDate now = LocalDate.now();
+        if (chemItem.getExpirationDate().isBefore(now)) {
+            //TODO
+            throw new ValidationException("");
+        }
+        chemItem.setOpenedBy(appUser);
+        chemItem.setOpeningDate(now);
+        return chemItemRepository.save(chemItem);
+    }
 
     public PagedList<ChemItem> findByLab(String labKey, Principal principal, boolean available, Integer page, Integer size) {
         AppUser appUser = appUserService.getMyAppUser(principal);
@@ -163,8 +180,12 @@ public class ChemItemService {
     }
 
     private Lab getLabAndValidateAuthority(String labKey, AppUser appUser) {
-        String username = appUser.getUsername();
         Lab lab = labService.findLabByKey(labKey);
+        return getLabAndValidateAuthority(lab, appUser);
+    }
+
+    private Lab getLabAndValidateAuthority(Lab lab, AppUser appUser) {
+        String username = appUser.getUsername();
         if (lab.getLabManagers().stream().anyMatch(manager -> manager.getUsername().equals(username))) {
             return lab;
         }

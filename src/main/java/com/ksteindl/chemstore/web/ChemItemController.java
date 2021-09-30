@@ -41,6 +41,16 @@ public class ChemItemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(chemItems);
     }
 
+    @PatchMapping("/open/{chemItemId}")
+    public ResponseEntity<ChemItem> openChemItems(
+            @PathVariable Long chemItemId,
+            Principal principal) {
+        logger.info("POST '/chem-item/open' was called with {}", chemItemId);
+        ChemItem opened = chemItemService.openChemItem(chemItemId, principal);
+        logger.info("POST '/chem-item/open' was successful with returned result{}", opened);
+        return ResponseEntity.status(HttpStatus.OK).body(opened);
+    }
+
     @GetMapping("/{labKey}")
     public ResponseEntity<PagedList<ChemItem>> getChemItemsForLab(
             @PathVariable String labKey,

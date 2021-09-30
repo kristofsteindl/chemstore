@@ -45,6 +45,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
     private LabService labService;
 
     // CREATE
+    // TODO seq number check
     @Test
     @Rollback
     @Transactional
