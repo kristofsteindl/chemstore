@@ -879,7 +879,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteDeletedChemical_whenAuthorized_got400(@Autowired ChemicalService chemicalService) throws Exception {
-        Chemical ipa = chemicalService.findByShortName(ISOPROPYL_ALCHOL_SHORT_NAME);
+        Chemical ipa = chemicalService.findByShortName(ISOPROPYL_ALCHOL_SHORT_NAME, false);
         String url = CHEMICAL_URL + "/" + ipa.getId();
 
         MvcResult result = mvc.perform(delete(url)

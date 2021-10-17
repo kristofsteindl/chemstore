@@ -8,6 +8,7 @@ import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.service.wrapper.PagedList;
 import com.ksteindl.chemstore.util.Lang;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,11 +57,11 @@ public class ChemItemService {
 
     public List<ChemItem> createChemItems(String labKey, ChemItemInput chemItemInput, Principal principal) {
         AppUser appUser = appUserService.getMyAppUser(principal);
-        Lab lab = getLabAndValidateAuthority(labKey, appUser);
-        LocalDate arrivalDate = getArrivalDateAndValidate(chemItemInput.getArrivalDate());
+        Lab lab = validateLabAndGet(labKey, appUser);
+        LocalDate arrivalDate = validateArrivalDateAndGet(chemItemInput.getArrivalDate());
         Chemical chemical = chemicalService.findByShortName(chemItemInput.getChemicalShortName());
         Manufacturer manufacturer = manufacturerService.findById(chemItemInput.getManufacturerId());
-        LocalDate expirationDateBeforeOpened = getExpirationDateBeforeOpenedAndValidate(chemItemInput.getExpirationDateBeforeOpened());
+        LocalDate expirationDateBeforeOpened = validateExpirationDateBeforeOpenedAndGet(chemItemInput.getExpirationDateBeforeOpened());
         String unit = getUnitAndValidate(chemItemInput.getUnit());
 
         ChemItem chemItemTemplate = new ChemItem();
@@ -81,7 +82,7 @@ public class ChemItemService {
     public ChemItem openChemItem(Long chemItemId, Principal principal) {
         ChemItem chemItem = findById(chemItemId);
         AppUser appUser = appUserService.getMyAppUser(principal);
-        getLabAndValidateAuthority(chemItem.getLab(), appUser);
+        validateLabAndGet(chemItem.getLab().getKey(), appUser);
         if (chemItem.getOpeningDate() != null) {
             //TODO
             throw new ValidationException("");
@@ -98,7 +99,7 @@ public class ChemItemService {
 
     public PagedList<ChemItem> findByLab(String labKey, Principal principal, boolean available, Integer page, Integer size) {
         AppUser appUser = appUserService.getMyAppUser(principal);
-        Lab lab = getLabAndValidateAuthority(labKey, appUser);
+        Lab lab = validateLabAndGet(labKey, appUser);
         Pageable paging = PageRequest.of(page - 1, size, SORT_BY_ID_DESC);
         Page<ChemItem> chemItemPages =
                 available ?
@@ -107,6 +108,11 @@ public class ChemItemService {
         chemItemPages.getContent().forEach(chemItem -> logger.debug(chemItem.toString()));
         PagedList<ChemItem> pagedList = new PagedList<>(chemItemPages);
         return pagedList;
+    }
+
+
+    public ChemItem findById(Long id) {
+        return chemItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEM_ITEM_ENTITY_NAME, id));
     }
 
     private String getUnitAndValidate(String unit) {
@@ -127,7 +133,6 @@ public class ChemItemService {
             } catch (CloneNotSupportedException e) {
                 throw new RuntimeException(e);
             }
-
         }
         return chemItems;
     }
@@ -158,11 +163,8 @@ public class ChemItemService {
         return 1 + equalChemItems.get(0).getSeqNumber();
     }
 
-    public ChemItem findById(Long id) {
-        return chemItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEM_ITEM_ENTITY_NAME, id));
-    }
 
-    private LocalDate getArrivalDateAndValidate(LocalDate arrivalDate) {
+    private LocalDate validateArrivalDateAndGet(LocalDate arrivalDate) {
         if (arrivalDate == null) {
             arrivalDate = LocalDate.now();
         } else if (arrivalDate.isAfter(LocalDate.now())) {
@@ -172,19 +174,20 @@ public class ChemItemService {
         return arrivalDate;
     }
 
-    private LocalDate getExpirationDateBeforeOpenedAndValidate(LocalDate expirationDateBeforeOpened) {
+    private LocalDate validateExpirationDateBeforeOpenedAndGet(LocalDate expirationDateBeforeOpened) {
         if (expirationDateBeforeOpened.isBefore(LocalDate.now())) {
             throw new ValidationException(String.format(Lang.CHEM_ITEM_EXP_DATE_IS_IN_PAST, expirationDateBeforeOpened));
         }
         return expirationDateBeforeOpened;
     }
 
-    private Lab getLabAndValidateAuthority(String labKey, AppUser appUser) {
-        Lab lab = labService.findLabByKey(labKey);
-        return getLabAndValidateAuthority(lab, appUser);
+    private Lab validateLabAndGet(String labKey, AppUser appUser) {
+        Lab proxyLab = labService.findLabByKey(labKey);
+        Lab lab = (Lab)Hibernate.unproxy(proxyLab);
+        return validateLabAndGet(lab, appUser);
     }
 
-    private Lab getLabAndValidateAuthority(Lab lab, AppUser appUser) {
+    private Lab validateLabAndGet(Lab lab, AppUser appUser) {
         String username = appUser.getUsername();
         if (lab.getLabManagers().stream().anyMatch(manager -> manager.getUsername().equals(username))) {
             return lab;

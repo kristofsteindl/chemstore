@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.time.Duration;
@@ -106,7 +107,8 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
         shelfLifeRepositoy.save(shelfLife);
     }
 
-    private ShelfLife createOrUpdateShelfLife(ShelfLifeValidatorWrapper validatorWrapper) {
+    @Transactional
+    public ShelfLife createOrUpdateShelfLife(ShelfLifeValidatorWrapper validatorWrapper) {
         ShelfLife shelfLife = validatorWrapper.shelfLife;
         ShelfLifeInput shelfLifeInput = validatorWrapper.shelfLifeInput;
         ChemType chemType = chemTypeService.findById(shelfLifeInput.getChemTypeId());

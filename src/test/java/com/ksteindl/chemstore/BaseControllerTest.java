@@ -3,6 +3,7 @@ package com.ksteindl.chemstore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ksteindl.chemstore.domain.entities.*;
 import com.ksteindl.chemstore.domain.input.*;
+import com.ksteindl.chemstore.domain.repositories.ShelfLifeRepositoy;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.*;
 import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
@@ -13,7 +14,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class BaseControllerTest {
@@ -44,51 +47,21 @@ public class BaseControllerTest {
     @BeforeEach
     public void createShelfLifes() {
         //SHELF LIFE
-        Long bufferSolutionId = chemTypeService.getChemTypes().stream().filter(chemType -> chemType.getName().equals(LabAdminTestUtils.BUFFER_SOLUTION_NAME)).findAny().get().getId();
-        Long solidCompoundId = chemTypeService.getChemTypes().stream().filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_COMPOUND_NAME)).findAny().get().getId();
-        Long waterChemTypeId = chemTypeService.getChemTypes().stream().filter(chemType -> chemType.getName().equals(LabAdminTestUtils.WATER_CHEM_TYPE_NAME)).findAny().get().getId();
 
-        ShelfLifeInput bufferForAlphaInput = ShelfLifeInput.builder()
-                .amount(LabAdminTestUtils.BUFFER_FOR_ALPHA_DAYS)
-                .unit(LabAdminTestUtils.BUFFER_FOR_ALPHA_UNIT)
-                .labKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
-                .chemTypeId(bufferSolutionId).build();
 
-        ShelfLifeInput bufferForBetaInput = ShelfLifeInput.builder()
-                .amount(LabAdminTestUtils.BUFFER_FOR_BETA_DAYS)
-                .unit(LabAdminTestUtils.BUFFER_FOR_BETA_UNIT)
-                .labKey(AccountManagerTestUtils.BETA_LAB_KEY)
-                .chemTypeId(bufferSolutionId).build();
-        ShelfLifeInput solidForAlphaInput = LabAdminTestUtils.getSolidForAlphaInput();
-
-        ShelfLifeInput waterForAlphaInput = LabAdminTestUtils.getSolidForAlphaInput();
-        solidForAlphaInput.setChemTypeId(solidCompoundId);
-        waterForAlphaInput.setChemTypeId(waterChemTypeId);
-
-        shelfLifeService.createShelfLife(bufferForAlphaInput, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
-        shelfLifeService.createShelfLife(bufferForBetaInput,  AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-        shelfLifeService.createShelfLife(solidForAlphaInput,  AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
-        ShelfLife waterForAlpha = shelfLifeService.createShelfLife(waterForAlphaInput,  AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
-        shelfLifeService.deleteShelfLife(waterForAlpha.getId(), AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
-
-        TOKEN_FOR_ACCOUNT_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
-        TOKEN_FOR_ALPHA_LAB_ADMIN = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
-        TOKEN_FOR_ALPHA_LAB_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
-        TOKEN_FOR_ALPHA_LAB_USER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
-        TOKEN_FOR_BETA_LAB_ADMIN= jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_ADMIN_USERNAME);
-        TOKEN_FOR_BETA_LAB_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME);
-        TOKEN_FOR_BETA_LAB_USER = jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_USER_USERNAME);
 
     }
 
     @BeforeAll
     static void initDb(
+            @Autowired JwtProvider jwtProvider,
             @Autowired AppUserService appUserService,
             @Autowired LabService labService,
             @Autowired ManufacturerService manufacturerService,
             @Autowired ChemicalService chemicalService,
             @Autowired ChemTypeService chemTypeService,
-            @Autowired ShelfLifeService shelfLifeService) {
+            @Autowired ShelfLifeService shelfLifeService,
+            @Autowired ShelfLifeRepositoy shelfLifeRepositoy) {
         if (first) {
             AppUser aman = appUserService.createUser(AccountManagerTestUtils.getAccountManagerInput());
             System.out.println("Account Manager id " + aman.getId());
@@ -176,6 +149,40 @@ public class BaseControllerTest {
             ChemicalInput ipaInput = LabAdminTestUtils.getIpaInput();
             Chemical ipa = chemicalService.createChemical(ipaInput);
             chemicalService.deleteChemical(ipa.getId());
+
+            ShelfLife bufferForAlpha = new ShelfLife();
+            bufferForAlpha.setDuration(Duration.ofDays(LabAdminTestUtils.BUFFER_FOR_ALPHA_DAYS));
+            bufferForAlpha.setChemType(bufferSolution);
+            bufferForAlpha.setLab(alab);
+            shelfLifeRepositoy.save(bufferForAlpha);
+
+            ShelfLife bufferForBeta = new ShelfLife();
+            bufferForBeta.setDuration(Duration.ofDays(LabAdminTestUtils.BUFFER_FOR_BETA_DAYS));
+            bufferForBeta.setChemType(bufferSolution);
+            bufferForBeta.setLab(blab);
+            shelfLifeRepositoy.save(bufferForBeta);
+
+            ShelfLife solidForALpha = new ShelfLife();
+            solidForALpha.setDuration(Duration.between(LocalDateTime.now(), LocalDateTime.now().plusYears(LabAdminTestUtils.SOLID_FOR_ALPHA_YEAR)));
+            solidForALpha.setChemType(solidCompund);
+            solidForALpha.setLab(alab);
+            shelfLifeRepositoy.save(solidForALpha);
+
+            ShelfLife waterForAlpha = new ShelfLife();
+            waterForAlpha.setDuration(Duration.between(LocalDateTime.now(), LocalDateTime.now().plusYears(LabAdminTestUtils.SOLID_FOR_ALPHA_YEAR)));
+            waterForAlpha.setChemType(waterChemType);
+            waterForAlpha.setLab(alab);
+            waterForAlpha.setDeleted(true);
+            shelfLifeRepositoy.save(waterForAlpha);
+
+
+            TOKEN_FOR_ACCOUNT_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
+            TOKEN_FOR_ALPHA_LAB_ADMIN = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
+            TOKEN_FOR_ALPHA_LAB_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
+            TOKEN_FOR_ALPHA_LAB_USER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+            TOKEN_FOR_BETA_LAB_ADMIN= jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_ADMIN_USERNAME);
+            TOKEN_FOR_BETA_LAB_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME);
+            TOKEN_FOR_BETA_LAB_USER = jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_USER_USERNAME);
             first = false;
         }
     }
