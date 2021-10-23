@@ -60,8 +60,8 @@ public class BaseControllerTest {
             @Autowired ManufacturerService manufacturerService,
             @Autowired ChemicalService chemicalService,
             @Autowired ChemTypeService chemTypeService,
-            @Autowired ShelfLifeService shelfLifeService,
-            @Autowired ShelfLifeRepositoy shelfLifeRepositoy) {
+            @Autowired ShelfLifeRepositoy shelfLifeRepositoy,
+            @Autowired ChemItemService chemItemService) {
         if (first) {
             AppUser aman = appUserService.createUser(AccountManagerTestUtils.getAccountManagerInput());
             System.out.println("Account Manager id " + aman.getId());
@@ -107,10 +107,10 @@ public class BaseControllerTest {
 
             //MANUFACTURER
             ManufacturerInput omegaManufacturerInput = LabAdminTestUtils.getOmegaManufacturerInput();
-            manufacturerService.createManufacturer(omegaManufacturerInput);
+            Manufacturer omegaMan = manufacturerService.createManufacturer(omegaManufacturerInput);
 
             ManufacturerInput gammaManufacturerInput = LabAdminTestUtils.getGammaManufacturerInput();
-            manufacturerService.createManufacturer(gammaManufacturerInput);
+            Manufacturer gammaMan = manufacturerService.createManufacturer(gammaManufacturerInput);
 
             ManufacturerInput deltaManufacturerInput = LabAdminTestUtils.getDeltaManufacturerInput();
             Manufacturer deletedManufacturer = manufacturerService.createManufacturer(deltaManufacturerInput);
@@ -174,6 +174,17 @@ public class BaseControllerTest {
             waterForAlpha.setLab(alab);
             waterForAlpha.setDeleted(true);
             shelfLifeRepositoy.save(waterForAlpha);
+
+            ChemItemInput cii1 = ChemItemInput.builder()
+                    .setManufacturerId(omegaMan.getId())
+                    .setAmount(3)
+                    .setQuantity(2500.0)
+                    .setBatchNumber("1234")
+                    .setUnit("mA")
+                    .setChemicalName(ethanol.getShortName())
+                    .setExpirationDateBeforeOpened(LocalDate.now().plusMonths(6))
+                    .build();
+            chemItemService.createChemItems(alab.getKey(), cii1, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
 
 
             TOKEN_FOR_ACCOUNT_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);

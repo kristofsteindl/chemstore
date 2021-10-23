@@ -85,10 +85,10 @@ public class ChemItemService {
         validateLabAndGet(chemItem.getLab().getKey(), appUser);
         if (chemItem.getOpeningDate() != null) {
             //TODO
-            throw new ValidationException("");
+            throw new ValidationException("Chem item is already opened");
         }
         LocalDate now = LocalDate.now();
-        if (chemItem.getExpirationDate().isBefore(now)) {
+        if (chemItem.getExpirationDateBeforeOpened().isBefore(now)) {
             //TODO
             throw new ValidationException("");
         }
@@ -97,10 +97,24 @@ public class ChemItemService {
         return chemItemRepository.save(chemItem);
     }
 
+    public ChemItem consumeChemItem(Long chemItemId, Principal principal) {
+        ChemItem chemItem = findById(chemItemId);
+        AppUser appUser = appUserService.getMyAppUser(principal);
+        validateLabAndGet(chemItem.getLab().getKey(), appUser);
+        if (chemItem.getOpeningDate() == null) {
+            //TODO
+            throw new ValidationException("");
+        }
+        LocalDate now = LocalDate.now();
+        chemItem.setConsumedBy(appUser);
+        chemItem.setConsumptionDate(now);
+        return chemItemRepository.save(chemItem);
+    }
+
     public PagedList<ChemItem> findByLab(String labKey, Principal principal, boolean available, Integer page, Integer size) {
         AppUser appUser = appUserService.getMyAppUser(principal);
         Lab lab = validateLabAndGet(labKey, appUser);
-        Pageable paging = PageRequest.of(page - 1, size, SORT_BY_ID_DESC);
+        Pageable paging = PageRequest.of(page, size, SORT_BY_ID_DESC);
         Page<ChemItem> chemItemPages =
                 available ?
                 chemItemRepository.findAvailableByLab(lab, paging) :

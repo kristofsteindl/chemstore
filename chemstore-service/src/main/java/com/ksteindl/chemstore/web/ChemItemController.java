@@ -45,22 +45,32 @@ public class ChemItemController {
     public ResponseEntity<ChemItem> openChemItems(
             @PathVariable Long chemItemId,
             Principal principal) {
-        logger.info("POST '/chem-item/open' was called with {}", chemItemId);
+        logger.info("PATCH '/chem-item/open' was called with {}", chemItemId);
         ChemItem opened = chemItemService.openChemItem(chemItemId, principal);
-        logger.info("POST '/chem-item/open' was successful with returned result{}", opened);
+        logger.info("PATCH '/chem-item/open' was successful with returned result{}", opened);
         return ResponseEntity.status(HttpStatus.OK).body(opened);
+    }
+
+    @PatchMapping("/consume/{chemItemId}")
+    public ResponseEntity<ChemItem> consumeChemItems(
+            @PathVariable Long chemItemId,
+            Principal principal) {
+        logger.info("PATCH '/chem-item/consume' was called with {}", chemItemId);
+        ChemItem consumed = chemItemService.consumeChemItem(chemItemId, principal);
+        logger.info("PATCH '/chem-item/consume' was successful with returned result{}", consumed);
+        return ResponseEntity.status(HttpStatus.OK).body(consumed);
     }
 
     @GetMapping("/{labKey}")
     public ResponseEntity<PagedList<ChemItem>> getChemItemsForLab(
             @PathVariable String labKey,
             @RequestParam(value= "available", required = false, defaultValue = "true") boolean available,
-            @RequestParam(value="page", required = false, defaultValue = "1") Integer page,
+            @RequestParam(value="page", required = false, defaultValue = "0") Integer page,
             @RequestParam(value= "size", required = false, defaultValue = "10") Integer size,
             Principal principal) {
         logger.info("GET '/chem-item/{labKey}' was called with labKey {}, page {}, offset {}, onlyActive {}", labKey, page, size, available);
         PagedList<ChemItem> chemItems = chemItemService.findByLab(labKey, principal, available, page, size);
         logger.info("GET '/chem-item' was succesful with returned result{}", chemItems);
-        return ResponseEntity.status(HttpStatus.CREATED).body(chemItems);
+        return ResponseEntity.status(HttpStatus.OK).body(chemItems);
     }
 }
