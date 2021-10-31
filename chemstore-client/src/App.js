@@ -8,6 +8,7 @@ import { Provider } from 'react-redux'
 import store from './store'
 import Landing from './components/Landing';
 import Register from './components/usermanagement/Register';
+import Login from './components/usermanagement/Login';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           }
           <Route exact path="/" component={Landing} />
           <Route exact path="/register" component={Register} />
+          <Route exact path="/login" component={Login} />
           {
             //Private Routes
           }
