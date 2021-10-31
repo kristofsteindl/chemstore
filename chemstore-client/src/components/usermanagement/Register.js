@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import { createNewUser } from '../../actions/securityActions'
 import PropTypes from "prop-types"
 import { connect } from 'react-redux'
+import classNames from "classnames";
 
 class Register extends Component {
     constructor() {
@@ -14,7 +15,8 @@ class Register extends Component {
             labsAsAdmin: [],
             roles: [],
             password: "",
-            password2: ""
+            password2: "",
+            errors: {}
         }
         this.onChangeBasicInputs=this.onChangeBasicInputs.bind(this)
         this.labsAsUserOnChange=this.labsAsUserOnChange.bind(this)
@@ -22,6 +24,11 @@ class Register extends Component {
         this.rolesOnChange=this.rolesOnChange.bind(this)
         this.onSubmit=this.onSubmit.bind(this)
     }
+
+    componentWillReceiveProps(nextProps){
+        this.setState({errors: nextProps.errors});
+    }
+
     onChangeBasicInputs(e) {
         this.setState({ [e.target.name]: e.target.value})
     }
@@ -58,6 +65,7 @@ class Register extends Component {
 
 
     render() {
+        const {errors} = this.state
         return (
             <div className="register">
                 <div className="container">
@@ -70,15 +78,18 @@ class Register extends Component {
                                 <div className="form-group row mb-3">
                                     <label for="username" className="col-sm-2 col-form-label">username</label>
                                     <div class="col-sm-10">
-                                    <input 
-                                        name="username"
-                                        value={this.state.username}
-                                        onChange={this.onChangeBasicInputs}
-                                        type="email" 
-                                        className="form-control form-control-lg" 
-                                        placeholder="username (email)" 
-                                         />
-                                         </div>
+                                        <input 
+                                            name="username"
+                                            value={this.state.username}
+                                            onChange={this.onChangeBasicInputs}
+                                            type="email" 
+                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.username})} 
+                                            placeholder="username (email)" 
+                                        />
+                                        {
+                                            errors.username && <div className="invalid-feedback">{errors.username}</div>
+                                        }
+                                    </div>
                                          
                                 </div>
                                       
@@ -91,11 +102,17 @@ class Register extends Component {
                                             value={this.state.fullName}
                                             onChange={this.onChangeBasicInputs}
                                             type="text" 
+                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.fullName})} 
                                             className="form-control form-control-lg" 
                                             placeholder="full name" 
                                             
-                                            required />
-                                        </div>
+                                            required 
+                                            
+                                        />
+                                        {
+                                            errors.fullName && <div className="invalid-feedback">{errors.fullName}</div>
+                                        }
+                                    </div>
                                 </div>
 
                                 
@@ -107,10 +124,13 @@ class Register extends Component {
                                             value={this.state.password}
                                             onChange={this.onChangeBasicInputs}
                                             type="password" 
-                                            className="form-control form-control-lg" 
+                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.password})} 
                                             placeholder="password" 
-                                            />
-                                        </div>
+                                        />
+                                    </div>
+                                    {
+                                        errors.password && <div  className="invalid-feedback">{errors.password}</div>
+                                    }
                                 </div>
 
                                 <div className="form-group row mb-5">
@@ -121,10 +141,14 @@ class Register extends Component {
                                             value={this.state.password2}
                                             onChange={this.onChangeBasicInputs}
                                             type="password" 
-                                            className="form-control form-control-lg" 
+                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.password2})} 
                                             placeholder="password2" 
-                                            />
-                                        </div>
+                                        />
+                                    </div>
+                                    {
+                                        errors.password2 && <div className="invalid-feedback">{errors.password2}</div>
+                                    }
+
                                 </div>
                                 <div className="form-group row mb-3">
                                     <label for="labsAsUser" class="col-sm-5 col-form-label">Labs, where user can administrate (open, use, etc) chemicals</label>

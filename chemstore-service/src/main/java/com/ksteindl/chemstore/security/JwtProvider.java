@@ -9,6 +9,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -37,6 +38,8 @@ public class JwtProvider {
         claims.put("id", userId);
         claims.put("username", appUser.getUsername());
         claims.put("fullName", appUser.getFullName());
+        UserDetails userDetails = new UserDetailsImpl(appUser);
+        claims.put("authorities", userDetails.getAuthorities());
 
         return Jwts.builder()
                 .setSubject(userId)
