@@ -9,6 +9,9 @@ import store from './store'
 import Landing from './components/Landing';
 import Register from './components/usermanagement/Register';
 import Login from './components/usermanagement/Login';
+import { refreshTokenAndUser } from './securityUtils/securityUtils';
+
+refreshTokenAndUser()
 
 function App() {
   return (

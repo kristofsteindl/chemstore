@@ -76,7 +76,7 @@ class Register extends Component {
                             <p className="lead text-center">Add new user</p>
                             <form onSubmit={this.onSubmit}>
                                 <div className="form-group row mb-3">
-                                    <label for="username" className="col-sm-2 col-form-label">username</label>
+                                    <label htmlFor="username" className="col-sm-2 col-form-label">username</label>
                                     <div class="col-sm-10">
                                         <input 
                                             name="username"
@@ -95,7 +95,7 @@ class Register extends Component {
                                       
                                 
                                 <div className="form-group row mb-3">
-                                    <label for="fullName" className="col-sm-2 col-form-label">Full name</label>
+                                    <label htmlFor="fullName" className="col-sm-2 col-form-label">Full name</label>
                                     <div class="col-sm-10">
                                         <input 
                                             name="fullName"
@@ -117,7 +117,7 @@ class Register extends Component {
 
                                 
                                 <div className="form-group row mb-3">
-                                    <label for="password" class="col-sm-2 col-form-label">Password</label>
+                                    <label htmlFor="password" class="col-sm-2 col-form-label">Password</label>
                                     <div class="col-sm-10">
                                         <input 
                                             name="password"
@@ -134,7 +134,7 @@ class Register extends Component {
                                 </div>
 
                                 <div className="form-group row mb-5">
-                                    <label for="password2" class="col-sm-2 col-form-label">Password</label>
+                                    <label htmlFor="password2" class="col-sm-2 col-form-label">Password</label>
                                     <div class="col-sm-10">
                                         <input 
                                             name="password2"
@@ -151,7 +151,7 @@ class Register extends Component {
 
                                 </div>
                                 <div className="form-group row mb-3">
-                                    <label for="labsAsUser" class="col-sm-5 col-form-label">Labs, where user can administrate (open, use, etc) chemicals</label>
+                                    <label htmlFor="labsAsUser" class="col-sm-5 col-form-label">Labs, where user can administrate (open, use, etc) chemicals</label>
                                     <div class="col-sm-7">
                                         <Multiselect
                                             displayValue="name"
@@ -213,7 +213,7 @@ class Register extends Component {
                                         </div>
                                 </div>
                                 <div className="form-group row mb-3">
-                                    <label for="labsAsAdmin" className="col-sm-5 col-form-label">Labs, where user is administrator</label>
+                                    <label htmlFor="labsAsAdmin" className="col-sm-5 col-form-label">Labs, where user is administrator</label>
                                     <div class="col-sm-7">
                                         <Multiselect
                                             displayValue="name"
@@ -275,7 +275,7 @@ class Register extends Component {
                                         </div>
                                 </div>
                                 <div className="form-group row mb-3">
-                                    <label for="roles" class="col-sm-5 col-form-label">Additional roles</label>
+                                    <label htmlFor="roles" class="col-sm-5 col-form-label">Additional roles</label>
                                     <div class="col-sm-7">
                                         <Multiselect
                                             displayValue="value"

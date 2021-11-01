@@ -1,5 +1,4 @@
 import axios from "axios";
-import errorReducer from "../reducers/errorReducer";
 import { GET_ERRORS } from "./types";
 import { refreshTokenAndUser } from "../securityUtils/securityUtils";
 
@@ -15,13 +14,13 @@ export const createNewUser = (newUser, history) => async dispatch => {
     }
 }
 
-export const login = loginRequest => async dispatch => {
+export const login = (loginRequest, history) => async dispatch => {
     try {
         const res = await axios.post('/api/login', loginRequest)
         const { token } = res.data
-        localStorage.setItem("jwt", token)   
+        localStorage.setItem("jwt", token)  
         refreshTokenAndUser();
-    
+        history.push("/dashboard")
     } catch (error) {
         dispatch({
             type: GET_ERRORS,
