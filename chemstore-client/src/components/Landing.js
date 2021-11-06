@@ -8,7 +8,7 @@ class Landing extends Component {
         const user = this.props.security.user
         if (user && JSON.stringify(user) !== '{}') {
             //TODO do we really want to navigate here?
-            this.props.history.push('/dashboard')
+            this.props.history.push('/chem-items')
         }
     }
     render() {

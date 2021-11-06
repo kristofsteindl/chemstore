@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
 import classNames from 'classnames'
-import { login } from '../../actions/securityActions'
+import { login } from '../../actions/loginActions'
 
 class Login extends Component {
     constructor() {
@@ -45,7 +45,7 @@ class Login extends Component {
                                         name="username" 
                                         value={this.state.username}
                                         onChange={this.onChange}
-                                        type="email" 
+                                        type="text" 
                                         className={classNames("form-control form-control-lg", {"is-invalid": errors.username})}
                                         placeholder="Email Address" 
                                     />

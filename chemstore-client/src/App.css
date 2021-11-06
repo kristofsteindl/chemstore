@@ -63,3 +63,8 @@ img {
 .form-control::placeholder {
   color: #bbb !important;
 }
+
+.invalid-input {
+  color: red;
+  margin-bottom: 30px;
+}

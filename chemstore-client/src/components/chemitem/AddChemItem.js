@@ -127,7 +127,7 @@ class AddChemItem extends Component {
                                             onChange={this.onChange}
                                             type="date" 
                                             className="form-control form-control-lg" 
-                                            name="expirationDateBeforeOpened" />
+                                         />
                                     </div>
                                     <div className="form-group">
                                     <h6>Arrival date </h6>
@@ -137,7 +137,7 @@ class AddChemItem extends Component {
                                             onChange={this.onChange}
                                             type="date" 
                                             className="form-control form-control-lg" 
-                                            name="arrivalDate" />
+                                         />
                                     </div>
 
 

@@ -1,17 +1,17 @@
 import React, { Component } from 'react'
-import ChemItem from './chemitem/ChemItem'
-import CreateChemItemButton from './chemitem/CreateChemItemButton'
+import ChemItem from './ChemItem'
+import RedirectFormButton from '../RedirectFormButton'
 
-class Dashboard extends Component {
+class ChemItemDashboard extends Component {
     render() {
         return (
             <div className="projects">
                 <div className="container">
                     <div className="row">
                         <div className="col-md-12">
-                            <h1 className="display-4 text-center">Projects</h1>
+                            <h1 className="display-4 text-center">Chem items</h1>
                             <br />
-                            <CreateChemItemButton />
+                            <RedirectFormButton formRoute="/add-chem-item" buttonLabel="Create Chem item"/>
                             <br />
                             <hr />
                             <ChemItem />
@@ -23,4 +23,4 @@ class Dashboard extends Component {
     }
 }
 
-export default Dashboard
+export default ChemItemDashboard
