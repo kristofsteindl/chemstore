@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import javax.transaction.Transactional;
 
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,6 +42,65 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     JwtProvider jwtProvider;
     @Autowired
     private MockMvc mvc;
+
+    //PATCH restore
+    @Test
+    @Transactional
+    @Rollback
+    void testRestorePwChangedUserPassword_whenAccountAdmin_got201(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedPwChangedUser = appUserService.findByUsername(AccountManagerTestUtils.PW_CHANGED_USER_USERNAME).get();
+        String url = "/api/account/user/" + persistedPwChangedUser.getId() + "/restore-password";
+        MvcResult result = mvc.perform(patch(url)
+                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(persistedPwChangedUser.getId().intValue())))
+                .andExpect(jsonPath("$.username", is(AccountManagerTestUtils.PW_CHANGED_USER_USERNAME)))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+//    @Test
+//    @Transactional
+//    @Rollback
+//    void testRestorePwChangedUserPassword_whenAlabManager_got201(@Autowired AppUserService appUserService) throws Exception {
+//        AppUser persistedPwChangedUser = appUserService.findByUsername(AccountManagerTestUtils.PW_CHANGED_USER_USERNAME).get();
+//        String url = "/api/account/user/" + persistedPwChangedUser.getId() + "/restore-password";
+//        MvcResult result = mvc.perform(patch(url)
+//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isCreated())
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testRestorePwChangedUserPassword_whenAlabAdmin_got201(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedPwChangedUser = appUserService.findByUsername(AccountManagerTestUtils.PW_CHANGED_USER_USERNAME).get();
+        String url = "/api/account/user/" + persistedPwChangedUser.getId() + "/restore-password";
+        MvcResult result = mvc.perform(patch(url)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testRestorePwChangedUserPassword_whenSameUser_got201(@Autowired AppUserService appUserService) throws Exception {
+        AppUser persistedPwChangedUser = appUserService.findByUsername(AccountManagerTestUtils.PW_CHANGED_USER_USERNAME).get();
+        String url = "/api/account/user/" + persistedPwChangedUser.getId() + "/restore-password";
+        MvcResult result = mvc.perform(patch(url)
+                        .header("Authorization", TOKEN_FOR_PW_CHANGED_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
 
     // UPDATE
     @Test
@@ -66,7 +126,6 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
         testGetAllAppUser_whenAuthorized_gotValidResponse(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
     }
 
-    // UPDATE
     @Test
     @Transactional
     @Rollback

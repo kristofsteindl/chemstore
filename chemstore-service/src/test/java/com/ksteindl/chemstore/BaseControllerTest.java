@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 public class BaseControllerTest {
@@ -40,6 +41,7 @@ public class BaseControllerTest {
 
     protected static String TOKEN_FOR_ALPHA_LAB_USER;
     protected static String TOKEN_FOR_BETA_LAB_USER;
+    protected static String TOKEN_FOR_PW_CHANGED_USER;
 
     private static boolean first = true;
 
@@ -109,6 +111,9 @@ public class BaseControllerTest {
             AppUserInput ablabUserInput = AccountManagerTestUtils.getAlphaBetaLabUserInput();
             ablabUserInput.setLabKeysAsUser(List.of(AccountManagerTestUtils.ALPHA_LAB_KEY, AccountManagerTestUtils.BETA_LAB_KEY));
             AppUser ablabuser = appUserService.createUser(ablabUserInput);
+
+            AppUserInput pwChangedUserInput = AccountManagerTestUtils.getPwChangedUserInput();
+            AppUser pwChangedUser = appUserService.createUser(pwChangedUserInput);
 
             AppUser ablabdeleteduser = appUserService.createUser(AccountManagerTestUtils.ALPHA_BETA_LAB_DELETED_USER_INPUT);
             appUserService.deleteAppUser(ablabdeleteduser.getId());
@@ -193,14 +198,6 @@ public class BaseControllerTest {
 //                    .setExpirationDateBeforeOpened(LocalDate.now().plusMonths(6))
 //                    .build();
 //            chemItemService.createChemItems(alab.getKey(), cii1, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
-
-            MvcResult result = mvc.perform(post("/api/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(asStaticJsonString(Map.of("username", AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME,
-                                    "password", AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME))))
-                    .andReturn();
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, String> loginResponse = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>(){});
             TOKEN_FOR_ACCOUNT_MANAGER = getToken(mvc, AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
             TOKEN_FOR_ALPHA_LAB_ADMIN = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
             TOKEN_FOR_ALPHA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
@@ -208,6 +205,15 @@ public class BaseControllerTest {
             TOKEN_FOR_BETA_LAB_ADMIN= getToken(mvc, AccountManagerTestUtils.BETA_LAB_ADMIN_USERNAME);
             TOKEN_FOR_BETA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME);
             TOKEN_FOR_BETA_LAB_USER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_USER_USERNAME);
+            TOKEN_FOR_PW_CHANGED_USER = getToken(mvc, AccountManagerTestUtils.PW_CHANGED_USER_USERNAME);
+            PasswordInput passwordInput = new PasswordInput();
+            passwordInput.setOldPassword(AccountManagerTestUtils.PW_CHANGED_USER_USERNAME.split("@")[0]);
+            passwordInput.setNewPassword(AccountManagerTestUtils.PW_CHANGED_USER_PASSWORD);
+            passwordInput.setNewPassword2(AccountManagerTestUtils.PW_CHANGED_USER_PASSWORD);
+            mvc.perform(patch("/api/logged-in/user")
+                    .header("Authorization", TOKEN_FOR_PW_CHANGED_USER)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(asStaticJsonString(passwordInput)));
             first = false;
         }
     }

@@ -119,6 +119,16 @@ public class AccountManagerTestUtils {
                 .build();
     }
 
+    public static final String PW_CHANGED_USER_USERNAME = "pwchanged@account.com";
+    public static final String PW_CHANGED_USER_FULL_NAME = "Changed Password User";
+    public static final String PW_CHANGED_USER_PASSWORD = "this-is-changed";
+    public static AppUserInput getPwChangedUserInput() {
+        return AppUserInput.builder()
+                .username(PW_CHANGED_USER_USERNAME)
+                .fullName(PW_CHANGED_USER_FULL_NAME)
+                .build();
+    }
+
     public static final String BETA_LAB_USER_USERNAME = "blabuser@account.com";
     public static final String BETA_LAB_USER_FULL_NAME = "Beta Lab User";
 //    public static final String BETA_LAB_USER_PASSWORD = "blabuser";

@@ -77,6 +77,12 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         return appUserRepository.save(appUser);
     }
 
+    public AppUser restorePassword(Long id) {
+        AppUser appUser = findById(id);
+        setDefaultPassword(appUser);
+        return appUserRepository.save(appUser);
+    }
+
     public AppUser updatePassword(PasswordInput passwordInput, Principal principal) {
         AppUser appUser = getMyAppUser(principal);
         validateAndSetPassword(appUser, passwordInput);

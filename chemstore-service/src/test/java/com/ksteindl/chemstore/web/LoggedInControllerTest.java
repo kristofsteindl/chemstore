@@ -55,7 +55,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     @Rollback
     void testUpdateAlphaLabUser_whenAllValid_got201() throws Exception {
         PasswordInput passwordInput = getNewPasswordInput();
-        MvcResult result = mvc.perform(put(URL_USERS)
+        MvcResult result = mvc.perform(patch(URL_USERS)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(passwordInput)))
@@ -72,7 +72,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     @Rollback
     void testUpdateAlphaLabUser_whenAllValid_canLoginAfterWithNewPassword() throws Exception {
         PasswordInput passwordInput = getNewPasswordInput();
-        MvcResult result = mvc.perform(put(URL_USERS)
+        MvcResult result = mvc.perform(patch(URL_USERS)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(passwordInput)))
@@ -93,7 +93,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     @Rollback
     void testUpdateAlphaLabUser_whenAllValid_canNOTLoginAfterWithOldPassword() throws Exception {
         PasswordInput passwordInput = getNewPasswordInput();
-        MvcResult result = mvc.perform(put(URL_USERS)
+        MvcResult result = mvc.perform(patch(URL_USERS)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(passwordInput)))
@@ -116,7 +116,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     void testUpdateAlphaLabUser_whenPasswordEmpty1_got400() throws Exception {
         PasswordInput passwordInput = getNewPasswordInput();
         passwordInput.setNewPassword(null);
-        MvcResult result = mvc.perform(put(URL_USERS)
+        MvcResult result = mvc.perform(patch(URL_USERS)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(passwordInput)))
@@ -133,7 +133,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     void testUpdateAlphaLabUser_whenPasswordEmpty2_got400() throws Exception {
         PasswordInput passwordInput = getNewPasswordInput();
         passwordInput.setNewPassword(" ");
-        MvcResult result = mvc.perform(put(URL_USERS)
+        MvcResult result = mvc.perform(patch(URL_USERS)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(passwordInput)))
@@ -150,7 +150,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     void testUpdateAlphaLabUser_whenPasswordTooShort_got400() throws Exception {
         PasswordInput passwordInput = getNewPasswordInput();
         passwordInput.setNewPassword("yo123");
-        MvcResult result = mvc.perform(put(URL_USERS)
+        MvcResult result = mvc.perform(patch(URL_USERS)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(passwordInput)))
@@ -167,7 +167,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     void testUpdateAlphaLabUser_whenPasswordsAreNotTheSame_got400() throws Exception {
         PasswordInput passwordInput = getNewPasswordInput();
         passwordInput.setNewPassword2("yo123456");
-        MvcResult result = mvc.perform(put(URL_USERS)
+        MvcResult result = mvc.perform(patch(URL_USERS)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(passwordInput)))
@@ -185,7 +185,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     void testUpdateAlphaLabUser_whenOldPasswordIncorrect_got400() throws Exception {
         PasswordInput passwordInput = getNewPasswordInput();
         passwordInput.setOldPassword("no-goo");
-        MvcResult result = mvc.perform(put(URL_USERS)
+        MvcResult result = mvc.perform(patch(URL_USERS)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(passwordInput)))

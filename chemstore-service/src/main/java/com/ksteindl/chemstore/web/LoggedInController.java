@@ -40,15 +40,15 @@ public class LoggedInController {
     @Autowired
     private ManufacturerService manufacturerService;
 
-    @PutMapping("/user")
+    @PatchMapping("/user")
     public ResponseEntity<AppUser> updateteLoggedInUserPassword(
             @Valid @RequestBody PasswordInput passwordInput,
             BindingResult result,
             Principal principal) {
-        logger.info("PUT '/api/logged-in/user' was called with and input {}", passwordInput);
+        logger.info("PATCH '/api/logged-in/user' was called with and input {}", passwordInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
         AppUser appUser = appUserService.updatePassword(passwordInput, principal);
-        logger.info("PUT '/user/{id}' was succesful with returned result{}", appUser);
+        logger.info("PATCH '/user/{id}' was succesful with returned result{}", appUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(appUser);
     }
 

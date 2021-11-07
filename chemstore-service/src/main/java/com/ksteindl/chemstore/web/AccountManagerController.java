@@ -2,8 +2,8 @@ package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
-import com.ksteindl.chemstore.domain.input.LabInput;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
+import com.ksteindl.chemstore.domain.input.LabInput;
 import com.ksteindl.chemstore.service.AppUserService;
 import com.ksteindl.chemstore.service.LabService;
 import org.apache.logging.log4j.LogManager;
@@ -38,6 +38,15 @@ public class AccountManagerController {
         mapValidationErrorService.throwExceptionIfNotValid(result);
         AppUser appUser = appUserService.createUser(appUserInput);
         logger.info("POST '/user' was succesful with returned result{}", appUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(appUser);
+    }
+
+    @PatchMapping("/user/{id}/restore-password")
+    public ResponseEntity<AppUser> restorePassword(
+            @PathVariable Long id) {
+        logger.info("PATCH '/user/{id}/restore-password' was called with id {}", id);
+        AppUser appUser = appUserService.restorePassword(id);
+        logger.info("PATCH '/user/{id}/restore-password' was succesful with returned result {}", appUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(appUser);
     }
 
