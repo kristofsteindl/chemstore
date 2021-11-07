@@ -42,9 +42,9 @@ public class LoggedInController {
 
     @PutMapping("/user")
     public ResponseEntity<AppUser> updateteLoggedInUserPassword(
-            @RequestBody @Valid PasswordInput passwordInput,
-            Principal principal,
-            BindingResult result) {
+            @Valid @RequestBody PasswordInput passwordInput,
+            BindingResult result,
+            Principal principal) {
         logger.info("PUT '/api/logged-in/user' was called with and input {}", passwordInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
         AppUser appUser = appUserService.updatePassword(passwordInput, principal);

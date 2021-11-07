@@ -1,6 +1,7 @@
 package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.BaseControllerTest;
+import com.ksteindl.chemstore.domain.input.PasswordInput;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.utils.LabAdminTestUtils;
@@ -13,15 +14,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import javax.transaction.Transactional;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,6 +48,162 @@ public class LoggedInControllerTest extends BaseControllerTest {
     JwtProvider jwtProvider;
     @Autowired
     private MockMvc mvc;
+
+    //USER
+    @Test
+    @Transactional
+    @Rollback
+    void testUpdateAlphaLabUser_whenAllValid_got201() throws Exception {
+        PasswordInput passwordInput = getNewPasswordInput();
+        MvcResult result = mvc.perform(put(URL_USERS)
+                .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(passwordInput)))
+                .andExpect(status().is(201))
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.username", is(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME)))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testUpdateAlphaLabUser_whenAllValid_canLoginAfterWithNewPassword() throws Exception {
+        PasswordInput passwordInput = getNewPasswordInput();
+        MvcResult result = mvc.perform(put(URL_USERS)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(passwordInput)))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+        mvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asStaticJsonString(Map.of(
+                                "username", AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME,
+                                "password", passwordInput.getNewPassword()))))
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.token").isString());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testUpdateAlphaLabUser_whenAllValid_canNOTLoginAfterWithOldPassword() throws Exception {
+        PasswordInput passwordInput = getNewPasswordInput();
+        MvcResult result = mvc.perform(put(URL_USERS)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(passwordInput)))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+        mvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asStaticJsonString(Map.of(
+                                "username", AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME,
+                                "password", AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME.split("@")[0]))))
+                .andExpect(status().is(401))
+                .andExpect(jsonPath("$.username").isString())
+                .andExpect(jsonPath("$.password").isString());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testUpdateAlphaLabUser_whenPasswordEmpty1_got400() throws Exception {
+        PasswordInput passwordInput = getNewPasswordInput();
+        passwordInput.setNewPassword(null);
+        MvcResult result = mvc.perform(put(URL_USERS)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(passwordInput)))
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("$.newPassword").isNotEmpty())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testUpdateAlphaLabUser_whenPasswordEmpty2_got400() throws Exception {
+        PasswordInput passwordInput = getNewPasswordInput();
+        passwordInput.setNewPassword(" ");
+        MvcResult result = mvc.perform(put(URL_USERS)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(passwordInput)))
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("$.newPassword").isNotEmpty())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testUpdateAlphaLabUser_whenPasswordTooShort_got400() throws Exception {
+        PasswordInput passwordInput = getNewPasswordInput();
+        passwordInput.setNewPassword("yo123");
+        MvcResult result = mvc.perform(put(URL_USERS)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(passwordInput)))
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("$.newPassword").isNotEmpty())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testUpdateAlphaLabUser_whenPasswordsAreNotTheSame_got400() throws Exception {
+        PasswordInput passwordInput = getNewPasswordInput();
+        passwordInput.setNewPassword2("yo123456");
+        MvcResult result = mvc.perform(put(URL_USERS)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(passwordInput)))
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("$.newPassword").isNotEmpty())
+                .andExpect(jsonPath("$.newPassword2").isNotEmpty())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testUpdateAlphaLabUser_whenOldPasswordIncorrect_got400() throws Exception {
+        PasswordInput passwordInput = getNewPasswordInput();
+        passwordInput.setOldPassword("no-goo");
+        MvcResult result = mvc.perform(put(URL_USERS)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(passwordInput)))
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("$.oldPassword").isNotEmpty())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    private PasswordInput getNewPasswordInput() {
+        PasswordInput passwordInput = new PasswordInput();
+        String newPassword = "brand-new-password";
+        passwordInput.setOldPassword(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME.split("@")[0]);
+        passwordInput.setNewPassword(newPassword);
+        passwordInput.setNewPassword2(newPassword);
+        return passwordInput;
+    }
 
     //CHEMICAL
     @Test

@@ -15,12 +15,14 @@ public class Lang {
     public static final String APP_USER_ENTITY_NAME = "app-user";
     public static final String APP_USER_USERNAME_ATTRIBUTE_NAME = "username";
     public static final String APP_USER_PASSWORD_ATTRIBUTE_NAME = "password";
-    public static final String APP_USER_PASSWORD2_ATTRIBUTE_NAME = "password2";
     public static final String APP_USER_SAME_NAME_FOUND_TEMPLATE = "App user with same username was found ('%s')";
     public static final String APP_USER_ALREADY_DELETED = "App user %s has been already deleted)";
     public static final String PASSWORDS_MUST_BE_THE_SAME = "password and password2 must be the same";
     public static final String WRONG_OLD_PASSWORD = "The given old password is not matching with the current password";
     public static final String USERNAME_CANNOT_BE_CHANGED = "username of the app user cannot be updated (%s, %s)";
+    public static final String NEW_PASSWORD_INPUT_ATTR_NAME = "newPassword";
+    public static final String NEW_PASSWORD2_INPUT_ATTR_NAME = "newPassword2";
+    public static final String OLD_PASSWORD_INPUT_ATTR_NAME = "oldPassword";
 
 
     public static final String LAB_ENTITY_NAME = "lab";

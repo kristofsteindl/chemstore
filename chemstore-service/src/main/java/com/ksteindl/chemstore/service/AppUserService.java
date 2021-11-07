@@ -198,18 +198,18 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
 
     private void validateAndSetPassword(AppUser appUser, PasswordInput passwordInput) {
         if (!bCryptPasswordEncoder.matches(passwordInput.getOldPassword(), appUser.getPassword())) {
-            throw new ValidationException(Lang.WRONG_OLD_PASSWORD);
+            throw new ValidationException(Lang.OLD_PASSWORD_INPUT_ATTR_NAME, Lang.WRONG_OLD_PASSWORD);
         }
         String password = passwordInput.getNewPassword();
         String password2 = passwordInput.getNewPassword2();
         Integer minPasswordLength = 6;
         if (password.length() < minPasswordLength) {
-            throw new ValidationException(Lang.APP_USER_PASSWORD_ATTRIBUTE_NAME, String.format(Lang.PASSWORD_TOO_SHORT, minPasswordLength.toString()) );
+            throw new ValidationException(Lang.NEW_PASSWORD_INPUT_ATTR_NAME, String.format(Lang.PASSWORD_TOO_SHORT, minPasswordLength));
         }
         if (!password.equals(password2)) {
             Map<String, String> errors = Map.of(
-                    Lang.APP_USER_PASSWORD_ATTRIBUTE_NAME, Lang.PASSWORDS_MUST_BE_THE_SAME,
-                    Lang.APP_USER_PASSWORD2_ATTRIBUTE_NAME, Lang.PASSWORDS_MUST_BE_THE_SAME);
+                    Lang.NEW_PASSWORD_INPUT_ATTR_NAME, Lang.PASSWORDS_MUST_BE_THE_SAME,
+                    Lang.NEW_PASSWORD2_INPUT_ATTR_NAME, Lang.PASSWORDS_MUST_BE_THE_SAME);
             throw new ValidationException(errors);
         }
         appUser.setPassword(bCryptPasswordEncoder.encode(password));

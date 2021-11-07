@@ -31,7 +31,7 @@ public class ChemItemController {
     @PostMapping("/{labKey}")
     public ResponseEntity<List<ChemItem>> createChemItems(
             @PathVariable String labKey,
-            @RequestBody @Valid ChemItemInput chemItemInput,
+            @Valid @RequestBody ChemItemInput chemItemInput,
             BindingResult result,
             Principal principal) {
         logger.info("POST '/chem-item' was called with {}", chemItemInput);

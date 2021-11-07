@@ -7,7 +7,6 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class PasswordInput {
 
-    @NotBlank(message = "old password is required")
     private String oldPassword;
 
     @NotBlank(message = "password cannot be blank")
