@@ -17,8 +17,6 @@ class AddUse extends Component {
             labsAsUser: [], 
             labsAsAdmin: [],
             roles: [],
-            password: "",
-            password2: "",
             labs: [],
             errors: {}
         }
@@ -61,16 +59,12 @@ class AddUse extends Component {
 
     onSubmit(e) {
         e.preventDefault()
-        console.log(this.state)
-        console.log(this.state.username)
         const newUser = {
             username: this.state.username,
             fullName: this.state.fullName,
             labKeysAsUser: this.state.labsAsUser.map(lab => lab.key), 
             labKeysAsAdmin: this.state.labsAsAdmin.map(lab => lab.key),
-            roles: this.state.roles,
-            password: this.state.password,
-            password2: this.state.password2
+            roles: this.state.roles
         }
         console.log(newUser)
          this.props.createNewUser(newUser, this.props.history)
@@ -138,45 +132,6 @@ class AddUse extends Component {
 
                                 </div>
 
-                                
-                                <div className="form-group row mb-3">
-                                    <label htmlFor="password" className="col-sm-4 col-form-label">Password</label>
-                                    <div className="col-sm-8">
-                                        <input 
-                                            name="password"
-                                            value={this.state.password}
-                                            onChange={this.onChangeBasicInputs}
-                                            type="password" 
-                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.password})} 
-                                            placeholder="password" 
-                                            
-                                        />
-                                        {
-                                            errors.password && <div  className="invalid-feedback">{errors.password}</div>
-                                        }
-                                    </div>
-
-                                </div>
-
-                                <div className="form-group row mb-3">
-                                    <label htmlFor="password2" className="col-sm-4 col-form-label">Password</label>
-                                    <div className="col-sm-8">
-                                        <input 
-                                            name="password2"
-                                            value={this.state.password2}
-                                            onChange={this.onChangeBasicInputs}
-                                            type="password" 
-                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.password2})} 
-                                            placeholder="password2" 
-                                            
-                                        />
-                                        {
-                                            errors.password2 && <div className="invalid-feedback">{errors.password2}</div>
-                                        }
-                                    </div>
-                                    
-
-                                </div>
                                 <div className="form-group row mb-3">
                                     <label htmlFor="labsAsUser" className="col-sm-4 col-form-label">Labs, where user can administrate (open, use, etc) chemicals</label>
                                     <div className="col-sm-8">

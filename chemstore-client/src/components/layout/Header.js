@@ -27,6 +27,11 @@ class Header extends Component {
                 </ul>
 
                 <ul className="navbar-nav ms-auto">
+                <li className="nav-item">
+                        <Link className="nav-link" to='/change-password'>
+                            Change Password
+                        </Link>
+                    </li>
                     <li className="nav-item">
                         <Link className="nav-link" to='/logout' onClick={this.logout.bind(this)}>
                             Logout
