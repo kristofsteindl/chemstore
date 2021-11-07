@@ -30,8 +30,6 @@ public class RoleLoader implements CommandLineRunner {
             AppUserInput superAdminInput = AppUserInput.builder()
                     .fullName(SUPERADMIN)
                     .username(SUPERADMIN)
-                    .password(SUPERADMIN)
-                    .password2(SUPERADMIN)
                     .roles(List.of(Authority.ACCOUNT_MANAGER))
                     .build();
             appUserService.createUser(superAdminInput);

@@ -226,46 +226,46 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
         logger.info(result.getResponse().getContentAsString());
     }
 
-    @Test
-    @Transactional
-    @Rollback
-    void testUpdateAlphaLabUser_whenPasswordEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
-        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
+//    @Test
+//    @Transactional
+//    @Rollback
+//    void testUpdateAlphaLabUser_whenPasswordEmpty_gotNOK(@Autowired AppUserService appUserService) throws Exception {
+//        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
+//        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
+//
+//        AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
+//        appUserInput.setPassword("");
+//        MvcResult result = mvc.perform(put(url)
+//                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(asJsonString(appUserInput)))
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.password").isNotEmpty())
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
 
-        AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
-        appUserInput.setPassword("");
-        MvcResult result = mvc.perform(put(url)
-                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(appUserInput)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.password").isNotEmpty())
-                .andReturn();
-        logger.info("status code: " + result.getResponse().getStatus());
-        logger.info(result.getResponse().getContentAsString());
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    void testUpdateAlphaLabUser_whenPasswordsAreNotTheSame_gotNOK(@Autowired AppUserService appUserService) throws Exception {
-        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
-        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
-
-        AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
-        appUserInput.setPassword("fooooo");
-        appUserInput.setPassword("baaaaar");
-        MvcResult result = mvc.perform(put(url)
-                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(appUserInput)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.password").isNotEmpty())
-                .andReturn();
-        logger.info("status code: " + result.getResponse().getStatus());
-        logger.info(result.getResponse().getContentAsString());
-    }
+//    @Test
+//    @Transactional
+//    @Rollback
+//    void testUpdateAlphaLabUser_whenPasswordsAreNotTheSame_gotNOK(@Autowired AppUserService appUserService) throws Exception {
+//        AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
+//        String url = "/api/account/user/" + persistedAlphaLabUser.getId();
+//
+//        AppUserInput appUserInput = AccountManagerTestUtils.getAlphaLabUserInput();
+//        appUserInput.setPassword("fooooo");
+//        appUserInput.setPassword("baaaaar");
+//        MvcResult result = mvc.perform(put(url)
+//                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(asJsonString(appUserInput)))
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.password").isNotEmpty())
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
 
     @Test
     @Transactional
@@ -413,42 +413,42 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
         logger.info(result.getResponse().getContentAsString());
     }
 
-    @Test
-    @Transactional
-    @Rollback
-    void testCreateAppUser_whenPasswordEmpty_gotNOK() throws Exception {
-        String url = "/api/account/user";
-        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
-        appUserInput.setPassword("");
-        MvcResult result = mvc.perform(post(url)
-                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(appUserInput)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.password").isNotEmpty())
-                .andReturn();
-        logger.info("status code: " + result.getResponse().getStatus());
-        logger.info(result.getResponse().getContentAsString());
-    }
+//    @Test
+//    @Transactional
+//    @Rollback
+//    void testCreateAppUser_whenPasswordEmpty_gotNOK() throws Exception {
+//        String url = "/api/account/user";
+//        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
+//        appUserInput.setPassword("");
+//        MvcResult result = mvc.perform(post(url)
+//                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(asJsonString(appUserInput)))
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.password").isNotEmpty())
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
 
-    @Test
-    @Transactional
-    @Rollback
-    void testCreateAppUser_whenPasswordNotTheSame_gotNOK() throws Exception {
-        String url = "/api/account/user";
-        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
-        appUserInput.setPassword("fooooo");
-        appUserInput.setPassword2("barrrrr");
-        MvcResult result = mvc.perform(post(url)
-                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(appUserInput)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.password").isNotEmpty())
-                .andReturn();
-        logger.info("status code: " + result.getResponse().getStatus());
-        logger.info(result.getResponse().getContentAsString());
-    }
+//    @Test
+//    @Transactional
+//    @Rollback
+//    void testCreateAppUser_whenPasswordNotTheSame_gotNOK() throws Exception {
+//        String url = "/api/account/user";
+//        AppUserInput appUserInput = AccountManagerTestUtils.getNewAccountManagerInputWithSomeLabs();
+//        appUserInput.setPassword("fooooo");
+//        appUserInput.setPassword2("barrrrr");
+//        MvcResult result = mvc.perform(post(url)
+//                .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(asJsonString(appUserInput)))
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.password").isNotEmpty())
+//                .andReturn();
+//        logger.info("status code: " + result.getResponse().getStatus());
+//        logger.info(result.getResponse().getContentAsString());
+//    }
 
     @Test
     @Transactional

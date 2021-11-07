@@ -3,6 +3,7 @@ package com.ksteindl.chemstore.service;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
+import com.ksteindl.chemstore.domain.input.PasswordInput;
 import com.ksteindl.chemstore.domain.repositories.AppUserRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
@@ -61,6 +62,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         AppUser appUser = new AppUser();
         throwExceptionIfNotUnique(appUserInput);
         validateAndSetAppUser(appUser, appUserInput);
+        setDefaultPassword(appUser);
         return appUserRepository.save(appUser);
     }
 
@@ -72,6 +74,12 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
                     String.format(Lang.USERNAME_CANNOT_BE_CHANGED, appUser.getUsername(), appUserInput.getUsername()));
         }
         validateAndSetAppUser(appUser, appUserInput);
+        return appUserRepository.save(appUser);
+    }
+
+    public AppUser updatePassword(PasswordInput passwordInput, Principal principal) {
+        AppUser appUser = getMyAppUser(principal);
+        validateAndSetPassword(appUser, passwordInput);
         return appUserRepository.save(appUser);
     }
 
@@ -181,12 +189,19 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         appUser.setRoles(roles);
         appUser.setLabsAsUser(labsAsUser);
         appUser.setLabsAsAdmin(labsAsAdmin);
-        validateAndSetPassword(appUser, appUserInput);
     }
 
-    private void validateAndSetPassword(AppUser appUser, AppUserInput appUserInput) {
-        String password = appUserInput.getPassword();
-        String password2 = appUserInput.getPassword2();
+    private void setDefaultPassword(AppUser appUser) {
+        String password = appUser.getUsername().split("@")[0];
+        appUser.setPassword(bCryptPasswordEncoder.encode(password));
+    }
+
+    private void validateAndSetPassword(AppUser appUser, PasswordInput passwordInput) {
+        if (!bCryptPasswordEncoder.matches(passwordInput.getOldPassword(), appUser.getPassword())) {
+            throw new ValidationException(Lang.WRONG_OLD_PASSWORD);
+        }
+        String password = passwordInput.getNewPassword();
+        String password2 = passwordInput.getNewPassword2();
         Integer minPasswordLength = 6;
         if (password.length() < minPasswordLength) {
             throw new ValidationException(Lang.APP_USER_PASSWORD_ATTRIBUTE_NAME, String.format(Lang.PASSWORD_TOO_SHORT, minPasswordLength.toString()) );

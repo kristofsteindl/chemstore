@@ -197,29 +197,30 @@ public class BaseControllerTest {
             MvcResult result = mvc.perform(post("/api/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asStaticJsonString(Map.of("username", AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME,
-                                    "password", AccountManagerTestUtils.ACCOUNT_MANAGER_PASSWORD))))
+                                    "password", AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME))))
                     .andReturn();
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, String> loginResponse = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>(){});
-            TOKEN_FOR_ACCOUNT_MANAGER = getToken(mvc, AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME, AccountManagerTestUtils.ACCOUNT_MANAGER_PASSWORD);
-            TOKEN_FOR_ALPHA_LAB_ADMIN = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PASSWORD);
-            TOKEN_FOR_ALPHA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PASSWORD);
-            TOKEN_FOR_ALPHA_LAB_USER = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME, AccountManagerTestUtils.ALPHA_LAB_USER_PASSWORD);
-            TOKEN_FOR_BETA_LAB_ADMIN= getToken(mvc, AccountManagerTestUtils.BETA_LAB_ADMIN_USERNAME, AccountManagerTestUtils.BETA_LAB_ADMIN_PASSWORD);
-            TOKEN_FOR_BETA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME, AccountManagerTestUtils.BETA_LAB_MANAGER_PASSWORD);
-            TOKEN_FOR_BETA_LAB_USER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_USER_USERNAME, AccountManagerTestUtils.BETA_LAB_USER_PASSWORD);
+            TOKEN_FOR_ACCOUNT_MANAGER = getToken(mvc, AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
+            TOKEN_FOR_ALPHA_LAB_ADMIN = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
+            TOKEN_FOR_ALPHA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
+            TOKEN_FOR_ALPHA_LAB_USER = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
+            TOKEN_FOR_BETA_LAB_ADMIN= getToken(mvc, AccountManagerTestUtils.BETA_LAB_ADMIN_USERNAME);
+            TOKEN_FOR_BETA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME);
+            TOKEN_FOR_BETA_LAB_USER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_USER_USERNAME);
             first = false;
         }
     }
 
-    private static String getToken(MockMvc mvc, String userName, String password) throws Exception {
+    private static String getToken(MockMvc mvc, String userName) throws Exception {
         MvcResult result = mvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asStaticJsonString(Map.of("username", userName,
-                                "password", password))))
+                                "password", userName.split("@")[0]))))
                 .andReturn();
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> loginResponse = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>(){});
+        logger.info("Requiring token for tests for " + userName + " with /login, getting response: " + result.getResponse().getContentAsString());
         return loginResponse.get("token");
     }
 

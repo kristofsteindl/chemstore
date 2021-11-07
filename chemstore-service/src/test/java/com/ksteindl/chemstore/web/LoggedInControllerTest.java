@@ -30,11 +30,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class PublicControllerTest extends BaseControllerTest {
+public class LoggedInControllerTest extends BaseControllerTest {
 
-    private static final Logger logger = LogManager.getLogger(PublicControllerTest.class);
+    private static final Logger logger = LogManager.getLogger(LoggedInControllerTest.class);
 
-    private final static String URL = "/api/public";
+    private final static String URL = "/api/logged-in";
     private final static String URL_USERS = URL + "/user";
     private final static String URL_MANUFACTURER = URL + "/manufacturer";
     private final static String URL_CHEMICAL = URL + "/chemical";

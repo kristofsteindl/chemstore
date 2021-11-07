@@ -4,6 +4,7 @@ import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
+import com.ksteindl.chemstore.domain.input.PasswordInput;
 import com.ksteindl.chemstore.service.AppUserService;
 import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.LabService;
@@ -12,18 +13,24 @@ import com.ksteindl.chemstore.service.wrapper.AppUserCard;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/public") // TODO rename me
+@RequestMapping("/api/logged-in")
 @CrossOrigin
-public class PublicController {
+public class LoggedInController {
 
-    private static final Logger logger = LogManager.getLogger(PublicController.class);
+    private static final Logger logger = LogManager.getLogger(LoggedInController.class);
 
+    @Autowired
+    private MapValidationErrorService mapValidationErrorService;
     @Autowired
     private AppUserService appUserService;
     @Autowired
@@ -32,6 +39,18 @@ public class PublicController {
     private ChemicalService chemicalService;
     @Autowired
     private ManufacturerService manufacturerService;
+
+    @PutMapping("/user")
+    public ResponseEntity<AppUser> updateteLoggedInUserPassword(
+            @RequestBody @Valid PasswordInput passwordInput,
+            Principal principal,
+            BindingResult result) {
+        logger.info("PUT '/api/logged-in/user' was called with and input {}", passwordInput);
+        mapValidationErrorService.throwExceptionIfNotValid(result);
+        AppUser appUser = appUserService.updatePassword(passwordInput, principal);
+        logger.info("PUT '/user/{id}' was succesful with returned result{}", appUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(appUser);
+    }
 
     @GetMapping("/user")
     public List<AppUserCard> getAllAppUser() {

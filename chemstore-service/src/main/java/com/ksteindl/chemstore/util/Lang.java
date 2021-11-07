@@ -19,6 +19,7 @@ public class Lang {
     public static final String APP_USER_SAME_NAME_FOUND_TEMPLATE = "App user with same username was found ('%s')";
     public static final String APP_USER_ALREADY_DELETED = "App user %s has been already deleted)";
     public static final String PASSWORDS_MUST_BE_THE_SAME = "password and password2 must be the same";
+    public static final String WRONG_OLD_PASSWORD = "The given old password is not matching with the current password";
     public static final String USERNAME_CANNOT_BE_CHANGED = "username of the app user cannot be updated (%s, %s)";
 
 
