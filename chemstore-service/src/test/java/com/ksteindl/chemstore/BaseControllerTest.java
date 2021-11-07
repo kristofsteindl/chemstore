@@ -1,5 +1,6 @@
 package com.ksteindl.chemstore;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ksteindl.chemstore.domain.entities.*;
 import com.ksteindl.chemstore.domain.input.*;
@@ -13,11 +14,17 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 public class BaseControllerTest {
 
@@ -54,6 +61,7 @@ public class BaseControllerTest {
 
     @BeforeAll
     static void initDb(
+            @Autowired MockMvc mvc,
             @Autowired JwtProvider jwtProvider,
             @Autowired AppUserService appUserService,
             @Autowired LabService labService,
@@ -61,7 +69,7 @@ public class BaseControllerTest {
             @Autowired ChemicalService chemicalService,
             @Autowired ChemTypeService chemTypeService,
             @Autowired ShelfLifeRepositoy shelfLifeRepositoy,
-            @Autowired ChemItemService chemItemService) {
+            @Autowired ChemItemService chemItemService) throws Exception {
         if (first) {
             AppUser aman = appUserService.createUser(AccountManagerTestUtils.getAccountManagerInput());
             System.out.println("Account Manager id " + aman.getId());
@@ -175,26 +183,51 @@ public class BaseControllerTest {
             waterForAlpha.setDeleted(true);
             shelfLifeRepositoy.save(waterForAlpha);
 
-            ChemItemInput cii1 = ChemItemInput.builder()
-                    .setManufacturerId(omegaMan.getId())
-                    .setAmount(3)
-                    .setQuantity(2500.0)
-                    .setBatchNumber("1234")
-                    .setUnit("mA")
-                    .setChemicalName(ethanol.getShortName())
-                    .setExpirationDateBeforeOpened(LocalDate.now().plusMonths(6))
-                    .build();
-            chemItemService.createChemItems(alab.getKey(), cii1, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
+//            ChemItemInput cii1 = ChemItemInput.builder()
+//                    .setManufacturerId(omegaMan.getId())
+//                    .setAmount(3)
+//                    .setQuantity(2500.0)
+//                    .setBatchNumber("1234")
+//                    .setUnit("mA")
+//                    .setChemicalName(ethanol.getShortName())
+//                    .setExpirationDateBeforeOpened(LocalDate.now().plusMonths(6))
+//                    .build();
+//            chemItemService.createChemItems(alab.getKey(), cii1, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
 
-
-            TOKEN_FOR_ACCOUNT_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
-            TOKEN_FOR_ALPHA_LAB_ADMIN = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
-            TOKEN_FOR_ALPHA_LAB_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
-            TOKEN_FOR_ALPHA_LAB_USER = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
-            TOKEN_FOR_BETA_LAB_ADMIN= jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_ADMIN_USERNAME);
-            TOKEN_FOR_BETA_LAB_MANAGER = jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME);
-            TOKEN_FOR_BETA_LAB_USER = jwtProvider.generateToken(AccountManagerTestUtils.BETA_LAB_USER_USERNAME);
+            MvcResult result = mvc.perform(post("/api/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(asStaticJsonString(Map.of("username", AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME,
+                                    "password", AccountManagerTestUtils.ACCOUNT_MANAGER_PASSWORD))))
+                    .andReturn();
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, String> loginResponse = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>(){});
+            TOKEN_FOR_ACCOUNT_MANAGER = getToken(mvc, AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME, AccountManagerTestUtils.ACCOUNT_MANAGER_PASSWORD);
+            TOKEN_FOR_ALPHA_LAB_ADMIN = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PASSWORD);
+            TOKEN_FOR_ALPHA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PASSWORD);
+            TOKEN_FOR_ALPHA_LAB_USER = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME, AccountManagerTestUtils.ALPHA_LAB_USER_PASSWORD);
+            TOKEN_FOR_BETA_LAB_ADMIN= getToken(mvc, AccountManagerTestUtils.BETA_LAB_ADMIN_USERNAME, AccountManagerTestUtils.BETA_LAB_ADMIN_PASSWORD);
+            TOKEN_FOR_BETA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME, AccountManagerTestUtils.BETA_LAB_MANAGER_PASSWORD);
+            TOKEN_FOR_BETA_LAB_USER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_USER_USERNAME, AccountManagerTestUtils.BETA_LAB_USER_PASSWORD);
             first = false;
+        }
+    }
+
+    private static String getToken(MockMvc mvc, String userName, String password) throws Exception {
+        MvcResult result = mvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asStaticJsonString(Map.of("username", userName,
+                                "password", password))))
+                .andReturn();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> loginResponse = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>(){});
+        return loginResponse.get("token");
+    }
+
+    public static String asStaticJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -221,9 +254,9 @@ public class BaseControllerTest {
         if (localDate != null) {
             String localDateString = new StringBuilder().append(
                             localDate.getYear()).append("-").
-                    append(localDate.getMonthValue() > 9 ? localDate.getMonthValue() : "0" + Integer.toString(localDate.getMonthValue()))
+                    append(localDate.getMonthValue() > 9 ? localDate.getMonthValue() : "0" + localDate.getMonthValue())
                     .append("-").
-                    append(localDate.getDayOfMonth()).toString();
+                    append(localDate.getDayOfMonth() > 9 ? localDate.getDayOfMonth() : "0" + localDate.getDayOfMonth()).toString();
             String replaced = "\"" + attributeName + "\":null";
             int index = builder.indexOf(replaced);
             builder.replace(index, index + replaced.length(), "\"" + attributeName + "\":\"" + localDateString + "\"");
@@ -232,7 +265,8 @@ public class BaseControllerTest {
 
     public String asJsonString(final Object obj) {
         try {
-            return new ObjectMapper().writeValueAsString(obj);
+            String serialized = new ObjectMapper().writeValueAsString(obj);
+            return serialized;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
