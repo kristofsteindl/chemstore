@@ -8,7 +8,7 @@ import axios from "axios";
 import { refreshTokenAndUser } from '../../securityUtils/securityUtils'
 
 
-class AddUse extends Component {
+class AddUser extends Component {
     constructor() {
         super()
         this.state = {
@@ -30,6 +30,7 @@ class AddUse extends Component {
     componentDidMount() {
         refreshTokenAndUser()
         axios.get('/api/account/lab').then((results) => this.setState({ labs: results.data }));
+        axios.get('/api/logged-in/role').then((results) => this.setState({ roles: results.data }));
     }
 
     componentWillReceiveProps(nextProps){
@@ -168,17 +169,14 @@ class AddUse extends Component {
                                     <label htmlFor="roles" className="col-sm-4 col-form-label">Additional roles</label>
                                     <div className="col-sm-8">
                                         <Multiselect
-                                            displayValue="value"
+                                            displayValue="name"
                                             placeholder='roles'
                                             onRemove={this.rolesOnChange}
                                             onSearch={function noRefCheck(){}}
                                             onSelect={this.rolesOnChange}
                                             closeOnSelect={false}
                                             style={{searchBox: {"fontSize": "20px"}}}
-                                            options={[
-                                                {key: "ACCOUNT_ADMIN",
-                                                value: "Account Admin"}
-                                                ]}
+                                            options={this.state.roles}
                                             showCheckbox
                                         />
                                     </div>
@@ -194,7 +192,7 @@ class AddUse extends Component {
     }
 }
 
-AddUse.propTypes = {
+AddUser.propTypes = {
     createNewUser: PropTypes.func.isRequired,
     errors: PropTypes.object.isRequired
 }
@@ -203,4 +201,4 @@ const mapStateToProps = state => ({
     errors: state.errors
 })
 
-export default connect (mapStateToProps, {createNewUser}) (AddUse)
+export default connect (mapStateToProps, {createNewUser}) (AddUser)

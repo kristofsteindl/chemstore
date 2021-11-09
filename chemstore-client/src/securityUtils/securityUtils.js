@@ -31,6 +31,19 @@ export const logout = () => {
     });
 }
 
+export const checkExpiry = () => {
+    const jwtToken = localStorage.jwt;
+    if (jwtToken) {
+      const decodedToken = jwt_decode(jwtToken);
+      const currentTime = Date.now()/1000;
+      if (decodedToken.exp < currentTime) {
+        console.log("token expired");  
+        logout();
+        window.location.replace("/");
+      } 
+    }
+}
+
 export const refreshTokenAndUser = () => {
     const jwtToken = localStorage.jwt;
     if (jwtToken) {

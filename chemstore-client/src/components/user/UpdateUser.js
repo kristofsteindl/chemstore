@@ -1,15 +1,20 @@
 import Multiselect from 'multiselect-react-dropdown'
 import React, { Component } from 'react'
-import { createNewUser } from '../../actions/accountAdminActions'
-import PropTypes from "prop-types"
-import { connect } from 'react-redux'
 import classNames from "classnames";
 import axios from "axios";
-import { refreshTokenAndUser } from '../../securityUtils/securityUtils'
+import { checkExpiry } from '../../securityUtils/securityUtils'
 
-let labs
+const getEmptyUser = () => {
+    return {
+        username: "",
+        fullName: "",
+        labsAsUser: [{name:"foo"}, {name:"bar"}, {name:"baz"}], 
+        labsAsAdmin: [],
+        roles: []
+    }
+}
 
-class Register extends Component {
+class UpdateUser extends Component {
     constructor() {
         super()
         this.state = {
@@ -18,11 +23,14 @@ class Register extends Component {
             labsAsUser: [], 
             labsAsAdmin: [],
             roles: [],
-            password: "",
-            password2: "",
             labs: [],
+            roles: [],
+            persistedUser: getEmptyUser(),
             errors: {}
         }
+        this.labsAsUserMultiSelect = React.createRef();
+        this.labsAsAdminMultiselect = React.createRef();
+        this.rolesAsAdminMultiselect = React.createRef();
         this.onChangeBasicInputs=this.onChangeBasicInputs.bind(this)
         this.labsAsUserOnChange=this.labsAsUserOnChange.bind(this)
         this.labsAsAdminOnChange=this.labsAsAdminOnChange.bind(this)
@@ -31,50 +39,57 @@ class Register extends Component {
     }
 
     componentDidMount() {
-        refreshTokenAndUser()
-        labs = axios.get('/api/account/lab').then((results) => this.setState({ labs: results.data }));
-    }
-
-    componentWillReceiveProps(nextProps){
-        refreshTokenAndUser()
-        console.log(nextProps.errors)
-        this.setState({errors: nextProps.errors});
+        const id = this.props.match.params.id
+        checkExpiry()
+        this.setState({
+            id: id
+        })
+        axios.get('/api/account/lab').then((results) => this.setState({ labs: results.data }));
+        axios.get('/api/logged-in/role').then((results) => this.setState({ roles: results.data }));
+        axios.get(`/api/account/user/${id}`).then((results) => {
+            console.log("data from /api/account/user: " + results.data.toString())
+            this.setState({ 
+            persistedUser: results.data,
+            username: results.data.username,
+            fullName: results.data.fullName,
+        })});
     }
 
     onChangeBasicInputs(e) {
+        checkExpiry()
         this.setState({ [e.target.name]: e.target.value})
     }
 
     labsAsUserOnChange(selectedList, selectedItem) {
-        
+        checkExpiry()
         this.setState({labsAsUser:selectedList})
     }
 
     labsAsAdminOnChange(selectedList, selectedItem) {
-        console.log(this.state.labs)
+        checkExpiry()
         this.setState({labsAsAdmin:selectedList})
     }
 
     rolesOnChange(selectedList, selectedItem) {
+        checkExpiry()
         this.setState({roles:selectedList})
-        console.log(this.state)
     }
 
-    onSubmit(e) {
+    async onSubmit(e) {
         e.preventDefault()
-        console.log(this.state)
-        console.log(this.state.username)
-        const newUser = {
+        const userInput = {
             username: this.state.username,
             fullName: this.state.fullName,
-            labKeysAsUser: this.state.labsAsUser.map(lab => lab.key), 
-            labKeysAsAdmin: this.state.labsAsAdmin.map(lab => lab.key),
-            roles: this.state.roles,
-            password: this.state.password,
-            password2: this.state.password2
+            labKeysAsUser: this.labsAsUserMultiSelect.current.getSelectedItems().map(lab => lab.key), 
+            labKeysAsAdmin: this.labsAsAdminMultiselect.current.getSelectedItems().map(lab => lab.key),
+            roles: this.rolesAsAdminMultiselect.current.getSelectedItems().map(role => role.key)
         }
-        console.log(newUser)
-        this.props.createNewUser(newUser, this.props.history)
+        try {
+            await axios.put(`/api/account/user/${this.state.id}`, userInput)
+            this.props.history.push("/users")
+        } catch (error) {
+            this.setState({errors: error.response.data})
+        }
     }
 
 
@@ -86,10 +101,10 @@ class Register extends Component {
                     <div className="row">
                     
                         <div className="col-md-8 m-auto">
-                            <h1 className="display-4 text-center">Register</h1>
-                            <p className="lead text-center">Add new user</p>
+                            <h1 className="display-4 text-center">Update User</h1>
+                            <p className="lead text-center">Update existing user</p>
                             {
-                                (errors.message && <h4 className="invalid-input">{errors.message}</h4>)
+                                (errors.message && <h5 className="invalid-input">{errors.message}</h5>)
                             }
                             {
                                 (errors.message && 
@@ -100,7 +115,7 @@ class Register extends Component {
                             <form onSubmit={this.onSubmit}>
                                 <div className="form-group row mb-3">
                                     <label htmlFor="username" className="col-sm-4 col-form-label">username</label>
-                                    <div class="col-sm-8">
+                                    <div className="col-sm-8">
                                         <input 
                                             name="username"
                                             value={this.state.username}
@@ -115,15 +130,13 @@ class Register extends Component {
                                             (errors.username && <div className="invalid-feedback">{errors.username}</div>)
                                         }
                                        
-                                    </div>
-
-                                         
+                                    </div>    
                                 </div>
                                       
                                 
                                 <div className="form-group row mb-3">
                                     <label htmlFor="fullName" className="col-sm-4 col-form-label">Full name</label>
-                                    <div class="col-sm-8">
+                                    <div className="col-sm-8">
                                         <input 
                                             name="fullName"
                                             value={this.state.fullName}
@@ -139,48 +152,9 @@ class Register extends Component {
 
                                 </div>
 
-                                
                                 <div className="form-group row mb-3">
-                                    <label htmlFor="password" class="col-sm-4 col-form-label">Password</label>
-                                    <div class="col-sm-8">
-                                        <input 
-                                            name="password"
-                                            value={this.state.password}
-                                            onChange={this.onChangeBasicInputs}
-                                            type="password" 
-                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.password})} 
-                                            placeholder="password" 
-                                            
-                                        />
-                                        {
-                                            errors.password && <div  className="invalid-feedback">{errors.password}</div>
-                                        }
-                                    </div>
-
-                                </div>
-
-                                <div className="form-group row mb-3">
-                                    <label htmlFor="password2" class="col-sm-4 col-form-label">Password</label>
-                                    <div class="col-sm-8">
-                                        <input 
-                                            name="password2"
-                                            value={this.state.password2}
-                                            onChange={this.onChangeBasicInputs}
-                                            type="password" 
-                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.password2})} 
-                                            placeholder="password2" 
-                                            
-                                        />
-                                        {
-                                            errors.password2 && <div className="invalid-feedback">{errors.password2}</div>
-                                        }
-                                    </div>
-                                    
-
-                                </div>
-                                <div className="form-group row mb-3">
-                                    <label htmlFor="labsAsUser" class="col-sm-4 col-form-label">Labs, where user can administrate (open, use, etc) chemicals</label>
-                                    <div class="col-sm-8">
+                                    <label htmlFor="labsAsUser" className="col-sm-4 col-form-label">Labs, where user can administrate (open, use, etc) chemicals</label>
+                                    <div className="col-sm-8">
                                         <Multiselect
                                             displayValue="name"
                                             placeholder='labs as user'
@@ -188,46 +162,52 @@ class Register extends Component {
                                             onSearch={function noRefCheck(){}}
                                             onSelect={this.labsAsUserOnChange}
                                             closeOnSelect={false}
-                                            style={{searchBox: {"font-size": "20px"}}}
+                                            style={{searchBox: {"fontSize": "20px"}}}
                                             options={this.state.labs}
+                                            selectedValues={this.state.persistedUser.labsAsUser}
+                                            ref={this.labsAsUserMultiSelect}
                                             showCheckbox
                                             />
                                         </div>
                                 </div>
                                 <div className="form-group row mb-3">
                                     <label htmlFor="labsAsAdmin" className="col-sm-4 col-form-label">Labs, where user is administrator</label>
-                                    <div class="col-sm-8">
+                                    <div className="col-sm-8">
                                         <Multiselect
                                             displayValue="name"
-                                            placeholder='Admin in labs'
+                                            placeholder='admin in labs'
                                             onRemove={this.labsAsAdminOnChange}
                                             onSearch={function noRefCheck(){}}
                                             onSelect={this.labsAsAdminOnChange}
                                             closeOnSelect={false}
-                                            style={{searchBox: {"font-size": "20px"}}}
+                                            style={{searchBox: {"fontSize": "20px"}}}
                                             options={this.state.labs}
+                                            selectedValues={this.state.persistedUser.labsAsAdmin}
+                                            ref={this.labsAsAdminMultiselect}
                                             showCheckbox
                                         />
                                         </div>
                                 </div>
                                 <div className="form-group row mb-3">
-                                    <label htmlFor="roles" class="col-sm-4 col-form-label">Additional roles</label>
-                                    <div class="col-sm-8">
+                                    <label htmlFor="roles" className="col-sm-4 col-form-label">Additional roles</label>
+                                    <div className="col-sm-8">
                                         <Multiselect
-                                            displayValue="value"
-                                            placeholder='Roles'
+                                            displayValue="name"
+                                            placeholder='roles'
                                             onRemove={this.rolesOnChange}
                                             onSearch={function noRefCheck(){}}
                                             onSelect={this.rolesOnChange}
                                             closeOnSelect={false}
-                                            style={{searchBox: {"font-size": "20px"}}}
-                                            options={this.state.labs}
+                                            style={{searchBox: {"fontSize": "20px"}}}
+                                            options={this.state.roles}
+                                            selectedValues={this.state.persistedUser.roles}
+                                            ref={this.rolesAsAdminMultiselect}
                                             showCheckbox
                                         />
                                     </div>
                                 </div>
                                 
-                                <input type="submit" className="btn btn-info btn-block mt-4" />
+                                <input type="submit" className="btn btn-info btn-block mt-4"/>
                             </form>
                         </div>
                     </div>
@@ -237,13 +217,4 @@ class Register extends Component {
     }
 }
 
-Register.propTypes = {
-    createNewUser: PropTypes.func.isRequired,
-    errors: PropTypes.object.isRequired
-}
-
-const mapStateToProps = state => ({
-    errors: state.errors
-})
-
-export default connect (mapStateToProps, {createNewUser}) (Register)
+export default UpdateUser

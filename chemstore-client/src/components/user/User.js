@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Link } from 'react-router-dom'
 
 class User extends Component {
     render() {
@@ -11,7 +12,7 @@ class User extends Component {
                             <span className="mx-auto">{user.username.split('@')[0]}</span>          
                                  { user.roles.length > 0 && (<div>
                                         <br />
-                                        <span className="mx-auto">{user.roles.map(role => role.role).join(",")}</span>
+                                        <span className="mx-auto">({user.roles.map(role => role.name).join(",")})</span>
                                     </div>)
                                  }
                         </div>
@@ -33,11 +34,11 @@ class User extends Component {
                         </div>
                         <div className="col-md-4 d-none d-lg-block">
                             <ul className="list-group">
-                                <a href="#">
+                                <Link to={`/update-user/${user.id}`}>
                                     <li className="list-group-item update">
                                         <i className="fa fa-edit pr-1">Update User</i>
                                     </li>
-                                </a>
+                                </Link>
                                 <a href="">
                                     <li className="list-group-item delete">
                                         <i className="fa fa-minus-circle pr-1">Delete User</i>

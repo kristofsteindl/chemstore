@@ -13,6 +13,7 @@ import { refreshTokenAndUser } from './securityUtils/securityUtils';
 import SecuredRoute from './securityUtils/SecuredRoute'
 import UserDashboard from './components/user/UserDashboard';
 import ChangePassword from './components/user/ChangePassword';
+import UpdateUser from './components/user/UpdateUser';
 
 
 refreshTokenAndUser()
@@ -27,11 +28,16 @@ function App() {
           <Route exact path="/login" component={Login} />
           
           <Switch>
+            <SecuredRoute exact path="/change-password" component={ChangePassword} />
+
+            <SecuredRoute exact path="/users" component={UserDashboard} />
             <SecuredRoute exact path="/add-user" component={AddUser} />
+            <SecuredRoute exact path="/update-user/:id" component={UpdateUser} />
+
             <SecuredRoute exact path="/chem-items" component={ChemItemDashboard} />
             <SecuredRoute exact path="/add-chem-item" component={AddChemItem} />
-            <SecuredRoute exact path="/users" component={UserDashboard} />
-            <SecuredRoute exact path="/change-password" component={ChangePassword} />
+            
+            
           </Switch>
 
         </div>
