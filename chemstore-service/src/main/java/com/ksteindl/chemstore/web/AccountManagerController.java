@@ -71,6 +71,15 @@ public class AccountManagerController {
         return ResponseEntity.ok(appUsers);
     }
 
+    @GetMapping("/user/{id}")
+    public ResponseEntity<AppUser> getUserById(
+            @PathVariable Long id) {
+        logger.info("GET '/user/{id}' was called, with id {}", id);
+        AppUser appUser = appUserService.findById(id);
+        logger.info("GET '/user/{id}'was succesful with {} item", appUser);
+        return ResponseEntity.ok(appUser);
+    }
+
     @DeleteMapping("/user/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteAppUser(@PathVariable Long id) {

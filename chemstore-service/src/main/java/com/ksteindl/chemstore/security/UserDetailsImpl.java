@@ -17,7 +17,7 @@ public class UserDetailsImpl implements UserDetails {
     public UserDetailsImpl(AppUser appUser) {
         this.appUser = appUser;
         authorities = new ArrayList<>();
-        if (appUser.getRoles().stream().anyMatch(role -> role.getRole().equals(Authority.ACCOUNT_MANAGER))) {
+        if (appUser.getRoles().stream().anyMatch(role -> role.getKey().equals(Authority.ACCOUNT_MANAGER))) {
             authorities.add(new SimpleGrantedAuthority(Authority.ACCOUNT_MANAGER));
         }
         if (!appUser.getManagedLabs().isEmpty()) {

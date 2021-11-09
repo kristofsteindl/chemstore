@@ -5,6 +5,8 @@ import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.PasswordInput;
+import com.ksteindl.chemstore.security.role.Role;
+import com.ksteindl.chemstore.security.role.RoleService;
 import com.ksteindl.chemstore.service.AppUserService;
 import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.LabService;
@@ -39,6 +41,8 @@ public class LoggedInController {
     private ChemicalService chemicalService;
     @Autowired
     private ManufacturerService manufacturerService;
+    @Autowired
+    private RoleService roleService;
 
     @PatchMapping("/user")
     public ResponseEntity<AppUser> updateteLoggedInUserPassword(
@@ -48,7 +52,7 @@ public class LoggedInController {
         logger.info("PATCH '/api/logged-in/user' was called with and input {}", passwordInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
         AppUser appUser = appUserService.updatePassword(passwordInput, principal);
-        logger.info("PATCH '/user/{id}' was succesful with returned result{}", appUser);
+        logger.info("PATCH '/api/logged-in/user/{id}' was succesful with returned result{}", appUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(appUser);
     }
 
@@ -56,7 +60,7 @@ public class LoggedInController {
     public List<AppUserCard> getAllAppUser() {
         logger.info("GET '/api/public/user' was called");
         List<AppUserCard> users =  appUserService.getAppUserCards();
-        logger.info("GET '/api/public/user' is returning with {} item", users.size());
+        logger.info("GET '/api/logged-in/user' is returning with {} item", users.size());
         return appUserService.getAppUserCards();
     }
 
@@ -68,25 +72,33 @@ public class LoggedInController {
     @GetMapping("/lab")
     public List<Lab> getEveryLab(
             @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
-        logger.info("GET '/api/public/lab' was called with onlyActive=" + onlyActive);
+        logger.info("GET '/api/logged-in/lab' was called with onlyActive=" + onlyActive);
         List<Lab> labs = labService.getLabs(onlyActive);
-        logger.info("GET '/api/public/lab' was succesful with {} item", labs.size());
+        logger.info("GET '/api/logged-in/lab' was succesful with {} item", labs.size());
         return labs;
     }
 
     @GetMapping("/manufacturer")
     public List<Manufacturer> getManufactures() {
-        logger.info("GET '/api/public/manufacturer' was called");
+        logger.info("GET '/api/logged-in/manufacturer' was called");
         List<Manufacturer> manufacturers = manufacturerService.getManufacturers();
-        logger.info("GET '/api/public/manufacturer' was succesful with {} item", manufacturers.size());
+        logger.info("GET '/api/logged-in/manufacturer' was succesful with {} item", manufacturers.size());
         return manufacturers;
     }
 
     @GetMapping("/chemical")
     public List<Chemical> getChemicals() {
-        logger.info("GET '/api/public/chemical' was called");
+        logger.info("GET '/api/logged-in/chemical' was called");
         List<Chemical> chemicals = chemicalService.getChemicals();
-        logger.info("GET '/api/public/chemical' was succesful with {} item", chemicals.size());
+        logger.info("GET '/api/logged-in/chemical' was succesful with {} item", chemicals.size());
         return chemicals;
+    }
+
+    @GetMapping("/role")
+    public List<Role> getRoles() {
+        logger.info("GET '/api/logged-in/role' was called");
+        List<Role> roles = roleService.getRoles();
+        logger.info("GET '/api/logged-in/role' was succesful with {} item", roles.size());
+        return roles;
     }
 }

@@ -19,13 +19,15 @@ public class RoleLoader implements CommandLineRunner {
     private AppUserService appUserService;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private RoleService roleService;
 
     // TODO logging is needed
     @Override
     public void run(String... args) throws Exception {
-        RoleService.ROLES.stream()
-                .filter(role -> roleRepository.findByRole(role).isEmpty())
-                .forEach(role -> roleRepository.save(new Role(role)));
+        roleService.getDefaultRoles().stream()
+                .filter(role -> roleRepository.findByKey(role.getKey()).isEmpty())
+                .forEach(role -> roleRepository.save(role));
         if (!appUserService.findByUsername(SUPERADMIN).isPresent()) {
             AppUserInput superAdminInput = AppUserInput.builder()
                     .fullName(SUPERADMIN)

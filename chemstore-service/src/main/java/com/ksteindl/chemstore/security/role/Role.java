@@ -6,7 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.util.List;
 
 @Entity
 @Data
@@ -15,10 +14,12 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String role;
+    private String key;
+    private String name;
 
-    public Role(String role) {
-        this.role = role;
+    public Role(String key, String name) {
+        this.key = key;
+        this.name = name;
     }
 
     public Role() {

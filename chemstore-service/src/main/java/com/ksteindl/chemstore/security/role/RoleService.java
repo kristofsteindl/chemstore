@@ -7,19 +7,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class RoleService {
 
-    public static final List<String> ROLES = List.of(
-            Authority.ACCOUNT_MANAGER);
-
-
     @Autowired
     private RoleRepository roleRepository;
 
-    public Role findByRole(String role) {
-        return roleRepository.findByRole(role).orElseThrow(() -> new ResourceNotFoundException(Lang.ROLE_ENTITY_NAME, role));
+    public List<Role> getDefaultRoles() {
+        return List.of(
+                new Role(Authority.ACCOUNT_MANAGER, "Account Manager"));
+    }
 
+    public Role findByRole(String key) {
+        return roleRepository.findByKey(key).orElseThrow(() -> new ResourceNotFoundException(Lang.ROLE_ENTITY_NAME, key));
+    }
+
+    public List<Role> getRoles() {
+        return StreamSupport.stream(roleRepository.findAll().spliterator(), false).collect(Collectors.toList());
     }
 }
