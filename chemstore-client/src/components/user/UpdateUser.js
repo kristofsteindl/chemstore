@@ -28,26 +28,22 @@ class UpdateUser extends Component {
             persistedUser: getEmptyUser(),
             errors: {}
         }
+        this.onChangeBasicInputs=this.onChangeBasicInputs.bind(this)
         this.labsAsUserMultiSelect = React.createRef();
         this.labsAsAdminMultiselect = React.createRef();
-        this.rolesAsAdminMultiselect = React.createRef();
-        this.onChangeBasicInputs=this.onChangeBasicInputs.bind(this)
-        this.labsAsUserOnChange=this.labsAsUserOnChange.bind(this)
-        this.labsAsAdminOnChange=this.labsAsAdminOnChange.bind(this)
-        this.rolesOnChange=this.rolesOnChange.bind(this)
+        this.rolesMultiselect = React.createRef();
         this.onSubmit=this.onSubmit.bind(this)
     }
 
     componentDidMount() {
-        const id = this.props.match.params.id
         checkExpiry()
+        const id = this.props.match.params.id
         this.setState({
             id: id
         })
         axios.get('/api/account/lab').then((results) => this.setState({ labs: results.data }));
         axios.get('/api/logged-in/role').then((results) => this.setState({ roles: results.data }));
         axios.get(`/api/account/user/${id}`).then((results) => {
-            console.log("data from /api/account/user: " + results.data.toString())
             this.setState({ 
             persistedUser: results.data,
             username: results.data.username,
@@ -60,21 +56,6 @@ class UpdateUser extends Component {
         this.setState({ [e.target.name]: e.target.value})
     }
 
-    labsAsUserOnChange(selectedList, selectedItem) {
-        checkExpiry()
-        this.setState({labsAsUser:selectedList})
-    }
-
-    labsAsAdminOnChange(selectedList, selectedItem) {
-        checkExpiry()
-        this.setState({labsAsAdmin:selectedList})
-    }
-
-    rolesOnChange(selectedList, selectedItem) {
-        checkExpiry()
-        this.setState({roles:selectedList})
-    }
-
     async onSubmit(e) {
         e.preventDefault()
         const userInput = {
@@ -82,7 +63,7 @@ class UpdateUser extends Component {
             fullName: this.state.fullName,
             labKeysAsUser: this.labsAsUserMultiSelect.current.getSelectedItems().map(lab => lab.key), 
             labKeysAsAdmin: this.labsAsAdminMultiselect.current.getSelectedItems().map(lab => lab.key),
-            roles: this.rolesAsAdminMultiselect.current.getSelectedItems().map(role => role.key)
+            roles: this.rolesMultiselect.current.getSelectedItems().map(role => role.key)
         }
         try {
             await axios.put(`/api/account/user/${this.state.id}`, userInput)
@@ -158,9 +139,7 @@ class UpdateUser extends Component {
                                         <Multiselect
                                             displayValue="name"
                                             placeholder='labs as user'
-                                            onRemove={this.labsAsUserOnChange}
                                             onSearch={function noRefCheck(){}}
-                                            onSelect={this.labsAsUserOnChange}
                                             closeOnSelect={false}
                                             style={{searchBox: {"fontSize": "20px"}}}
                                             options={this.state.labs}
@@ -176,9 +155,7 @@ class UpdateUser extends Component {
                                         <Multiselect
                                             displayValue="name"
                                             placeholder='admin in labs'
-                                            onRemove={this.labsAsAdminOnChange}
                                             onSearch={function noRefCheck(){}}
-                                            onSelect={this.labsAsAdminOnChange}
                                             closeOnSelect={false}
                                             style={{searchBox: {"fontSize": "20px"}}}
                                             options={this.state.labs}
@@ -194,20 +171,17 @@ class UpdateUser extends Component {
                                         <Multiselect
                                             displayValue="name"
                                             placeholder='roles'
-                                            onRemove={this.rolesOnChange}
                                             onSearch={function noRefCheck(){}}
-                                            onSelect={this.rolesOnChange}
                                             closeOnSelect={false}
                                             style={{searchBox: {"fontSize": "20px"}}}
                                             options={this.state.roles}
                                             selectedValues={this.state.persistedUser.roles}
-                                            ref={this.rolesAsAdminMultiselect}
+                                            ref={this.rolesMultiselect}
                                             showCheckbox
                                         />
                                     </div>
                                 </div>
-                                
-                                <input type="submit" className="btn btn-info btn-block mt-4"/>
+                                <button type="submit" className="d-flex p-2 btn btn-info btn-block mt-4">Update User</button>
                             </form>
                         </div>
                     </div>

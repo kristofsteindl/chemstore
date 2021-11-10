@@ -1,11 +1,8 @@
 import Multiselect from 'multiselect-react-dropdown'
 import React, { Component } from 'react'
-import { createNewUser } from '../../actions/accountAdminActions'
-import PropTypes from "prop-types"
-import { connect } from 'react-redux'
 import classNames from "classnames";
 import axios from "axios";
-import { refreshTokenAndUser } from '../../securityUtils/securityUtils'
+import { checkExpiry } from '../../securityUtils/securityUtils'
 
 
 class AddUser extends Component {
@@ -21,54 +18,39 @@ class AddUser extends Component {
             errors: {}
         }
         this.onChangeBasicInputs=this.onChangeBasicInputs.bind(this)
-        this.labsAsUserOnChange=this.labsAsUserOnChange.bind(this)
-        this.labsAsAdminOnChange=this.labsAsAdminOnChange.bind(this)
-        this.rolesOnChange=this.rolesOnChange.bind(this)
+        this.labsAsUserMultiSelect = React.createRef();
+        this.labsAsAdminMultiselect = React.createRef();
+        this.rolesMultiselect = React.createRef();
         this.onSubmit=this.onSubmit.bind(this)
     }
 
     componentDidMount() {
-        refreshTokenAndUser()
+        checkExpiry()
         axios.get('/api/account/lab').then((results) => this.setState({ labs: results.data }));
         axios.get('/api/logged-in/role').then((results) => this.setState({ roles: results.data }));
     }
 
-    componentWillReceiveProps(nextProps){
-        refreshTokenAndUser()
-        console.log(nextProps.errors)
-        this.setState({errors: nextProps.errors});
-    }
 
     onChangeBasicInputs(e) {
+        checkExpiry()
         this.setState({ [e.target.name]: e.target.value})
     }
 
-    labsAsUserOnChange(selectedList, selectedItem) {
-        
-        this.setState({labsAsUser:selectedList})
-    }
-
-    labsAsAdminOnChange(selectedList, selectedItem) {
-        console.log(this.state.labs)
-        this.setState({labsAsAdmin:selectedList})
-    }
-
-    rolesOnChange(selectedList, selectedItem) {
-        this.setState({roles:selectedList})
-        console.log(this.state)
-    }
-
-    onSubmit(e) {
+    async onSubmit(e) {
         e.preventDefault()
         const newUser = {
             username: this.state.username,
             fullName: this.state.fullName,
-            labKeysAsUser: this.state.labsAsUser.map(lab => lab.key), 
-            labKeysAsAdmin: this.state.labsAsAdmin.map(lab => lab.key),
-            roles: this.state.roles
+            labKeysAsUser: this.labsAsUserMultiSelect.current.getSelectedItems().map(lab => lab.key), 
+            labKeysAsAdmin: this.labsAsAdminMultiselect.current.getSelectedItems().map(lab => lab.key),
+            roles: this.rolesMultiselect.current.getSelectedItems().map(role => role.key)
         }
-        console.log(newUser)
-         this.props.createNewUser(newUser, this.props.history)
+        try {
+            await axios.post('/api/account/user', newUser)
+            this.props.history.push("/users")
+        } catch (error) {
+            this.setState({errors: error.response.data})
+        }
     }
 
 
@@ -102,16 +84,12 @@ class AddUser extends Component {
                                             type="email" 
                                             className={classNames("form-control form-control-lg", {"is-invalid": errors.username})} 
                                             placeholder="username (email)" 
-                                            
                                         />
-                                        
                                         {
                                             (errors.username && <div className="invalid-feedback">{errors.username}</div>)
                                         }
                                        
                                     </div>
-
-                                         
                                 </div>
                                       
                                 
@@ -139,12 +117,11 @@ class AddUser extends Component {
                                         <Multiselect
                                             displayValue="name"
                                             placeholder='labs as user'
-                                            onRemove={this.labsAsUserOnChange}
                                             onSearch={function noRefCheck(){}}
-                                            onSelect={this.labsAsUserOnChange}
                                             closeOnSelect={false}
                                             style={{searchBox: {"fontSize": "20px"}}}
                                             options={this.state.labs}
+                                            ref={this.labsAsUserMultiSelect}
                                             showCheckbox
                                             />
                                         </div>
@@ -155,12 +132,11 @@ class AddUser extends Component {
                                         <Multiselect
                                             displayValue="name"
                                             placeholder='admin in labs'
-                                            onRemove={this.labsAsAdminOnChange}
                                             onSearch={function noRefCheck(){}}
-                                            onSelect={this.labsAsAdminOnChange}
                                             closeOnSelect={false}
                                             style={{searchBox: {"fontSize": "20px"}}}
                                             options={this.state.labs}
+                                            ref={this.labsAsAdminMultiselect}
                                             showCheckbox
                                         />
                                         </div>
@@ -171,18 +147,17 @@ class AddUser extends Component {
                                         <Multiselect
                                             displayValue="name"
                                             placeholder='roles'
-                                            onRemove={this.rolesOnChange}
                                             onSearch={function noRefCheck(){}}
-                                            onSelect={this.rolesOnChange}
                                             closeOnSelect={false}
                                             style={{searchBox: {"fontSize": "20px"}}}
                                             options={this.state.roles}
+                                            ref={this.rolesMultiselect}
                                             showCheckbox
                                         />
                                     </div>
                                 </div>
+                                <button type="submit" className="btn btn-info btn-block mt-4">Add User</button>
                                 
-                                <input type="submit" className="btn btn-info btn-block mt-4" />
                             </form>
                         </div>
                     </div>
@@ -192,13 +167,4 @@ class AddUser extends Component {
     }
 }
 
-AddUser.propTypes = {
-    createNewUser: PropTypes.func.isRequired,
-    errors: PropTypes.object.isRequired
-}
-
-const mapStateToProps = state => ({
-    errors: state.errors
-})
-
-export default connect (mapStateToProps, {createNewUser}) (AddUser)
+export default AddUser
