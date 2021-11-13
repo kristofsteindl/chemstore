@@ -14,14 +14,18 @@ class UserDashboard extends Component {
         this.deleteUser=this.deleteUser.bind(this)
     }
 
-    async deleteUser(id) {
-        try {
-            await axios.delete(`/api/account/user/${id}`)
-            const refreshedUsers = this.state.users.filter(user => user.id !== id)
-            this.setState({users: refreshedUsers})
-        } catch(error) {
-            this.setState({ errors: {deleted: {["id" + id]: error.response.data}}})
+    async deleteUser(user) {
+        const id = user.id
+        if (window.confirm(`Are you sure yout want to delete ${user.fullName} (${user.username})?`)) {
+            try {
+                await axios.delete(`/api/account/user/${id}`)
+                const refreshedUsers = this.state.users.filter(userFromList => userFromList.id !== id)
+                this.setState({users: refreshedUsers})
+            } catch(error) {
+                this.setState({ errors: {deleted: {["id" + id]: error.response.data}}})
+            }
         }
+
 
         
        
