@@ -14,6 +14,9 @@ import SecuredRoute from './securityUtils/SecuredRoute'
 import UserDashboard from './components/user/UserDashboard';
 import ChangePassword from './components/user/ChangePassword';
 import UpdateUser from './components/user/UpdateUser';
+import ManufacturerDashboard from './components/manufacturer/ManufacturerDashboard';
+import AddManufacturer from './components/manufacturer/AddManufacturer';
+import UpdateManufacturer from './components/manufacturer/UpdateManufacturer';
 
 
 refreshTokenAndUser()
@@ -33,6 +36,10 @@ function App() {
             <SecuredRoute exact path="/users" component={UserDashboard} />
             <SecuredRoute exact path="/add-user" component={AddUser} />
             <SecuredRoute exact path="/update-user/:id" component={UpdateUser} />
+
+            <SecuredRoute exact path="/manufacturers" component={ManufacturerDashboard} />
+            <SecuredRoute exact path="/add-manufacturer" component={AddManufacturer} />
+            <SecuredRoute exact path="/update-manufacturer/:id" component={UpdateManufacturer} />
 
             <SecuredRoute exact path="/chem-items" component={ChemItemDashboard} />
             <SecuredRoute exact path="/add-chem-item" component={AddChemItem} />

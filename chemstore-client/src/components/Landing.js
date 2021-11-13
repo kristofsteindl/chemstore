@@ -20,8 +20,9 @@ class Landing extends Component {
                             <div className="col-md-12 text-center">
                                 <h1 className="display-3 mb-4">chemstore</h1>
                                 <p className="lead">
-                                    Helps managing and administrating chemicals and eluents
+                                    If you are tired of administrating chemicals and eluents on paper
                                 </p>
+                                <br/>
                                 <p className="lead">
                                     <b>Log in</b>, to manage chamicals and register eluents in your lab
                                 </p>

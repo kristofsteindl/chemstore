@@ -24,6 +24,11 @@ class Header extends Component {
                             Users
                         </Link>
                     </li>
+                    <li className="nav-item">
+                        <Link className="nav-link " to="/manufacturers">
+                            Manufacturers
+                        </Link>
+                    </li>
                 </ul>
 
                 <ul className="navbar-nav ms-auto">
