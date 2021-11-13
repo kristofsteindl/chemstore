@@ -5,16 +5,11 @@ import { Link } from 'react-router-dom'
 class User extends Component {
     constructor(props) {
         super()
-        console.log(props.errors.message)
-        this.state = {
-            errors: props.errors
-        }
         this.deleteUser=props.deleteUser
     }
 
     render() {
         const {user} = this.props
-        console.log("inside render this.state.errors: " + this.state.errors.message)
         return (
             <div className="container">
                 <div className="card card-body bg-light mb-3">
@@ -54,13 +49,10 @@ class User extends Component {
                                     <li className="list-group-item delete">
                                         <i className="fa fa-minus-circle pr-1">Delete User</i>
                                         {
-                                            (this.state.errors.message && 
-                                            <div className="form-group row mb-3 invalid-feedback">
-                                                {this.state.errors.message}
-                                            </div>)
+                                            (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
                                         }
                                     </li>
-                                </span>
+                                </span> 
                             </ul>
                         </div>
                     </div>
