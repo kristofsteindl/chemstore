@@ -1,9 +1,20 @@
+import axios from 'axios'
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 
 class User extends Component {
+    constructor(props) {
+        super()
+        console.log(props.errors.message)
+        this.state = {
+            errors: props.errors
+        }
+        this.deleteUser=props.deleteUser
+    }
+
     render() {
         const {user} = this.props
+        console.log("inside render this.state.errors: " + this.state.errors.message)
         return (
             <div className="container">
                 <div className="card card-body bg-light mb-3">
@@ -39,11 +50,17 @@ class User extends Component {
                                         <i className="fa fa-edit pr-1">Update User</i>
                                     </li>
                                 </Link>
-                                <a href="">
+                                <span onClick={() => this.deleteUser(user.id)}>
                                     <li className="list-group-item delete">
                                         <i className="fa fa-minus-circle pr-1">Delete User</i>
+                                        {
+                                            (this.state.errors.message && 
+                                            <div className="form-group row mb-3 invalid-feedback">
+                                                {this.state.errors.message}
+                                            </div>)
+                                        }
                                     </li>
-                                </a>
+                                </span>
                             </ul>
                         </div>
                     </div>

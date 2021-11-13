@@ -133,6 +133,10 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
     }
 
     public void deleteAppUser(Long id) {
+        if (true) {
+            throw new ValidationException("This is an Exception");
+        }
+
         AppUser appUser = findById(id);
         appUser.setDeleted(true);
         appUser.setLabsAsAdmin(Collections.emptyList());
