@@ -59,6 +59,15 @@ public class LabAdminController {
         return new ResponseEntity<>(manufacturer, HttpStatus.CREATED);
     }
 
+    @GetMapping("/manufacturer/{id}")
+    public ResponseEntity<Manufacturer> getManufacturer(
+            @PathVariable  Long id) {
+        logger.info("GET '/manufacturer/{id}' was called with id {}", id);
+        Manufacturer manufacturer = manufacturerService.findById(id);
+        logger.info("GET '/manufacturer/{id}' was succesful with returned result{}", manufacturer);
+        return new ResponseEntity<>(manufacturer, HttpStatus.CREATED);
+    }
+
     @GetMapping("/manufacturer")
     public ResponseEntity<List<Manufacturer>> getManufactures(
             @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
