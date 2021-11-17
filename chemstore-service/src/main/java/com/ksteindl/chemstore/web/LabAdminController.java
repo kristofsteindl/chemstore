@@ -65,7 +65,7 @@ public class LabAdminController {
         logger.info("GET '/manufacturer/{id}' was called with id {}", id);
         Manufacturer manufacturer = manufacturerService.findById(id);
         logger.info("GET '/manufacturer/{id}' was succesful with returned result{}", manufacturer);
-        return new ResponseEntity<>(manufacturer, HttpStatus.CREATED);
+        return new ResponseEntity<>(manufacturer, HttpStatus.OK);
     }
 
     @GetMapping("/manufacturer")

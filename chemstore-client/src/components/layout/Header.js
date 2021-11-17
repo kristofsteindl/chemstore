@@ -29,6 +29,11 @@ class Header extends Component {
                             Manufacturers
                         </Link>
                     </li>
+                    <li className="nav-item">
+                        <Link className="nav-link " to="/chem-types">
+                            Chem Types
+                        </Link>
+                    </li>
                 </ul>
 
                 <ul className="navbar-nav ms-auto">

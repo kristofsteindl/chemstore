@@ -2,8 +2,6 @@ package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.ChemType;
-import com.ksteindl.chemstore.domain.entities.ChemType;
-import com.ksteindl.chemstore.domain.input.ChemTypeInput;
 import com.ksteindl.chemstore.domain.input.ChemTypeInput;
 import com.ksteindl.chemstore.service.AppUserService;
 import com.ksteindl.chemstore.service.ChemTypeService;
@@ -66,6 +64,15 @@ public class LabManagerController {
         ChemType chemType = chemTypeService.updateChemType(chemTypeInput, id);
         logger.info("PUT '/chem-type/{id}' was succesful with returned result{}", chemType);
         return new ResponseEntity<>(chemType, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/chem-type/{id}")
+    public ResponseEntity<ChemType> getChemType(
+            @PathVariable  Long id) {
+        logger.info("GET '/chem-type/{id}' was called with id {}", id);
+        ChemType chemType = chemTypeService.findById(id);
+        logger.info("GET '/chem-type/{id}' was succesful with returned result{}", chemType);
+        return new ResponseEntity<>(chemType, HttpStatus.OK);
     }
 
     @GetMapping("/chem-type")
