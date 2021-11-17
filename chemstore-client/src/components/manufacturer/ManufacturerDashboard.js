@@ -14,7 +14,19 @@ export default class ManufacturerDashboard extends Component {
         this.deleteManufacturer=this.deleteManufacturer.bind(this)
     }
 
-    deleteManufacturer(manufacturer) {
+
+    async deleteManufacturer(manufacturer) {
+        const id = manufacturer.id
+        if (window.confirm(`Are you sure you want to delete ${manufacturer.name}?`)) {
+            try {
+                await axios.delete(`/api/lab-admin/manufacturer/${id}`)
+                const refreshedMf = this.state.manufacturers.filter(mfFromList => mfFromList.id !== id)
+                this.setState({manufacturers: refreshedMf})
+            } catch (error) {
+                this.setState({ errors: {deleted: {["id" + id]: error.response.data}}})
+            }
+
+        }
         console.log(`Hello ${manufacturer.name}`)
     }
 

@@ -24,10 +24,7 @@ class UserDashboard extends Component {
             } catch(error) {
                 this.setState({ errors: {deleted: {["id" + id]: error.response.data}}})
             }
-        }
-
-
-        
+        }  
        
     }
 
