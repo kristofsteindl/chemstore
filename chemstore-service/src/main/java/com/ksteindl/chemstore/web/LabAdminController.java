@@ -108,6 +108,15 @@ public class LabAdminController {
         return new ResponseEntity<>(chemical, HttpStatus.CREATED);
     }
 
+    @GetMapping("/chemical/{id}")
+    public ResponseEntity<Chemical> getChemical(
+            @PathVariable  Long id) {
+        logger.info("GET '/chemical/{id}' was called with id {}", id);
+        Chemical chemical = chemicalService.findById(id);
+        logger.info("GET '/chemical/{id}' was succesful with returned result{}", chemical);
+        return new ResponseEntity<>(chemical, HttpStatus.OK);
+    }
+
     @GetMapping("/chemical")
     public ResponseEntity<List<Chemical>> getChemicals(
             @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
