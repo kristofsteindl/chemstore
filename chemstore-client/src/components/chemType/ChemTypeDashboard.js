@@ -41,10 +41,10 @@ export default class ChemTypeDashboard extends Component {
                 <div className="container">
                     <div className="row"> 
                         <div className="col-md-12">
-                            <h1 className="display-4 text-center">Chem Types</h1>
+                            <h1 className="display-4 text-center">Chemical Categories</h1>
                             <p className="lead text-center">Categories of chemicals. With the help of these categories, you can specify shelf lifes for different categories for different lab</p>
                             <br />
-                            <RedirectFormButton formRoute="/add-chem-type" buttonLabel="Add Chem Type"/>
+                            <RedirectFormButton formRoute="/add-chem-type" buttonLabel="Add Category"/>
                             <br />
                             <hr />
                             {this.state.chemTypes.map(chemType => (

@@ -36,8 +36,8 @@ export default class AddChemType extends Component {
                     <div className="row">
                     
                         <div className="col-md-8 m-auto">
-                            <h1 className="display-4 text-center">Add Chem Type</h1>
-                            <p className="lead text-center">Create a chem type (for the whole account/company)</p>
+                            <h1 className="display-4 text-center">Add Chemical category</h1>
+                            <p className="lead text-center">Create a chemical category (for the whole account/company)</p>
                             <br/>
                             {
                                 (errors.message && <h5 className="invalid-input">{errors.message}</h5>)

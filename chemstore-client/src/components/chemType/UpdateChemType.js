@@ -42,8 +42,8 @@ export default class UpdateChemType extends Component {
                     <div className="row">
                     
                         <div className="col-md-8 m-auto">
-                            <h1 className="display-4 text-center">Update chem type</h1>
-                            <p className="lead text-center">Modify a chem type (for the whole account/company)</p>
+                            <h1 className="display-4 text-center">Update chemical category</h1>
+                            <p className="lead text-center">Modify the category of the chemical (for the whole account/company)</p>
                             <br/>
                             {
                                 (errors.message && <h5 className="invalid-input">{errors.message}</h5>)
@@ -72,7 +72,7 @@ export default class UpdateChemType extends Component {
                                        
                                     </div>
                                 </div>
-                                <button type="submit" className="btn btn-info btn-block mt-4">Add</button>
+                                <button type="submit" className="btn btn-info btn-block mt-4">Update Category</button>
                                 
                             </form>
                         </div>
