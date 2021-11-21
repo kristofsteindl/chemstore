@@ -23,6 +23,9 @@ import UpdateChemType from './components/chemType/UpdateChemType';
 import ChemicalDashboard from './components/chemical/ChemicalDashboard';
 import AddChemical from './components/chemical/AddChemical';
 import UpdateChemical from './components/chemical/UpdateChemical';
+import LabDashboard from './components/lab/LabDashboard';
+import AddLab from './components/lab/AddLab';
+import UpdateLab from './components/lab/UpdateLab';
 
 
 refreshTokenAndUser()
@@ -46,6 +49,10 @@ function App() {
             <SecuredRoute exact path="/manufacturers" component={ManufacturerDashboard} />
             <SecuredRoute exact path="/add-manufacturer" component={AddManufacturer} />
             <SecuredRoute exact path="/update-manufacturer/:id" component={UpdateManufacturer} />
+
+            <SecuredRoute exact path="/labs" component={LabDashboard} />
+            <SecuredRoute exact path="/add-lab" component={AddLab} />
+            <SecuredRoute exact path="/update-lab/:id" component={UpdateLab} />
 
             <SecuredRoute exact path="/chemicals" component={ChemicalDashboard} />
             <SecuredRoute exact path="/add-chemical" component={AddChemical} />

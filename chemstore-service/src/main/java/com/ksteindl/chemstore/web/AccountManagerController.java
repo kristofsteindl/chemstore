@@ -110,6 +110,15 @@ public class AccountManagerController {
         return ResponseEntity.ok().body(lab);
     }
 
+    @GetMapping("/lab/{id}")
+    public ResponseEntity<Lab> getLab(
+            @PathVariable Long id) {
+        logger.info("GET '/lab/{id}' was called with id {} ", id);
+        Lab lab = labService.findById(id);
+        logger.info("GET '/lab/{id}' was succesful with returned result{}", lab);
+        return ResponseEntity.ok().body(lab);
+    }
+
     @GetMapping("/lab")
     public ResponseEntity<List<Lab>> getEveryLab(
             @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {

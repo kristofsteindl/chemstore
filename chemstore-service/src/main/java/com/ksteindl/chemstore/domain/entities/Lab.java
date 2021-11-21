@@ -3,11 +3,11 @@ package com.ksteindl.chemstore.domain.entities;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ksteindl.chemstore.service.wrapper.AppUserCard;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -44,9 +44,9 @@ public class Lab {
         this.createdAt = OffsetDateTime.now();
     }
 
-    @JsonProperty("labManagerUsernames")
-    public List<String> getLabManagerUsernames() {
-        return labManagers.stream().map(manager -> manager.getUsername()).collect(Collectors.toList());
+    @JsonProperty("labManagers")
+    public List<AppUserCard> getLabManagerUsernames() {
+        return labManagers.stream().map(manager -> new AppUserCard(manager)).collect(Collectors.toList());
     }
 
     @Override

@@ -2,8 +2,7 @@ import axios from 'axios'
 import React, { Component } from 'react'
 import { refreshTokenAndUser } from '../../securityUtils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
-import NamedEntityCard from '../NamedEntityCard'
-import ChemicalCard from './ChemicalCard'
+import LabCard from './LabCard'
 
 export default class LabDashboard extends Component {
     constructor() {
@@ -42,16 +41,17 @@ export default class LabDashboard extends Component {
                     <div className="row"> 
                         <div className="col-md-12">
                             <h1 className="display-4 text-center">Labs</h1>
+                            <p className="lead text-center">Manage labs (craete, delete, modify) as account admin</p>
                             <br />
-                            <RedirectFormButton formRoute="/add-chemical" buttonLabel="Add Chemical"/>
+                            <RedirectFormButton formRoute="/add-lab" buttonLabel="Add Lab"/>
                             <br />
                             <hr />
-                            {this.state.chemicals.map(chemical => (
-                                <ChemicalCard 
-                                    chemical={chemical} 
-                                    key={chemical.id} 
-                                    deleteChemical={this.deleteLab}
-                                    errors={this.state.errors.deleted["id" + chemical.id] ? this.state.errors.deleted["id" + chemical.id] : {}}
+                            {this.state.labs.map(lab => (
+                                <LabCard 
+                                    lab={lab} 
+                                    key={lab.id} 
+                                    deleteLab={this.deleteLab}
+                                    errors={this.state.errors.deleted["id" + lab.id] ? this.state.errors.deleted["id" + lab.id] : {}}
                                 />
                             ))
                                 

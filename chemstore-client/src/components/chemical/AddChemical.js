@@ -55,9 +55,6 @@ export default class AddChemical extends Component {
                             <p className="lead text-center">Create a chemical (for the whole account/company)</p>
                             <br/>
                             {
-                                (errors.message && <h5 className="invalid-input">{errors.message}</h5>)
-                            }
-                            {
                                 (errors.message && 
                                 <div className="form-group row mb-3 invalid-feedback">
                                     {errors.message}
@@ -100,7 +97,7 @@ export default class AddChemical extends Component {
                                 </div>
 
                                 <div className="form-group row mb-3">
-                                    <label htmlFor="exactName" className="col-sm-4 col-form-label">category</label>
+                                    <label htmlFor="category" className="col-sm-4 col-form-label">category</label>
                                     <div className="col-sm-8">
                                       <Select
                                             options={this.state.chemTypes}

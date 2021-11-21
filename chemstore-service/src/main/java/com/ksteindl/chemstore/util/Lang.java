@@ -45,13 +45,13 @@ public class Lang {
     public static final String CHEM_ITEM_EXP_DATE_IS_IN_PAST = "Expiration Date of item (expirationDateBeforeOpened) (%s) cannot be in the past";
 
 
-    public static final String CHEM_TYPE_WITH_SAME_NAME_FOUND_TEMPLATE = "Chemical item with name '%s' is already exists";
+    public static final String CHEM_TYPE_WITH_SAME_NAME_FOUND_TEMPLATE = "Chemical item with name '%s' already exists";
     public static final String CHEM_TYPE_ENTITY_NAME = "Chemical type";
     public static final String CHEM_TYPE_ALREADY_DELETED = "Chemical type %s has been already deleted";
 
     public static final String SHELF_TIME_SET_FORBIDDEN = "Setting self time for %s is forbidden. You have to be either the manager of the lab, or the admin";
     public static final String SHELF_LIFE_ALREADY_DELETED = "Shelf life of %s in %s is already deleted";
-    public static final String SHELF_LIFE_ALREADY_EXISTS = "Shelf life for %s in %s is already exists";
+    public static final String SHELF_LIFE_ALREADY_EXISTS = "Shelf life for %s in %s already exists";
 
     public static final String ROLE_ENTITY_NAME = "role";
 
