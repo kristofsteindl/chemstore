@@ -45,7 +45,7 @@ public class Lab {
     }
 
     @JsonProperty("labManagers")
-    public List<AppUserCard> getLabManagerUsernames() {
+    public List<AppUserCard> getLabManagerUserCards() {
         return labManagers.stream().map(manager -> new AppUserCard(manager)).collect(Collectors.toList());
     }
 
@@ -68,7 +68,7 @@ public class Lab {
                 "id=" + id +
                 ", key='" + key + '\'' +
                 ", name='" + name + '\'' +
-                ", labManagers=" + getLabManagerUsernames() +
+                ", labManagers=" + getLabManagerUserCards() +
                 ", deleted=" + deleted +
                 '}';
     }

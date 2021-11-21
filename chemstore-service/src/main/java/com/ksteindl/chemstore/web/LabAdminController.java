@@ -3,9 +3,9 @@ package com.ksteindl.chemstore.web;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.entities.ShelfLife;
+import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
-import com.ksteindl.chemstore.domain.input.ShelfLifeInput;
 import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.ManufacturerService;
 import com.ksteindl.chemstore.service.ShelfLifeService;
@@ -137,25 +137,25 @@ public class LabAdminController {
     //SHELF LIFE
     @PostMapping("/shelf-life")
     public ResponseEntity<ShelfLife> createShelfLife(
-            @Valid @RequestBody ShelfLifeInput shelfLifeInput,
+            @Valid @RequestBody ChemicalCategoryInput chemicalCategoryInput,
             BindingResult result,
             Principal principal) {
-        logger.info("POST '/shelf-life' was called with {}", shelfLifeInput);
+        logger.info("POST '/shelf-life' was called with {}", chemicalCategoryInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        ShelfLife shelfLife = shelfLifeService.createShelfLife(shelfLifeInput, principal);
+        ShelfLife shelfLife = shelfLifeService.createShelfLife(chemicalCategoryInput, principal);
         logger.info("POST '/shelf-life' was succesful with returned result{}", shelfLife);
         return new ResponseEntity<>(shelfLife, HttpStatus.CREATED);
     }
 
     @PutMapping("/shelf-life/{id}")
     public ResponseEntity<ShelfLife> updateShelfLife(
-            @Valid @RequestBody ShelfLifeInput shelfLifeInput,
+            @Valid @RequestBody ChemicalCategoryInput chemicalCategoryInput,
             @PathVariable Long id,
             BindingResult result,
             Principal principal) {
-        logger.info("PUT '/shelf-life' was called with {}, with id {}, by {}", shelfLifeInput, id, principal.getName());
+        logger.info("PUT '/shelf-life' was called with {}, with id {}, by {}", chemicalCategoryInput, id, principal.getName());
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        ShelfLife shelfLife = shelfLifeService.updateShelfLife(shelfLifeInput, id, principal);
+        ShelfLife shelfLife = shelfLifeService.updateShelfLife(chemicalCategoryInput, id, principal);
         logger.info("PUT '/shelf-life' was succesful with returned result{}", shelfLife);
         return new ResponseEntity<>(shelfLife, HttpStatus.CREATED);
     }

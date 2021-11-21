@@ -540,7 +540,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
         mvc.perform(get(URL_ME)
                 .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
-                .andExpect(jsonPath("$.roles[*].role", hasItem("ACCOUNT_MANAGER")))
+                .andExpect(jsonPath("$.roles[*].key", hasItem("ACCOUNT_MANAGER")))
         ;
 
     }

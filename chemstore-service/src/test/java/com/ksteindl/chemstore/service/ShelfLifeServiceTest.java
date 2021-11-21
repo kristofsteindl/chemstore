@@ -4,7 +4,7 @@ import com.ksteindl.chemstore.BaseControllerTest;
 import com.ksteindl.chemstore.domain.entities.ChemType;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.ShelfLife;
-import com.ksteindl.chemstore.domain.input.ShelfLifeInput;
+import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import com.ksteindl.chemstore.domain.repositories.ShelfLifeRepositoy;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
@@ -50,7 +50,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
     @Rollback
     @Transactional
     public void testCreateShelfLife_whenAllValid_gotNoException() {
-        ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
         Long chemTypeId = chemTypeService.getChemTypes().stream()
                 .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_COMPOUND_NAME))
                 .findAny()
@@ -64,7 +64,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
     @Rollback
     @Transactional
     public void testCreateShelfLife_whenAllValid_savedValuesAsExpected() {
-        ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
         Long chemTypeId = chemTypeService.getChemTypes().stream()
                 .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_COMPOUND_NAME))
                 .findAny()
@@ -83,7 +83,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
     @Transactional
     public void testCreateShelfLife_whenEmptyInput_gotException() {
         Exception exception = Assertions.assertThrows(Exception.class, () -> {
-            ShelfLifeInput input = ShelfLifeInput.builder().build();
+            ChemicalCategoryInput input = ChemicalCategoryInput.builder().build();
             Long chemTypeId = chemTypeService.getChemTypes().stream()
                     .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_COMPOUND_NAME))
                     .findAny()
@@ -102,7 +102,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
     @Transactional
     public void testCreateShelfLife_whenChemTypeIdDoesNotExist_gotResourceNotFoundException() {
         Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-            ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+            ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
             input.setChemTypeId((long)Integer.MAX_VALUE);
             shelfLifeService.createShelfLife(input, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
         });
@@ -116,7 +116,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
     @Transactional
     public void testCreateShelfLife_whenChemTypeIdNull_gotException() {
         Exception exception = Assertions.assertThrows(Exception.class, () -> {
-            ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+            ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
             input.setChemTypeId(null);
             shelfLifeService.createShelfLife(input, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
         });
@@ -130,7 +130,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
     @Transactional
     public void testCreateShelfLife_whenLabKeyDoesNotExist_gotResourceNotFoundException() {
         Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-            ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+            ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
             Long chemTypeId = chemTypeService.getChemTypes().stream()
                     .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_COMPOUND_NAME))
                     .findAny()
@@ -150,7 +150,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
     @Transactional
     public void testCreateShelfLife_whenUserNeitherAdminNorManager_gotValidationException() {
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-            ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+            ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
             Long chemTypeId = chemTypeService.getChemTypes().stream()
                     .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_COMPOUND_NAME))
                     .findAny()
@@ -169,7 +169,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
     @Transactional
     public void testCreateShelfLife_whenDurationUnitIsNotValid_gotValidationException() {
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-            ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+            ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
             Long chemTypeId = chemTypeService.getChemTypes().stream()
                     .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_COMPOUND_NAME))
                     .findAny()
@@ -189,7 +189,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
     @Transactional
     public void testCreateShelfLife_whenAlreadyExistsForLabAndChemType_gotValidationException() {
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-            ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+            ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
             Long chemTypeId = chemTypeService.getChemTypes().stream()
                     .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.BUFFER_SOLUTION_NAME))
                     .findAny()
@@ -216,7 +216,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
         Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
         shelfLifeService.getShelfLifes(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
         ShelfLife solidForBeta = shelfLifeService.findByLabAndChemType(betaLab, buffer).get();
-        ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
         input.setChemTypeId(solidForBeta.getChemType().getId());
         input.setAmount(1);
         input.setUnit("d");
@@ -234,7 +234,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
         Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
         shelfLifeService.getShelfLifes(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
         ShelfLife solidForBeta = shelfLifeService.findByLabAndChemType(betaLab, buffer).get();
-        ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
         input.setChemTypeId(solidForBeta.getChemType().getId());
         input.setAmount(1);
         input.setUnit("d");
@@ -258,7 +258,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
             Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
             shelfLifeService.getShelfLifes(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
             ShelfLife solidForBeta = shelfLifeService.findByLabAndChemType(betaLab, buffer).get();
-            ShelfLifeInput input = ShelfLifeInput.builder().build();
+            ChemicalCategoryInput input = ChemicalCategoryInput.builder().build();
             shelfLifeService.updateShelfLife(input, solidForBeta.getId(), AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
         });
         logger.info("Expected Exception is thrown:");
@@ -278,7 +278,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
             Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
             shelfLifeService.getShelfLifes(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
             ShelfLife solidForBeta = shelfLifeService.findByLabAndChemType(betaLab, buffer).get();
-            ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+            ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
             input.setChemTypeId((long)Integer.MAX_VALUE);
             input.setAmount(1);
             input.setUnit("d");
@@ -301,7 +301,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
             Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
             shelfLifeService.getShelfLifes(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
             ShelfLife solidForBeta = shelfLifeService.findByLabAndChemType(betaLab, buffer).get();
-            ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+            ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
             input.setChemTypeId(buffer.getId());
             input.setLabKey("non-existing-labKey");
             input.setAmount(1);
@@ -325,7 +325,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
             Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
             shelfLifeService.getShelfLifes(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
             ShelfLife solidForBeta = shelfLifeService.findByLabAndChemType(betaLab, buffer).get();
-            ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+            ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
             input.setChemTypeId(buffer.getId());
             input.setAmount(1);
             input.setUnit("d");
@@ -349,7 +349,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
             logger.info("Size of shelfLifeService.getShelfLifes(): " + shelfLifeService.getShelfLifes());
             shelfLifeService.getShelfLifes(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
             ShelfLife solidForBeta = shelfLifeService.findByLabAndChemType(betaLab, buffer).get();
-            ShelfLifeInput input = LabAdminTestUtils.getSolidForBetaInput();
+            ChemicalCategoryInput input = LabAdminTestUtils.getSolidForBetaInput();
             input.setChemTypeId(buffer.getId());
             input.setAmount(1);
             input.setUnit("e");
@@ -376,7 +376,7 @@ public class ShelfLifeServiceTest extends BaseControllerTest{
             Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
             shelfLifeService.getShelfLifes(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
             ShelfLife bufferForAlpha = shelfLifeService.findByLabAndChemType(alphaLab, buffer).get();
-            ShelfLifeInput input = LabAdminTestUtils.getSolidForAlphaInput();
+            ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
             input.setChemTypeId(buffer.getId());
             input.setAmount(1);
             input.setUnit("d");

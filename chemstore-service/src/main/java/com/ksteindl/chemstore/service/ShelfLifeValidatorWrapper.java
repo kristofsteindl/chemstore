@@ -1,10 +1,9 @@
 package com.ksteindl.chemstore.service;
 
 import com.ksteindl.chemstore.domain.entities.ShelfLife;
-import com.ksteindl.chemstore.domain.input.ShelfLifeInput;
+import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.validation.BindingResult;
 
 import java.security.Principal;
 
@@ -12,7 +11,7 @@ import java.security.Principal;
 @Builder
 public class ShelfLifeValidatorWrapper {
 
-    ShelfLifeInput shelfLifeInput;
+    ChemicalCategoryInput chemicalCategoryInput;
     ShelfLife shelfLife;
     Long id;
     Principal principal;

@@ -1,9 +1,9 @@
 package com.ksteindl.chemstore.utils;
 
 import com.ksteindl.chemstore.domain.input.ChemTypeInput;
+import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
-import com.ksteindl.chemstore.domain.input.ShelfLifeInput;
 
 public class LabAdminTestUtils {
 
@@ -137,24 +137,24 @@ public class LabAdminTestUtils {
     public static final String SOLID_FOR_ALPHA_UNIT = "y";
     public static final String SOLID_FOR_BETA_UNIT = "y";
 
-    public static ShelfLifeInput getSolidForAlphaInput() {
-        return ShelfLifeInput.builder()
+    public static ChemicalCategoryInput getSolidForAlphaInput() {
+        return ChemicalCategoryInput.builder()
                 .amount(LabAdminTestUtils.SOLID_FOR_ALPHA_YEAR)
                 .unit(LabAdminTestUtils.SOLID_FOR_ALPHA_UNIT)
                 .labKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
                 .build();
     }
 
-    public static ShelfLifeInput getSolidForBetaInput() {
-        return ShelfLifeInput.builder()
+    public static ChemicalCategoryInput getSolidForBetaInput() {
+        return ChemicalCategoryInput.builder()
                 .amount(LabAdminTestUtils.SOLID_FOR_BETA_YEAR)
                 .unit(LabAdminTestUtils.SOLID_FOR_BETA_UNIT)
                 .labKey(AccountManagerTestUtils.BETA_LAB_KEY)
                 .build();
     }
 
-    public static ShelfLifeInput getDeletedForAlphaInput() {
-        return ShelfLifeInput.builder()
+    public static ChemicalCategoryInput getDeletedForAlphaInput() {
+        return ChemicalCategoryInput.builder()
                 .amount(LabAdminTestUtils.SOLID_FOR_ALPHA_YEAR)
                 .unit(LabAdminTestUtils.SOLID_FOR_ALPHA_UNIT)
                 .labKey(AccountManagerTestUtils.ALPHA_LAB_KEY)

@@ -4,7 +4,7 @@ import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.ChemType;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.ShelfLife;
-import com.ksteindl.chemstore.domain.input.ShelfLifeInput;
+import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import com.ksteindl.chemstore.domain.repositories.ShelfLifeRepositoy;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
+public class ShelfLifeService implements UniqueEntityService<ChemicalCategoryInput>{
 
     private static final Logger logger = LogManager.getLogger(ManufacturerService.class);
 
@@ -39,10 +39,10 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
     @Autowired
     private AppUserService appUserService;
 
-    public ShelfLife createShelfLife(ShelfLifeInput shelfLifeInput,Principal principal) {
+    public ShelfLife createShelfLife(ChemicalCategoryInput chemicalCategoryInput, Principal principal) {
         ShelfLife shelfLife = new ShelfLife();
         ShelfLifeValidatorWrapper validatorWrapper = ShelfLifeValidatorWrapper.builder()
-                .shelfLifeInput(shelfLifeInput)
+                .chemicalCategoryInput(chemicalCategoryInput)
                 .shelfLife(shelfLife)
                 .id(null)
                 .principal(principal)
@@ -50,10 +50,10 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
         return createOrUpdateShelfLife(validatorWrapper);
     }
 
-    public ShelfLife updateShelfLife(@Valid ShelfLifeInput shelfLifeInput, Long id, Principal principal) {
+    public ShelfLife updateShelfLife(@Valid ChemicalCategoryInput chemicalCategoryInput, Long id, Principal principal) {
         ShelfLife shelfLife = findById(id);
         ShelfLifeValidatorWrapper validatorWrapper = ShelfLifeValidatorWrapper.builder()
-                .shelfLifeInput(shelfLifeInput)
+                .chemicalCategoryInput(chemicalCategoryInput)
                 .shelfLife(shelfLife)
                 .id(id)
                 .principal(principal)
@@ -110,11 +110,11 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
     @Transactional
     public ShelfLife createOrUpdateShelfLife(ShelfLifeValidatorWrapper validatorWrapper) {
         ShelfLife shelfLife = validatorWrapper.shelfLife;
-        ShelfLifeInput shelfLifeInput = validatorWrapper.shelfLifeInput;
-        ChemType chemType = chemTypeService.findById(shelfLifeInput.getChemTypeId());
-        Lab lab = getAndValidateLab(shelfLifeInput.getLabKey(), validatorWrapper.principal);
-        throwExceptionIfNotUnique(shelfLifeInput, validatorWrapper.id);
-        shelfLife.setDuration(convertToDuration(shelfLifeInput));
+        ChemicalCategoryInput chemicalCategoryInput = validatorWrapper.chemicalCategoryInput;
+        ChemType chemType = chemTypeService.findById(chemicalCategoryInput.getChemTypeId());
+        Lab lab = getAndValidateLab(chemicalCategoryInput.getLabKey(), validatorWrapper.principal);
+        throwExceptionIfNotUnique(chemicalCategoryInput, validatorWrapper.id);
+        shelfLife.setDuration(convertToDuration(chemicalCategoryInput));
         shelfLife.setChemType(chemType);
         shelfLife.setLab(lab);
         shelfLifeRepositoy.save(shelfLife);
@@ -123,9 +123,9 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
 
 
 
-    private Duration convertToDuration(ShelfLifeInput shelfLifeInput) {
-        Integer amount = shelfLifeInput.getAmount();
-        switch (shelfLifeInput.getUnit()) {
+    private Duration convertToDuration(ChemicalCategoryInput chemicalCategoryInput) {
+        Integer amount = chemicalCategoryInput.getAmount();
+        switch (chemicalCategoryInput.getUnit()) {
             case "d": return Duration.ofDays(amount);
             case "w": return Duration.between(LocalDateTime.now(), LocalDateTime.now().plusWeeks(amount));
             case "m": return Duration.between(LocalDateTime.now(), LocalDateTime.now().plusMonths(amount));
@@ -145,7 +145,7 @@ public class ShelfLifeService implements UniqueEntityService<ShelfLifeInput>{
     }
 
     @Override
-    public void throwExceptionIfNotUnique(ShelfLifeInput input, Long id) {
+    public void throwExceptionIfNotUnique(ChemicalCategoryInput input, Long id) {
         ChemType chemType = chemTypeService.findById(input.getChemTypeId());
         Lab lab = labService.findLabByKey(input.getLabKey());
         Optional<ShelfLife> optional = findByLabAndChemType(lab, chemType);
