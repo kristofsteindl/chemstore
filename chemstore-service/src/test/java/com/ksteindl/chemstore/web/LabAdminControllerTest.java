@@ -318,7 +318,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenLabAdmin_got201() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         Long chemTypeId = chemTypeService.getChemTypes().stream()
@@ -342,7 +342,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenLabManager_got201() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         Long chemTypeId = chemTypeService.getChemTypes().stream()
@@ -366,7 +366,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenManagerOfAnotherLab_got400() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         Long chemTypeId = chemTypeService.getChemTypes().stream()
@@ -390,7 +390,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenUser_got403() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         Long chemTypeId = chemTypeService.getChemTypes().stream()
@@ -414,7 +414,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenValid_gotExpectedValues() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         Long chemTypeId = chemTypeService.getChemTypes().stream()
@@ -441,7 +441,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenChemTypeIdMissing_got400() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         input.setChemTypeId(null);
@@ -461,7 +461,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenLabKeyMissing_gotExpectedValues() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         Long chemTypeId = chemTypeService.getChemTypes().stream()
@@ -485,7 +485,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenEmptyInput1_gotExpectedValues() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
@@ -502,7 +502,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenEmptyInput2_gotExpectedValues() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
@@ -519,7 +519,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenUnitDoesNotExists_got400() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         Long chemTypeId = chemTypeService.getChemTypes().stream()
@@ -544,7 +544,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenAmountMissing_got400() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         Long chemTypeId = chemTypeService.getChemTypes().stream()
@@ -569,7 +569,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateShelfLife_whenAmountBelowZero_got400() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         Long chemTypeId = chemTypeService.getChemTypes().stream()
@@ -602,7 +602,7 @@ class LabAdminControllerTest extends BaseControllerTest{
                 .andExpect(jsonPath("$[0].id").isNumber())
                 .andExpect(jsonPath("$[0].lab.key").isString())
                 .andExpect(jsonPath("$[0].chemType.name").isString())
-                .andExpect(jsonPath("$", hasSize(shelfLifeService.findByLab(ALPHA_LAB_KEY, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL).size())));
+                .andExpect(jsonPath("$", hasSize(chemicalCategoryService.findByLab(ALPHA_LAB_KEY, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL).size())));
     }
 
     @Test
@@ -655,7 +655,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testDeleteShelfLife_whenLabManager_got204() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         MvcResult result = mvc.perform(delete(SHELF_LIFE_URL + "/" + id)
@@ -671,7 +671,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testDeleteShelfLife_whenLabAdmin_got204() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         MvcResult result = mvc.perform(delete(SHELF_LIFE_URL + "/" + id)
@@ -687,7 +687,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testDeleteShelfLife_whenNotRelatedManager_got400() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         MvcResult result = mvc.perform(delete(SHELF_LIFE_URL + "/" + id)
@@ -703,7 +703,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testDeleteShelfLife_whenUser_got403() throws Exception {
         ChemicalCategoryInput input = getSolidForAlphaInput();
-        Long id = shelfLifeService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
                 .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_COMPOUND_NAME))
                 .findAny().get().getId();
         MvcResult result = mvc.perform(delete(SHELF_LIFE_URL + "/" + id)
@@ -730,7 +730,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteShelfLife_whenAlreadyDeleted_got404() throws Exception {
-        Long id = shelfLifeService.getShelfLifes(false).stream()
+        Long id = chemicalCategoryService.getCategories(false).stream()
                 .filter(ShelfLife::getDeleted)
                 .findAny().get().getId();
         MvcResult result = mvc.perform(delete(SHELF_LIFE_URL + "/" + id)

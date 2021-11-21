@@ -1,14 +1,15 @@
 package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.domain.entities.Chemical;
+import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.entities.ShelfLife;
 import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
+import com.ksteindl.chemstore.service.ChemicalCategoryService;
 import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.ManufacturerService;
-import com.ksteindl.chemstore.service.ShelfLifeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class LabAdminController {
     @Autowired
     private ChemicalService chemicalService;
     @Autowired
-    private ShelfLifeService shelfLifeService;
+    private ChemicalCategoryService chemicalCategoryService;
 
     // MANUFACTURER
     @PostMapping("/manufacturer")
@@ -134,49 +135,49 @@ public class LabAdminController {
         logger.info("DELETE '/chemical/{id}' was successfull");
     }
 
-    //SHELF LIFE
-    @PostMapping("/shelf-life")
-    public ResponseEntity<ShelfLife> createShelfLife(
+    //CHEMICAL CATEGORY
+    @PostMapping("/chem-category")
+    public ResponseEntity<ChemicalCategory> createChemicalCategory(
             @Valid @RequestBody ChemicalCategoryInput chemicalCategoryInput,
             BindingResult result,
             Principal principal) {
-        logger.info("POST '/shelf-life' was called with {}", chemicalCategoryInput);
+        logger.info("POST '/chem-category' was called with {}", chemicalCategoryInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        ShelfLife shelfLife = shelfLifeService.createShelfLife(chemicalCategoryInput, principal);
-        logger.info("POST '/shelf-life' was succesful with returned result{}", shelfLife);
+        ShelfLife shelfLife = chemicalCategoryService.createCategory(chemicalCategoryInput, principal);
+        logger.info("POST '/chem-category' was succesful with returned result{}", shelfLife);
         return new ResponseEntity<>(shelfLife, HttpStatus.CREATED);
     }
 
-    @PutMapping("/shelf-life/{id}")
+    @PutMapping("/chem-category/{id}")
     public ResponseEntity<ShelfLife> updateShelfLife(
             @Valid @RequestBody ChemicalCategoryInput chemicalCategoryInput,
             @PathVariable Long id,
             BindingResult result,
             Principal principal) {
-        logger.info("PUT '/shelf-life' was called with {}, with id {}, by {}", chemicalCategoryInput, id, principal.getName());
+        logger.info("PUT '/chem-category' was called with {}, with id {}, by {}", chemicalCategoryInput, id, principal.getName());
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        ShelfLife shelfLife = shelfLifeService.updateShelfLife(chemicalCategoryInput, id, principal);
-        logger.info("PUT '/shelf-life' was succesful with returned result{}", shelfLife);
+        ShelfLife shelfLife = chemicalCategoryService.updateCategory(chemicalCategoryInput, id, principal);
+        logger.info("PUT '/chem-category' was succesful with returned result{}", shelfLife);
         return new ResponseEntity<>(shelfLife, HttpStatus.CREATED);
     }
 
-    @GetMapping("/shelf-life/{labKey}")
+    @GetMapping("/chem-category/{labKey}")
     public ResponseEntity<List<ShelfLife>> getShelfLifesForLab(
             @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive,
             @PathVariable String labKey,
             Principal principal) {
-        logger.info("GET '/shelf-life/{labKey}' was called with labKey {}", labKey);
-        List<ShelfLife> shelfLifes = shelfLifeService.findByLab(labKey, onlyActive, principal);
-        logger.info("GET 'shelf-life/{labKey}' was succesful with {} item", shelfLifes.size());
+        logger.info("GET '/chem-category/{labKey}' was called with labKey {}", labKey);
+        List<ShelfLife> shelfLifes = chemicalCategoryService.findByLab(labKey, onlyActive, principal);
+        logger.info("GET 'chem-category/{labKey}' was succesful with {} item", shelfLifes.size());
         return new ResponseEntity<>(shelfLifes, HttpStatus.OK);
     }
 
-    @DeleteMapping("/shelf-life/{id}")
+    @DeleteMapping("/chem-category/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteShelfLife(@PathVariable Long id, Principal principal) {
-        logger.info("DELETE '/shelf-life' was calledwith id {}, by {}", id, principal.getName());
-        shelfLifeService.deleteShelfLife(id, principal);
-        logger.info("DELETE '/shelf-life' was succesful with 204 status");
+        logger.info("DELETE '/chem-category' was calledwith id {}, by {}", id, principal.getName());
+        chemicalCategoryService.deleteChemicalCategory(id, principal);
+        logger.info("DELETE '/chem-category' was succesful with 204 status");
     }
 
 }

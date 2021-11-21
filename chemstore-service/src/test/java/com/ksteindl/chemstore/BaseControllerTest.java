@@ -49,7 +49,7 @@ public class BaseControllerTest {
     @Autowired
     protected ChemTypeService chemTypeService;
     @Autowired
-    protected ShelfLifeService shelfLifeService;
+    protected ChemicalCategoryService chemicalCategoryService;
     @Autowired
     protected JwtProvider jwtProvider;
 

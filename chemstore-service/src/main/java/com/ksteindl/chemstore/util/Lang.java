@@ -49,6 +49,11 @@ public class Lang {
     public static final String CHEM_TYPE_ENTITY_NAME = "Chemical type";
     public static final String CHEM_TYPE_ALREADY_DELETED = "Chemical type %s has been already deleted";
 
+    public static final String CHEMICAL_CATEGORY_ENTITY_NAME = "ChemicalCategory";
+    public static final String CHEMICAL_CATEGORY_ALREADY_DELETED = "Chemical category of %s in %s is already deleted";
+    public static final String CHEMICAL_CATEGORY_ALREADY_EXISTS = "Chemical category %s in %s already exists";
+    public static final String CHEMICAL_CATEGORY_FORBIDDEN = "Setting chemical category for %s is forbidden. You have to be either the manager of the lab, or the admin";
+
     public static final String SHELF_TIME_SET_FORBIDDEN = "Setting self time for %s is forbidden. You have to be either the manager of the lab, or the admin";
     public static final String SHELF_LIFE_ALREADY_DELETED = "Shelf life of %s in %s is already deleted";
     public static final String SHELF_LIFE_ALREADY_EXISTS = "Shelf life for %s in %s already exists";
