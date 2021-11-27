@@ -59,7 +59,7 @@ public class ChemItemService {
         AppUser appUser = appUserService.getMyAppUser(principal);
         Lab lab = validateLabAndGet(labKey, appUser);
         LocalDate arrivalDate = validateArrivalDateAndGet(chemItemInput.getArrivalDate());
-        Chemical chemical = chemicalService.findByShortName(chemItemInput.getChemicalShortName());
+        Chemical chemical = chemicalService.getForChemItem(chemItemInput.getChemicalShortName(), lab);
         Manufacturer manufacturer = manufacturerService.findById(chemItemInput.getManufacturerId());
         LocalDate expirationDateBeforeOpened = validateExpirationDateBeforeOpenedAndGet(chemItemInput.getExpirationDateBeforeOpened());
         String unit = getUnitAndValidate(chemItemInput.getUnit());

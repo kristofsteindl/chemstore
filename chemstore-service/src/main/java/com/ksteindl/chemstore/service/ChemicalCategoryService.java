@@ -1,11 +1,9 @@
 package com.ksteindl.chemstore.service;
 
-import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import com.ksteindl.chemstore.domain.repositories.ChemicalCategoryRepositoy;
-import com.ksteindl.chemstore.domain.repositories.ShelfLifeRepositoy;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.util.Lang;
@@ -28,15 +26,9 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
     private static final Logger logger = LogManager.getLogger(ChemicalCategoryService.class);
 
     @Autowired
-    private ShelfLifeRepositoy shelfLifeRepositoy;
-    @Autowired
     private ChemicalCategoryRepositoy chemicalCategoryRepositoy;
     @Autowired
     private LabService labService;
-    @Autowired
-    private ChemTypeService chemTypeService;
-    @Autowired
-    private AppUserService appUserService;
 
     public ChemicalCategory createCategory(ChemicalCategoryInput chemicalCategoryInput, Principal principal) {
         ChemicalCategory chemicalCategory = new ChemicalCategory();
@@ -83,7 +75,7 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
 
 
     public List<ChemicalCategory> findByLab(String labKey, boolean onlyActive, Principal principal) {
-        Lab lab = getAndValidateLab(labKey, principal);
+        Lab lab = labService.getLabForAdmin(labKey, principal);
         return onlyActive ?
                 chemicalCategoryRepositoy.findByLabOnlyActive(lab) :
                 chemicalCategoryRepositoy.findByLab(lab);
@@ -101,7 +93,7 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
 
     public void deleteChemicalCategory(Long id, Principal principal) {
         ChemicalCategory category = findById(id);
-        getAndValidateLab(category.getLab().getKey(), principal);
+        labService.getLabForAdmin(category.getLab().getKey(), principal);
         category.setDeleted(true);
         chemicalCategoryRepositoy.save(category);
     }
@@ -110,11 +102,11 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
     public ChemicalCategory createOrUpdateCategory(ChemicalCategoryValidatorWrapper validatorWrapper) {
         ChemicalCategory category = validatorWrapper.chemicalCategory;
         ChemicalCategoryInput input = validatorWrapper.chemicalCategoryInput;
-        Lab lab = getAndValidateLab(input.getLabKey(), validatorWrapper.principal);
+        Lab lab = labService.getLabForAdmin(input.getLabKey(), validatorWrapper.principal);
         throwExceptionIfNotUnique(input, validatorWrapper.id);
+        category.setLab(lab);
         category.setName(input.getName());
         category.setShelfLife(convertToDuration(input));
-        category.setLab(lab);
         chemicalCategoryRepositoy.save(category);
         return findById(category.getId());
     }
@@ -132,15 +124,6 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
         throw new ValidationException("Invalid shelfLifeInput.unit. Must be 'd', 'w', 'm' or 'y'");
     }
 
-    private Lab getAndValidateLab(String labKey, Principal principal) {
-        Lab lab = labService.findLabByKey(labKey);
-        AppUser appUser = appUserService.getMyAppUser(principal);
-        if (!lab.getLabManagers().stream().anyMatch(manager -> manager.equals(appUser))
-                && !appUser.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(lab))) {
-            throw new ValidationException(String.format(Lang.CHEMICAL_CATEGORY_FORBIDDEN, lab.getName()));
-        }
-        return lab;
-    }
 
     @Override
     public void throwExceptionIfNotUnique(ChemicalCategoryInput input, Long id) {

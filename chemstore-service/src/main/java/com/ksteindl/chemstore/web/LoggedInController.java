@@ -86,10 +86,12 @@ public class LoggedInController {
         return manufacturers;
     }
 
-    @GetMapping("/chemical")
-    public List<Chemical> getChemicals() {
-        logger.info("GET '/api/logged-in/chemical' was called");
-        List<Chemical> chemicals = chemicalService.getChemicals();
+    @GetMapping("/chemical/{labKey}")
+    public List<Chemical> getChemicals(
+            @PathVariable String labKey,
+            Principal user) {
+        logger.info("GET '/api/logged-in/chemical' was called with labKey {} by user {}", labKey, user.getName());
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(labKey, user);
         logger.info("GET '/api/logged-in/chemical' was succesful with {} item", chemicals.size());
         return chemicals;
     }

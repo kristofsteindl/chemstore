@@ -12,10 +12,8 @@ public class Chemical {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true) // for backup, duplicate supposed to be checked in service
     private String shortName;
 
-    @Column(unique = true) // for backup, duplicate supposed to be checked in service
     private String exactName;
 
     @ManyToOne(fetch = FetchType.LAZY)

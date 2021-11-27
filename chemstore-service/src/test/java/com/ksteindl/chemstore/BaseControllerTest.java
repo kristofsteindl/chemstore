@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ksteindl.chemstore.domain.entities.*;
 import com.ksteindl.chemstore.domain.input.*;
-import com.ksteindl.chemstore.domain.repositories.ShelfLifeRepositoy;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.*;
 import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
@@ -18,9 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -47,8 +44,6 @@ public class BaseControllerTest {
 
 
     @Autowired
-    protected ChemTypeService chemTypeService;
-    @Autowired
     protected ChemicalCategoryService chemicalCategoryService;
     @Autowired
     protected JwtProvider jwtProvider;
@@ -56,21 +51,16 @@ public class BaseControllerTest {
     @BeforeEach
     public void createShelfLifes() {
         //SHELF LIFE
-
-
-
     }
 
     @BeforeAll
     static void initDb(
             @Autowired MockMvc mvc,
-            @Autowired JwtProvider jwtProvider,
             @Autowired AppUserService appUserService,
             @Autowired LabService labService,
             @Autowired ManufacturerService manufacturerService,
+            @Autowired ChemicalCategoryService categoryService,
             @Autowired ChemicalService chemicalService,
-            @Autowired ChemTypeService chemTypeService,
-            @Autowired ShelfLifeRepositoy shelfLifeRepositoy,
             @Autowired ChemItemService chemItemService) throws Exception {
         if (first) {
             AppUser aman = appUserService.createUser(AccountManagerTestUtils.getAccountManagerInput());
@@ -115,10 +105,12 @@ public class BaseControllerTest {
             AppUserInput pwChangedUserInput = AccountManagerTestUtils.getPwChangedUserInput();
             AppUser pwChangedUser = appUserService.createUser(pwChangedUserInput);
 
-            AppUser ablabdeleteduser = appUserService.createUser(AccountManagerTestUtils.ALPHA_BETA_LAB_DELETED_USER_INPUT);
+            AppUserInput ablabDeleteduserInput = AccountManagerTestUtils.ALPHA_BETA_LAB_DELETED_USER_INPUT;
+            ablabDeleteduserInput.setLabKeysAsUser(List.of(AccountManagerTestUtils.ALPHA_LAB_KEY, AccountManagerTestUtils.BETA_LAB_KEY));
+            AppUser ablabdeleteduser = appUserService.createUser(ablabDeleteduserInput);
             appUserService.deleteAppUser(ablabdeleteduser.getId());
 
-            //MANUFACTURER
+            //MANUFACTURER| Omega, Gamma, (Delta)
             ManufacturerInput omegaManufacturerInput = LabAdminTestUtils.getOmegaManufacturerInput();
             Manufacturer omegaMan = manufacturerService.createManufacturer(omegaManufacturerInput);
 
@@ -129,64 +121,48 @@ public class BaseControllerTest {
             Manufacturer deletedManufacturer = manufacturerService.createManufacturer(deltaManufacturerInput);
             manufacturerService.deleteManufacturer(deletedManufacturer.getId());
 
-            //CHEM TYPE
-            ChemTypeInput solidCompundInput = LabAdminTestUtils.getSolidCompoundInput();
-            ChemType solidCompund = chemTypeService.createChemType(solidCompundInput);
+            //CATEGORY
+            //Alpha: Solid, Buffer, (Deleted)
+            ChemicalCategoryInput organicForAlphaCategoryInput = LabAdminTestUtils.getOrganicForAlphaInput();
+            ChemicalCategory organicForAlphaCompund = categoryService.createCategory(organicForAlphaCategoryInput, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
 
-            ChemTypeInput bufferSolutionInput = LabAdminTestUtils.getBufferSolutionInput();
-            ChemType bufferSolution = chemTypeService.createChemType(bufferSolutionInput);
+            ChemicalCategoryInput bufferForAlphaCategoryInput = LabAdminTestUtils.getBufferForAlphaInput();
+            ChemicalCategory bufferForAlphaCompund = categoryService.createCategory(bufferForAlphaCategoryInput, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
 
-            ChemTypeInput waterChemTypeInput = LabAdminTestUtils.getWaterChemTypeInput();
-            ChemType waterChemType = chemTypeService.createChemType(waterChemTypeInput);
+            ChemicalCategoryInput deletedForAlphaCategoryInput = LabAdminTestUtils.getDeletedForAlphaInput();
+            ChemicalCategory deletedForAlphaCompund = categoryService.createCategory(deletedForAlphaCategoryInput, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
+            categoryService.deleteChemicalCategory(deletedForAlphaCompund.getId(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
 
-            ChemTypeInput posphateSolutionInput = LabAdminTestUtils.getPhosphateSolutionInput();
-            ChemType posphateSolution = chemTypeService.createChemType(posphateSolutionInput);
-            chemTypeService.deleteChemType(posphateSolution.getId());
+            //Beta: Solid
+            ChemicalCategoryInput organicForBetaCategoryInput = LabAdminTestUtils.getOrganicForBetaInput();
+            ChemicalCategory organicForBetaCompund = categoryService.createCategory(organicForAlphaCategoryInput, AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
 
 
             //CHEMICAL
-            ChemicalInput ethanolInput = LabAdminTestUtils.getEtOHInput();
-            Chemical ethanol = chemicalService.createChemical(ethanolInput);
+            ChemicalInput acnForAlphaInput = LabAdminTestUtils.getAcnForAlphaInput();
+            acnForAlphaInput.setCategoryId(organicForAlphaCompund.getId());
+            Chemical acnForAlpha = chemicalService.createChemical(acnForAlphaInput, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
 
-            ChemicalInput methanolInput = LabAdminTestUtils.getMeOHInput();
-            methanolInput.setChemTypeId(solidCompund.getId());
-            Chemical methanol = chemicalService.createChemical(methanolInput);
+            ChemicalInput etOHInput = LabAdminTestUtils.getEtOhForAlphaInput();
+            etOHInput.setCategoryId(organicForAlphaCompund.getId());
+            Chemical etOH = chemicalService.createChemical(etOHInput, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
 
-            ChemicalInput chemWithTypeInput = LabAdminTestUtils.getChemWithTypeInput();
-            chemWithTypeInput.setChemTypeId(solidCompund.getId());
-            Chemical chemWithType = chemicalService.createChemical(chemWithTypeInput);
+            ChemicalInput meOHInput = LabAdminTestUtils.getMeOhForAlphaInput();
+            Chemical meOH = chemicalService.createChemical(meOHInput, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
 
-            ChemicalInput chemWithoutTypeInput = LabAdminTestUtils.getChemWithoutTypeInput();
-            Chemical chemWithoutType = chemicalService.createChemical(chemWithoutTypeInput);
+            ChemicalInput nh4AcInput = LabAdminTestUtils.getNH4AcForAlphaInput();
+            nh4AcInput.setCategoryId(bufferForAlphaCompund.getId());
+            Chemical nh4Ac = chemicalService.createChemical(nh4AcInput, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
 
-            ChemicalInput ipaInput = LabAdminTestUtils.getIpaInput();
-            Chemical ipa = chemicalService.createChemical(ipaInput);
-            chemicalService.deleteChemical(ipa.getId());
+            ChemicalInput ipaInput = LabAdminTestUtils.getIpaForAlphaInput();
+            ipaInput.setCategoryId(organicForAlphaCompund.getId());
+            Chemical ipa = chemicalService.createChemical(ipaInput, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
+            chemicalService.deleteChemical(ipa.getId(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
 
-            ShelfLife bufferForAlpha = new ShelfLife();
-            bufferForAlpha.setDuration(Duration.ofDays(LabAdminTestUtils.BUFFER_FOR_ALPHA_DAYS));
-            bufferForAlpha.setChemType(bufferSolution);
-            bufferForAlpha.setLab(alab);
-            shelfLifeRepositoy.save(bufferForAlpha);
+            ChemicalInput acnForBetaInput = LabAdminTestUtils.getAcnForBetaInput();
+            acnForBetaInput.setCategoryId(organicForBetaCompund.getId());
+            Chemical acnForBeta = chemicalService.createChemical(acnForBetaInput, AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
 
-            ShelfLife bufferForBeta = new ShelfLife();
-            bufferForBeta.setDuration(Duration.ofDays(LabAdminTestUtils.BUFFER_FOR_BETA_DAYS));
-            bufferForBeta.setChemType(bufferSolution);
-            bufferForBeta.setLab(blab);
-            shelfLifeRepositoy.save(bufferForBeta);
-
-            ShelfLife solidForALpha = new ShelfLife();
-            solidForALpha.setDuration(Duration.between(LocalDateTime.now(), LocalDateTime.now().plusYears(LabAdminTestUtils.SOLID_FOR_ALPHA_YEAR)));
-            solidForALpha.setChemType(solidCompund);
-            solidForALpha.setLab(alab);
-            shelfLifeRepositoy.save(solidForALpha);
-
-            ShelfLife waterForAlpha = new ShelfLife();
-            waterForAlpha.setDuration(Duration.between(LocalDateTime.now(), LocalDateTime.now().plusYears(LabAdminTestUtils.SOLID_FOR_ALPHA_YEAR)));
-            waterForAlpha.setChemType(waterChemType);
-            waterForAlpha.setLab(alab);
-            waterForAlpha.setDeleted(true);
-            shelfLifeRepositoy.save(waterForAlpha);
 
 //            ChemItemInput cii1 = ChemItemInput.builder()
 //                    .setManufacturerId(omegaMan.getId())

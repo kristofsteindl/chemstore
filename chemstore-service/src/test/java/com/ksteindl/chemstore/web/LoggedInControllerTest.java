@@ -244,7 +244,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[*].shortName",  IsNot.not(hasItem(LabAdminTestUtils.ISOPROPYL_ALCHOL_SHORT_NAME))))
+                .andExpect(jsonPath("$[*].shortName",  IsNot.not(hasItem(LabAdminTestUtils.IPA_SHORT_NAME))))
         ;
     }
 

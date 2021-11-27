@@ -236,7 +236,8 @@ public class ChemItemServiceTest extends BaseControllerTest {
     @Transactional
     public void testCreateChemItem_whenChemicalDeleted_gotResourceNotFoundException() {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        String deletedChemicalShortName = chemicalService.getChemicals(false).stream()
+        String deletedChemicalShortName = chemicalService.getChemicalsForAdmin(
+                AccountManagerTestUtils.ALPHA_LAB_KEY, AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL, false).stream()
                 .filter(Chemical::getDeleted)
                 .findAny()
                 .get()

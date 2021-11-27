@@ -2,7 +2,6 @@ package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.service.AppUserService;
-import com.ksteindl.chemstore.service.ChemTypeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +20,6 @@ public class LabManagerController {
 
     @Autowired
     private AppUserService appUserService;
-    @Autowired
-    private ChemTypeService chemTypeService;
     @Autowired
     private MapValidationErrorService mapValidationErrorService;
 

@@ -7,10 +7,13 @@ import com.ksteindl.chemstore.domain.repositories.LabRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.util.Lang;
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,11 +67,33 @@ public class LabService implements UniqueEntityService<LabInput> {
         labRepository.save(lab);
     }
 
-    public void removeUserFromLabs(AppUser labManager) {
-        labRepository.findByLabManagers(labManager).forEach(lab -> {
-            lab.getLabManagers().remove(labManager);
-            labRepository.save(lab);
-        });
+    public Lab getLabForAdmin(String labKey, Principal admin) {
+        Lab lab = initializeAndUnproxy(findLabByKey(labKey));
+        validateLabForAdmin(lab, admin);
+        return lab;
+    }
+
+    public Lab getLabForUser(String labKey, Principal admin) {
+        Lab lab = findLabByKey(labKey);
+        validateLabForUser(lab, admin);
+        return lab;
+    }
+
+    public void validateLabForUser(Lab lab, Principal userPrincipal) {
+        AppUser user = appUserService.getMyAppUser(userPrincipal);
+        if (!user.getLabsAsUser().stream().anyMatch(labAsUser -> labAsUser.equals(lab)) &&
+                !lab.getLabManagers().stream().anyMatch(manager -> manager.equals(user)) &&
+                !user.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(lab))) {
+            throw new ValidationException(String.format(Lang.LAB_USER_FORBIDDEN, lab.getName(), userPrincipal.getName()));
+        }
+    }
+
+    public void validateLabForAdmin(Lab lab, Principal adminPrincipal) {
+        AppUser admin = appUserService.getMyAppUser(adminPrincipal);
+        if (!lab.getLabManagers().stream().anyMatch(manager -> manager.equals(admin))
+                && !admin.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(lab))) {
+            throw new ValidationException(String.format(Lang.LAB_ADMIN_FORBIDDEN, lab.getName(), adminPrincipal.getName()));
+        }
     }
 
     public Lab findById(Long id) {
@@ -91,6 +116,20 @@ public class LabService implements UniqueEntityService<LabInput> {
                         .orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username)))
                 .collect(Collectors.toList());
         lab.setLabManagers(managers);
+    }
+
+    private static <T> T initializeAndUnproxy(T entity) {
+        if (entity == null) {
+            throw new
+                    NullPointerException("Entity passed for initialization is null");
+        }
+
+        Hibernate.initialize(entity);
+        if (entity instanceof HibernateProxy) {
+            entity = (T) ((HibernateProxy) entity).getHibernateLazyInitializer()
+                    .getImplementation();
+        }
+        return entity;
     }
 
     @Override

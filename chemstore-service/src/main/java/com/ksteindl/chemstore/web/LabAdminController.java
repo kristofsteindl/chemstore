@@ -88,11 +88,14 @@ public class LabAdminController {
 
     //// CHEMICAL
     @PostMapping("/chemical")
-    public ResponseEntity<Chemical> createChemical(@Valid @RequestBody ChemicalInput chemicalInput, BindingResult result) {
-        logger.info("POST '/chemical' was called with {}", chemicalInput);
+    public ResponseEntity<Chemical> createChemical(
+            @Valid @RequestBody ChemicalInput chemicalInput,
+            BindingResult result,
+            Principal principal) {
+        logger.info("POST '/chemical' was called with {} by user {}", chemicalInput, principal.getName());
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        Chemical chemical = chemicalService.createChemical(chemicalInput);
-        logger.info("POST '/chemical' was succesful with returned result{}", chemical);
+        Chemical chemical = chemicalService.createChemical(chemicalInput, principal);
+        logger.info("POST '/chemical' was succesful with returned result {}", chemical);
         return new ResponseEntity<>(chemical, HttpStatus.CREATED);
     }
 
@@ -100,37 +103,43 @@ public class LabAdminController {
     public ResponseEntity<Chemical> updateChemical(
             @Valid @RequestBody ChemicalInput chemicalInput,
             @PathVariable  Long id,
-            BindingResult result) {
-        logger.info("PUT '/chemical/{id}' was called with id {} and input {}", id, chemicalInput);
+            BindingResult result,
+            Principal principal) {
+        logger.info("PUT '/chemical/{id}' was called with id {} and input {} by user ", id, chemicalInput, principal.getName());
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        Chemical chemical = chemicalService.updateChemical(chemicalInput, id);
-        logger.info("PUT '/chemical/{id}' was succesful with returned result{}", chemical);
+        Chemical chemical = chemicalService.updateChemical(chemicalInput, id, principal);
+        logger.info("PUT '/chemical/{id}' was succesful with returned result {}", chemical);
         return new ResponseEntity<>(chemical, HttpStatus.CREATED);
     }
 
     @GetMapping("/chemical/{id}")
-    public ResponseEntity<Chemical> getChemical(
-            @PathVariable  Long id) {
-        logger.info("GET '/chemical/{id}' was called with id {}", id);
-        Chemical chemical = chemicalService.findById(id);
-        logger.info("GET '/chemical/{id}' was succesful with returned result{}", chemical);
+    public ResponseEntity<Chemical> getChemicals(
+            @PathVariable Long id,
+            Principal principal) {
+        logger.info("GET '/chemical/{id}' was called with id {} by user ", id, principal.getName());
+        Chemical chemical = chemicalService.findById(id, principal);
+        logger.info("GET '/chemical/{id}' was succesful with returned result {}", chemical);
         return new ResponseEntity<>(chemical, HttpStatus.OK);
     }
 
-    @GetMapping("/chemical")
+    @GetMapping("/chemical/{labKey}")
     public ResponseEntity<List<Chemical>> getChemicals(
+            @PathVariable String labKey,
+            Principal principal,
             @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
-        logger.info("GET '/chemical' was called");
-        List<Chemical> chemicals = chemicalService.getChemicals(onlyActive);
+        logger.info("GET '/chemical' was called with labKey {} by ", labKey, principal.getName());
+        List<Chemical> chemicals = chemicalService.getChemicalsForAdmin(labKey, principal, onlyActive);
         logger.info("GET '/chemical' was succesful with {} item", chemicals.size());
         return new ResponseEntity<>(chemicals, HttpStatus.OK);
     }
 
     @DeleteMapping("/chemical/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteChemical(@PathVariable Long id) {
-        logger.info("DELETE '/chemical/{id}' was called with id {}", id);
-        chemicalService.deleteChemical(id);
+    public void deleteChemical(
+            @PathVariable Long id,
+            Principal principal) {
+        logger.info("DELETE '/chemical/{id}' was called with id {} by {} ", id, principal.getName());
+        chemicalService.deleteChemical(id, principal);
         logger.info("DELETE '/chemical/{id}' was successfull");
     }
 
@@ -173,7 +182,9 @@ public class LabAdminController {
 
     @DeleteMapping("/chem-category/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteChemicalCategory(@PathVariable Long id, Principal principal) {
+    public void deleteChemicalCategory(
+            @PathVariable Long id,
+            Principal principal) {
         logger.info("DELETE '/chem-category' was called with id {}, by {}", id, principal.getName());
         chemicalCategoryService.deleteChemicalCategory(id, principal);
         logger.info("DELETE '/chem-category' was succesful with 204 status");
