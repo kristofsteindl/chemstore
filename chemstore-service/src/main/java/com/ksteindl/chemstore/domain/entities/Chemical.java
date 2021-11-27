@@ -1,5 +1,9 @@
 package com.ksteindl.chemstore.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ksteindl.chemstore.service.wrapper.ChemicalCategoryCard;
+import com.ksteindl.chemstore.service.wrapper.LabCard;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -17,10 +21,23 @@ public class Chemical {
     private String exactName;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Lab lab;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private ChemicalCategory category;
 
     private Boolean deleted = false;
+
+    @JsonProperty("category")
+    private ChemicalCategoryCard getChemicalCategoryCard() {
+        return this.category == null ? null : new ChemicalCategoryCard(this.category);
+    }
+
+    @JsonProperty("lab")
+    private LabCard getLabCard() {
+        return new LabCard(this.lab);
+    }
+
 }

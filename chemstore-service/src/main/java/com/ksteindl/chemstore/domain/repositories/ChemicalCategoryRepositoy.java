@@ -22,7 +22,7 @@ public interface ChemicalCategoryRepositoy extends CrudRepository<ChemicalCatego
 
     List<ChemicalCategory> findByLab(Lab lab);
 
-    @Query("SELECT s FROM ShelfLife s WHERE s.deleted = false and s.lab = :lab")
+    @Query("SELECT c FROM ChemicalCategory c WHERE c.deleted = false and c.lab = :lab")
     List<ChemicalCategory> findByLabOnlyActive(@Param("lab") Lab lab);
 
 

@@ -6,9 +6,8 @@ import com.ksteindl.chemstore.domain.input.LabInput;
 import com.ksteindl.chemstore.domain.repositories.LabRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
+import com.ksteindl.chemstore.util.HibernateProxyUtil;
 import com.ksteindl.chemstore.util.Lang;
-import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -68,7 +67,7 @@ public class LabService implements UniqueEntityService<LabInput> {
     }
 
     public Lab getLabForAdmin(String labKey, Principal admin) {
-        Lab lab = initializeAndUnproxy(findLabByKey(labKey));
+        Lab lab = HibernateProxyUtil.unproxy(findLabByKey(labKey));
         validateLabForAdmin(lab, admin);
         return lab;
     }
@@ -116,20 +115,6 @@ public class LabService implements UniqueEntityService<LabInput> {
                         .orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username)))
                 .collect(Collectors.toList());
         lab.setLabManagers(managers);
-    }
-
-    private static <T> T initializeAndUnproxy(T entity) {
-        if (entity == null) {
-            throw new
-                    NullPointerException("Entity passed for initialization is null");
-        }
-
-        Hibernate.initialize(entity);
-        if (entity instanceof HibernateProxy) {
-            entity = (T) ((HibernateProxy) entity).getHibernateLazyInitializer()
-                    .getImplementation();
-        }
-        return entity;
     }
 
     @Override

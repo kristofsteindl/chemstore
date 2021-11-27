@@ -122,7 +122,7 @@ public class LabAdminController {
         return new ResponseEntity<>(chemical, HttpStatus.OK);
     }
 
-    @GetMapping("/chemical/{labKey}")
+    @GetMapping("/chemical/fromLab/{labKey}")
     public ResponseEntity<List<Chemical>> getChemicals(
             @PathVariable String labKey,
             Principal principal,

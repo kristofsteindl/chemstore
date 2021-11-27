@@ -7,6 +7,8 @@ import com.ksteindl.chemstore.domain.repositories.ChemicalCategoryRepositoy;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.util.Lang;
+import lombok.Builder;
+import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,6 +139,16 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
                                 lab.getName()));
             }
         });
+    }
+
+    @Data
+    @Builder
+    public static class ChemicalCategoryValidatorWrapper {
+
+        ChemicalCategoryInput chemicalCategoryInput;
+        ChemicalCategory chemicalCategory;
+        Long id;
+        Principal principal;
     }
 
 }

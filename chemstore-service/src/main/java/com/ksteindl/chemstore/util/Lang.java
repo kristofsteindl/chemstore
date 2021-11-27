@@ -6,8 +6,8 @@ public class Lang {
 
     public static final String CHEMICAL_ENTITY_NAME = "chemical";
     public static final String CHEMICAL_SAME_NAME_FOUND_TEMPLATE = "Chemical with same name(s) (short name: '%s', exact name: '%s') was found in %s";
-    public static final String CHEMICAL_WITH_SHORT_NAME_NOT_FOUND = "Chemicel '%s' was not found in %s";
-    public static final String CHEMICAL_ALREADY_DELETED = "Chamical %s has been already deleted";
+    public static final String CHEMICAL_WITH_SHORT_NAME_NOT_FOUND = "Chemical '%s' was not found in %s";
+    public static final String CHEMICAL_ALREADY_DELETED = "Chamical '%s' in '%s' has been already deleted";
     public static final String CHEMICAL_CATEGORY_LAB_NOT_THE_SAME = "The lab of %s category (%s) is not the same as the lab of chemical (%s)";
     public static final String LAB_ADMIN_FORBIDDEN = "Lab %s is forbidden for %s as admin. You have to be either the manager or the admin of the lab";
     public static final String LAB_USER_FORBIDDEN = "Lab %s is forbidden for %s as user. You have to be either the manager or the admin of the lab, or has to assigned as a user";
