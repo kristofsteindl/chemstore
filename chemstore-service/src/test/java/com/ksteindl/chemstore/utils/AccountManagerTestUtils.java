@@ -162,6 +162,9 @@ public class AccountManagerTestUtils {
             .labManagerUsernames(List.of(BETA_LAB_MANAGER_USERNAME, ALPHA_BETA_LAB_MANAGER_USERNAME))
             .build();
 
+    public static final String DELTA_LAB_KEY = "dlab";
+    public static final String DELTA_LAB_NAME = "Delta Lab";
+
     public static final String GAMMA_LAB_KEY = "glab";
     public static final String GAMMA_LAB_NAME = "Gamma Lab";
     public static LabInput getGammaLabInput() {
