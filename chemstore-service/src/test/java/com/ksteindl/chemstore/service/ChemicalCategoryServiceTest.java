@@ -1,10 +1,8 @@
 package com.ksteindl.chemstore.service;
 
 import com.ksteindl.chemstore.BaseControllerTest;
-import com.ksteindl.chemstore.domain.entities.ChemType;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
-import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import com.ksteindl.chemstore.exceptions.ForbiddenException;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
@@ -536,7 +534,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testFindCategoriesByLab_gotDeletedCategory() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        List<ChemicalCategory> categories = chemicalCategoryService.getByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
+        List<ChemicalCategory> categories = chemicalCategoryService.findByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
         categories.stream().filter(category -> category.getName().equals(LabAdminTestUtils.DELETED_CATEGORY)).findAny().get();
     }
 
@@ -625,12 +623,12 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Test
     @Rollback
     @Transactional
-    public void testDeleteCategory_whenBetaLabAdmin_gotResourceNotFoundException() {
+    public void testDeleteCategory_whenBetaLabAdmin_gotForbiddenException() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
         ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
-        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
             chemicalCategoryService.deleteChemicalCategory(persisted.getId(), AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
         });
         logger.info("Expected Exception is thrown:");
@@ -641,12 +639,12 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Test
     @Rollback
     @Transactional
-    public void testDeleteCategory_whenAlphaLabUser_gotResourceNotFoundException() {
+    public void testDeleteCategory_whenAlphaLabUser_gotForbiddenException() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
         ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
-        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
             chemicalCategoryService.deleteChemicalCategory(persisted.getId(), AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
         });
         logger.info("Expected Exception is thrown:");
@@ -682,22 +680,6 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
                 .filter(chemical -> chemical.getCategory() != null && chemical.getCategory().equals(persisted))
                 .collect(Collectors.toList());
         Assertions.assertTrue(chemicals.isEmpty());
-    }
-
-
-
-    private ChemType getNonexistingChemType() {
-        ChemType nonexistingChemType = new ChemType();
-        nonexistingChemType.setName("non-existing-chem-type");
-        nonexistingChemType.setId((long)Integer.MAX_VALUE);
-        return nonexistingChemType;
-    }
-
-    private Lab getNonexistingLab() {
-        Lab lab = new Lab();
-        lab.setKey("non-existing-lab");
-        lab.setName("Non Existing Lab");
-        return lab;
     }
 
 
