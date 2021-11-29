@@ -56,7 +56,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
     public UserDetails loadUserById(Long id) {
         AppUser appUser = appUserRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         //return appUser;
-                return new UserDetailsImpl(appUser);
+        return new UserDetailsImpl(appUser);
     }
 
     public AppUser createUser(AppUserInput appUserInput) {

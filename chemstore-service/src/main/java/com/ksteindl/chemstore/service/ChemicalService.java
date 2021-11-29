@@ -30,7 +30,7 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
 
     public Chemical createChemical(ChemicalInput chemicalInput, Principal admin) {
         Chemical chemical = new Chemical();
-        Lab lab = labService.getLabForAdmin(chemicalInput.getLabKey(), admin);
+        Lab lab = labService.findLabForAdmin(chemicalInput.getLabKey(), admin);
         validateAndCopyAttributes(chemicalInput, chemical, lab);
         chemical.setLab(lab);
         return chemicalRepository.save(chemical);
@@ -40,7 +40,7 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
         Chemical chemical = chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
         Lab lab = chemical.getLab();
         String labKey = lab.getKey();
-        labService.getLabForAdmin(labKey, admin);
+        labService.validateLabForAdmin(lab, admin);
         if (!labKey.equals(chemicalInput.getLabKey())) {
             throw new ValidationException(String.format(Lang.LAB_OF_CHEMICAL_CANNOT_CHANGED, labKey));
         }
@@ -52,7 +52,7 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
         throwExceptionIfNotUnique(chemicalInput, chemical.getId());
         Long categoryId = chemicalInput.getCategoryId();
         if (categoryId != null && categoryId > 0) {
-            ChemicalCategory category = chemicalCategoryService.findById(categoryId);
+            ChemicalCategory category = chemicalCategoryService.getById(categoryId);
             if (!category.getLab().equals(lab)) {
                 throw new ValidationException(String.format(
                         Lang.CHEMICAL_CATEGORY_LAB_NOT_THE_SAME,
@@ -78,14 +78,14 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
     }
 
     public List<Chemical> getChemicalsForAdmin(String labKey, Principal admin, Boolean onlyActive) {
-        Lab lab = labService.getLabForAdmin(labKey, admin);
+        Lab lab = labService.findLabForAdmin(labKey, admin);
         return onlyActive ?
                 chemicalRepository.findAllActive(lab, SORT_BY_SHORT_NAME) :
                 chemicalRepository.findByLab(lab, SORT_BY_SHORT_NAME);
     }
 
     public List<Chemical> getChemicalsForUser(String labKey, Principal user) {
-        Lab lab = labService.getLabForUser(labKey, user);
+        Lab lab = labService.findLabForUser(labKey, user);
         return chemicalRepository.findAllActive(lab, SORT_BY_SHORT_NAME);
     }
 

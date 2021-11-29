@@ -13,12 +13,8 @@ import java.util.Optional;
 @Repository
 public interface ChemicalCategoryRepositoy extends CrudRepository<ChemicalCategory, Long> {
 
-    List<ChemicalCategory> findAll();
-
-    @Query("SELECT s FROM ChemicalCategory s WHERE s.deleted = false")
-    List<ChemicalCategory> findAllActive();
-
-    Optional<ChemicalCategory> findByLabAndName(Lab lab, String name);
+    @Query("SELECT c FROM ChemicalCategory c WHERE c.lab.key = ?1 and c.name = ?2")
+    Optional<ChemicalCategory> findByLabKeyAndName(String labKey, String name);
 
     List<ChemicalCategory> findByLab(Lab lab);
 

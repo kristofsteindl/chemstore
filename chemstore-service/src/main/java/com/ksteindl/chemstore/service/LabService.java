@@ -4,6 +4,7 @@ import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.LabInput;
 import com.ksteindl.chemstore.domain.repositories.LabRepository;
+import com.ksteindl.chemstore.exceptions.ForbiddenException;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.util.HibernateProxyUtil;
@@ -66,14 +67,14 @@ public class LabService implements UniqueEntityService<LabInput> {
         labRepository.save(lab);
     }
 
-    public Lab getLabForAdmin(String labKey, Principal admin) {
+    public Lab findLabForAdmin(String labKey, Principal admin) {
         Lab lab = HibernateProxyUtil.unproxy(findLabByKey(labKey));
         validateLabForAdmin(lab, admin);
         return lab;
     }
 
-    public Lab getLabForUser(String labKey, Principal admin) {
-        Lab lab = findLabByKey(labKey);
+    public Lab findLabForUser(String labKey, Principal admin) {
+        Lab lab = HibernateProxyUtil.unproxy(findLabByKey(labKey));
         validateLabForUser(lab, admin);
         return lab;
     }
@@ -83,7 +84,7 @@ public class LabService implements UniqueEntityService<LabInput> {
         if (!user.getLabsAsUser().stream().anyMatch(labAsUser -> labAsUser.equals(lab)) &&
                 !lab.getLabManagers().stream().anyMatch(manager -> manager.equals(user)) &&
                 !user.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(lab))) {
-            throw new ValidationException(String.format(Lang.LAB_USER_FORBIDDEN, lab.getName(), userPrincipal.getName()));
+            throw new ForbiddenException(String.format(Lang.LAB_USER_FORBIDDEN, lab.getName(), userPrincipal.getName()));
         }
     }
 
@@ -91,7 +92,7 @@ public class LabService implements UniqueEntityService<LabInput> {
         AppUser admin = appUserService.getMyAppUser(adminPrincipal);
         if (!lab.getLabManagers().stream().anyMatch(manager -> manager.equals(admin))
                 && !admin.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(lab))) {
-            throw new ValidationException(String.format(Lang.LAB_ADMIN_FORBIDDEN, lab.getName(), adminPrincipal.getName()));
+            throw new ForbiddenException(String.format(Lang.LAB_ADMIN_FORBIDDEN, lab.getName(), adminPrincipal.getName()));
         }
     }
 

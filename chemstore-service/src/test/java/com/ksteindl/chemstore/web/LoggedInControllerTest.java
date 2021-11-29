@@ -42,6 +42,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     private final static String URL_USERS = URL + "/user";
     private final static String URL_MANUFACTURER = URL + "/manufacturer";
     private final static String URL_CHEMICAL = URL + "/chemical";
+    private final static String URL_CHEMICAL_ALAB = URL_CHEMICAL + "/alab";
     private final static String URL_ME = URL + "/user/me";
 
     @Autowired
@@ -209,7 +210,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     @Test
     @Transactional
     void testGetAllChemicals_whenAlphaLabUserLoggedIn_got200() throws Exception{
-        mvc.perform(get(URL_CHEMICAL)
+        mvc.perform(get(URL_CHEMICAL_ALAB)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
         ;
@@ -218,7 +219,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     @Test
     @Transactional
     void testGetAllChemicals_whenAlphaLabUserLoggedIn_hasItemEtOH() throws Exception{
-        mvc.perform(get(URL_CHEMICAL)
+        mvc.perform(get(URL_CHEMICAL_ALAB)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$").isArray())
@@ -229,7 +230,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     @Test
     @Transactional
     void testGetAllChemicals_whenAlphaLabUserLoggedIn_hasItemMeOH() throws Exception{
-        mvc.perform(get(URL_CHEMICAL)
+        mvc.perform(get(URL_CHEMICAL_ALAB)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$").isArray())
@@ -240,7 +241,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     @Test
 @Transactional
     void testGetAllChemicals_whenAlphaLabUserLoggedIn_hasNoItemIPA() throws Exception{
-        mvc.perform(get(URL_CHEMICAL)
+        mvc.perform(get(URL_CHEMICAL_ALAB)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$").isArray())
@@ -251,7 +252,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     @Test
     @Transactional
     void testGetAllChemicals_whenAlphaLabUserLoggedIn_EtOHHasProperAttributes() throws Exception{
-        mvc.perform(get(URL_CHEMICAL)
+        mvc.perform(get(URL_CHEMICAL_ALAB)
                 .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$").isArray())
@@ -265,7 +266,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     @Test
     @Transactional
     void testGetAllChemicals_whenNoUserIsLoggedIn_got401() throws Exception{
-        mvc.perform(get(URL_CHEMICAL)
+        mvc.perform(get(URL_CHEMICAL_ALAB)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(401))
         ;

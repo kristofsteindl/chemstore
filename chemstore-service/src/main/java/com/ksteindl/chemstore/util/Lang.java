@@ -34,8 +34,9 @@ public class Lang {
     public static final String LAB_ENTITY_NAME = "lab";
     public static final String LAB_KEY_ATTRIBUTE_NAME = "key";
     public static final String LAB_SAME_NAME_FOUND_TEMPLATE = "Lab with same key/name was found (key: '%s', name: '%s')";
-    public static final String LAB_KEY_CANNOT_BE_CHANGED = "key of the lab cannot be updated (%s, %s)";
-    public static final String LAB_ALREADY_DELETED = "Lab %s has been already deleted";
+    public static final String LAB_KEY_CANNOT_BE_CHANGED = "key of the lab cannot be updated ('%s', '%s')";
+    public static final String LAB_ALREADY_DELETED = "Lab '%s' has been already deleted";
+    public static final String LAB_IS_DELETED = "Error: lab '%s' is deleted";
 
     public static final String CHEM_ITEM_ENTITY_NAME = "chemItem";
     public static final String CHEM_ITEM_LAB_KEY_ATTRIBUTE_NAME = "labKey";
@@ -52,7 +53,7 @@ public class Lang {
 
 
     public static final String CHEMICAL_CATEGORY_ENTITY_NAME = "ChemicalCategory";
-    public static final String CHEMICAL_CATEGORY_ALREADY_DELETED = "Chemical category '%s' in '%s' is already deleted";
+    public static final String CHEMICAL_CATEGORY_IS_DELETED = "Chemical category '%s' in '%s' is deleted";
     public static final String CHEMICAL_CATEGORY_ALREADY_EXISTS = "Chemical category '%s' in '%s' already exists";
     public static final String CHEMICAL_CATEGORY_FORBIDDEN = "Performing admin operations for '%s' on chemical category is forbidden. You have to be either the manager or the admin of the lab %s";
 

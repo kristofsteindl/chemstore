@@ -2,15 +2,30 @@ package com.ksteindl.chemstore.service;
 
 import com.ksteindl.chemstore.BaseControllerTest;
 import com.ksteindl.chemstore.domain.entities.ChemType;
+import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
+import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
+import com.ksteindl.chemstore.exceptions.ForbiddenException;
+import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
+import com.ksteindl.chemstore.exceptions.ValidationException;
+import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
+import com.ksteindl.chemstore.utils.LabAdminTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import javax.transaction.Transactional;
+import java.security.Principal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -27,346 +42,254 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
 
     // CREATE
     // TODO seq number check
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateShelfLife_whenAllValid_gotNoException() {
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        chemicalCategoryService.createCategory(input, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateShelfLife_whenAllValid_savedValuesAsExpected() {
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        Long id = chemicalCategoryService.createCategory(input, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL).getId();
-//        ShelfLife persisted = chemicalCategoryService.findById(id);
-//        Assertions.assertEquals(input.getLabKey(), persisted.getLab().getKey());
-//        Assertions.assertEquals(input.getChemTypeId(), persisted.getChemType().getId());
-//        Assertions.assertEquals(Duration.between(LocalDateTime.now(), LocalDateTime.now().plusYears(LabAdminTestUtils.ORGANIC_FOR_BETA_YEAR)).toHours(), persisted.getDuration().toHours());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateShelfLife_whenEmptyInput_gotException() {
-//        Exception exception = Assertions.assertThrows(Exception.class, () -> {
-//            ChemicalCategoryInput input = ChemicalCategoryInput.builder().build();
-//            Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                    .findAny()
-//                    .get()
-//                    .getId();
-//            input.setChemTypeId(chemTypeId);
-//            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateShelfLife_whenChemTypeIdDoesNotExist_gotResourceNotFoundException() {
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//            input.setChemTypeId((long)Integer.MAX_VALUE);
-//            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateShelfLife_whenChemTypeIdNull_gotException() {
-//        Exception exception = Assertions.assertThrows(Exception.class, () -> {
-//            ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//            input.setChemTypeId(null);
-//            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateShelfLife_whenLabKeyDoesNotExist_gotResourceNotFoundException() {
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//            Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                    .findAny()
-//                    .get()
-//                    .getId();
-//            input.setChemTypeId(chemTypeId);
-//            input.setLabKey("non-existing-lab-key");
-//            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateShelfLife_whenUserNeitherAdminNorManager_gotValidationException() {
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//            Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                    .findAny()
-//                    .get()
-//                    .getId();
-//            input.setChemTypeId(chemTypeId);
-//            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateShelfLife_whenDurationUnitIsNotValid_gotValidationException() {
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//            Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                    .findAny()
-//                    .get()
-//                    .getId();
-//            input.setUnit("not-valid-unit");
-//            input.setChemTypeId(chemTypeId);
-//            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateShelfLife_whenAlreadyExistsForLabAndChemType_gotValidationException() {
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//            Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.BUFFER_CATEGORY))
-//                    .findAny()
-//                    .get()
-//                    .getId();
-//            input.setChemTypeId(chemTypeId);
-//            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//        Assertions.assertTrue(exception.getMessage().contains("exists"));
-//    }
-//
-//    //UPDATE
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testUpdateShelfLife_whenAllValid_gotNoException() {
-//        ChemType buffer = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.BUFFER_CATEGORY))
-//                .findAny()
-//                .get();
-//        Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
-//        chemicalCategoryService.getCategories(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
-//        ShelfLife solidForBeta = chemicalCategoryService.findByLabAndName(betaLab, buffer).get();
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//        input.setChemTypeId(solidForBeta.getChemType().getId());
-//        input.setAmount(1);
-//        input.setUnit("d");
-//        chemicalCategoryService.updateCategory(input, solidForBeta.getId(), AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testUpdateShelfLife_whenAllValid_savedValuesAsExpected() {
-//        ChemType buffer = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.BUFFER_CATEGORY))
-//                .findAny()
-//                .get();
-//        Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
-//        chemicalCategoryService.getCategories(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
-//        ShelfLife solidForBeta = chemicalCategoryService.findByLabAndName(betaLab, buffer).get();
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//        input.setChemTypeId(solidForBeta.getChemType().getId());
-//        input.setAmount(1);
-//        input.setUnit("d");
-//        chemicalCategoryService.updateCategory(input, solidForBeta.getId(), AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        ShelfLife persisted = chemicalCategoryService.findById(solidForBeta.getId());
-//        Assertions.assertEquals(input.getLabKey(), persisted.getLab().getKey());
-//        Assertions.assertEquals(input.getChemTypeId(), persisted.getChemType().getId());
-//        Assertions.assertEquals(Duration.between(LocalDateTime.now(), LocalDateTime.now().plusDays(1)).toHours(), persisted.getDuration().toHours());
-//    }
-//
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testUpdateShelfLife_whenEmptyInput_gotException() {
-//        Exception exception = Assertions.assertThrows(Exception.class, () -> {
-//            ChemType buffer = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.BUFFER_CATEGORY))
-//                    .findAny()
-//                    .get();
-//            Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
-//            chemicalCategoryService.getCategories(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
-//            ShelfLife solidForBeta = chemicalCategoryService.findByLabAndName(betaLab, buffer).get();
-//            ChemicalCategoryInput input = ChemicalCategoryInput.builder().build();
-//            chemicalCategoryService.updateCategory(input, solidForBeta.getId(), AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testUpdateShelfLife_whenChemTypeIdDoesNotExist_gotResourceNotFoundException() {
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            ChemType buffer = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.BUFFER_CATEGORY))
-//                    .findAny()
-//                    .get();
-//            Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
-//            chemicalCategoryService.getCategories(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
-//            ShelfLife solidForBeta = chemicalCategoryService.findByLabAndName(betaLab, buffer).get();
-//            ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//            input.setChemTypeId((long)Integer.MAX_VALUE);
-//            input.setAmount(1);
-//            input.setUnit("d");
-//            chemicalCategoryService.updateCategory(input, solidForBeta.getId(), AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testUpdateShelfLife_whenLabKeyDoesNotExist_gotResourceNotFoundException() {
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            ChemType buffer = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.BUFFER_CATEGORY))
-//                    .findAny()
-//                    .get();
-//            Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
-//            chemicalCategoryService.getCategories(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
-//            ShelfLife solidForBeta = chemicalCategoryService.findByLabAndName(betaLab, buffer).get();
-//            ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//            input.setChemTypeId(buffer.getId());
-//            input.setLabKey("non-existing-labKey");
-//            input.setAmount(1);
-//            input.setUnit("d");
-//            chemicalCategoryService.updateCategory(input, solidForBeta.getId(), AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testUpdateShelfLife_whenUserNeitherAdminNorManager_gotValidationException() {
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            ChemType buffer = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.BUFFER_CATEGORY))
-//                    .findAny()
-//                    .get();
-//            Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
-//            chemicalCategoryService.getCategories(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
-//            ShelfLife solidForBeta = chemicalCategoryService.findByLabAndName(betaLab, buffer).get();
-//            ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//            input.setChemTypeId(buffer.getId());
-//            input.setAmount(1);
-//            input.setUnit("d");
-//            chemicalCategoryService.updateCategory(input, solidForBeta.getId(), AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testUpdateShelfLife_whenDurationUnitIsNotValid_gotValidationException() {
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            ChemType buffer = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.BUFFER_CATEGORY))
-//                    .findAny()
-//                    .get();
-//            Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
-//            logger.info("Size of shelfLifeService.getShelfLifes(): " + chemicalCategoryService.getCategories());
-//            chemicalCategoryService.getCategories(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
-//            ShelfLife solidForBeta = chemicalCategoryService.findByLabAndName(betaLab, buffer).get();
-//            ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForBetaInput();
-//            input.setChemTypeId(buffer.getId());
-//            input.setAmount(1);
-//            input.setUnit("e");
-//            chemicalCategoryService.updateCategory(input, solidForBeta.getId(), AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testUpdateShelfLife_whenAlreadyExistsForLabAndChemType_gotValidationException() {
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            ChemType buffer = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.BUFFER_CATEGORY))
-//                    .findAny()
-//                    .get();
-//            ChemType solid = chemTypeService.getChemTypes().stream()
-//                    .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                    .findAny()
-//                    .get();
-//            Lab alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
-//            chemicalCategoryService.getCategories(false).forEach(shelfLife -> logger.info("Shelf life for " + shelfLife.getChemType().getName() + " for " + shelfLife.getLab().getKey()));
-//            ShelfLife bufferForAlpha = chemicalCategoryService.findByLabAndName(alphaLab, buffer).get();
-//            ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-//            input.setChemTypeId(buffer.getId());
-//            input.setAmount(1);
-//            input.setUnit("d");
-//            chemicalCategoryService.updateCategory(input, bufferForAlpha.getId(), AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
+    @Test
+    @Rollback
+    @Transactional
+    public void testCreateCategory_whenAllValid_gotNoException() {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        chemicalCategoryService.createCategory(input, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testCreateCategory_whenAllValid_savedValuesAsExpected() {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        ChemicalCategory returned = chemicalCategoryService.createCategory(input, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
+        ChemicalCategory fetched = chemicalCategoryService.findById(returned.getId());
+        Assertions.assertEquals(input.getLabKey(), fetched.getLab().getKey());
+        Assertions.assertFalse(fetched.getDeleted());
+        Assertions.assertEquals(input.getName(), fetched.getName());
+        Assertions.assertEquals(Duration.between(
+                LocalDateTime.now(), LocalDateTime.now().plusWeeks(LabAdminTestUtils.SOLID_FOR_ALPHA_WEEKS)).toHours(), 
+                fetched.getShelfLife().toHours());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testCreateCategory_whenEmptyInput_gotException() {
+        Exception exception = Assertions.assertThrows(Exception.class, () -> {
+            ChemicalCategoryInput input = ChemicalCategoryInput.builder().build();
+            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+   }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testCreateCategory_whenNameAlreadyExists_gotValidationExteption() {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setName(LabAdminTestUtils.ORGANIC_CATEGORY);
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testCreateCategory_whenLabKeyDoesNotExist_gotResourceNotFoundException() {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setLabKey("non-existing-key");
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testCreateCategory_whenUserNeitherAdminNorManager_gotForbiddenException() {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
+            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testCreateCategory_whenBetaLabAdmin_gotForbiddenException() {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
+            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testCreateCategory_whenDurationUnitIsNotValid_gotValidationException() {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setUnit("not-valid-unit");
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            chemicalCategoryService.createCategory(input, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateCategory_whenAllValid_gotNoException() {
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        input.setName("Changed organic for alpha");
+        chemicalCategoryService.updateCategory(input, persisted.getId(), admin);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateCategory_whenAllValid_savedValuesAsExpected() {
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        String newName = "Changed organic for alpha";
+        String newAmount = "d";
+        Integer newUnit = 1;
+        input.setName(newName);
+        input.setUnit(newAmount);
+        input.setAmount(newUnit);
+        chemicalCategoryService.updateCategory(input, persisted.getId(), admin);
+        ChemicalCategory changed = chemicalCategoryService.getById(persisted.getId());
+        Assertions.assertFalse(changed.getDeleted());
+        Assertions.assertEquals(newName, changed.getName());
+        Assertions.assertEquals(Duration.between(LocalDateTime.now(), LocalDateTime.now().plusDays(newUnit)).toHours(), changed.getShelfLife().toHours());    
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateCategory_whenEmptyInput_gotException() {
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(Exception.class, () -> {
+            ChemicalCategoryInput emptyInput = ChemicalCategoryInput.builder().build();
+            chemicalCategoryService.updateCategory(emptyInput, persisted.getId(), admin);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateCategory_whenNameAlreadyExists_gotValidationExteption() {
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        input.setName(LabAdminTestUtils.BUFFER_CATEGORY);
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            chemicalCategoryService.updateCategory(input, persisted.getId(), admin);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateCategory_whenLabKeyDoesntExists_gotResourceNotFoundExteption() {
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        input.setLabKey("non-existing-key");
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            chemicalCategoryService.updateCategory(input, persisted.getId(), admin);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateCategory_whenUserNeitherAdminNorManager_gotForbiddenException() {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
+            chemicalCategoryService.updateCategory(input, persisted.getId(), AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateCategory_whenUserBetaLabAdmin_gotForbiddenException() {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
+            chemicalCategoryService.updateCategory(input, persisted.getId(), AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateCategory_whenDurationUnitIsNotValid_gotValidationException() {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        input.setUnit("not-valid-unit");
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            chemicalCategoryService.updateCategory(input, persisted.getId(), admin);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+    
+    
+    
+
+
+
 //
 //    @Test
 //    @Rollback

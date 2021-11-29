@@ -1,6 +1,7 @@
 package com.ksteindl.chemstore.domain.repositories;
 
 import com.ksteindl.chemstore.domain.entities.Chemical;
+import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
@@ -18,7 +19,7 @@ public interface ChemicalRepository extends CrudRepository<Chemical, Long> {
     @Query("SELECT c FROM Chemical c WHERE c.lab = ?1 and (c.shortName = ?2 or c.shortName = ?3)")
     List<Chemical> findDuplicate(Lab lab, String shortName, String exactName);
 
-    List<Chemical> findAllByOrderByShortNameAsc();
+    List<Chemical> findByCategory(ChemicalCategory category);
 
     List<Chemical> findByLab(Lab lab, Sort sort);
 

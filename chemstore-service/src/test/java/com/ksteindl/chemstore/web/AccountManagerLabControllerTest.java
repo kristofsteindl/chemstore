@@ -196,7 +196,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest {
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_MANAGER_USERNAME);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(alphaLab)))
+                .content(asJsonString(alphaLabInput)))
                 .andExpect(status().is(403))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -214,7 +214,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest {
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_ADMIN_USERNAME);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(alphaLab)))
+                .content(asJsonString(alphaLabInput)))
                 .andExpect(status().is(403))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -233,7 +233,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest {
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_USER_USERNAME);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(alphaLab)))
+                .content(asJsonString(alphaLabInput)))
                 .andExpect(status().is(403))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());

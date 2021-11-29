@@ -8,7 +8,6 @@ import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.service.wrapper.PagedList;
 import com.ksteindl.chemstore.util.Lang;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +54,9 @@ public class ChemItemService {
     private ChemItemRepository chemItemRepository;
 
 
-    public List<ChemItem> createChemItems(String labKey, ChemItemInput chemItemInput, Principal principal) {
-        AppUser appUser = appUserService.getMyAppUser(principal);
-        Lab lab = validateLabAndGet(labKey, appUser);
+    public List<ChemItem> createChemItems(String labKey, ChemItemInput chemItemInput, Principal user) {
+        AppUser appUser = appUserService.getMyAppUser(user);
+        Lab lab = labService.findLabForUser(labKey, user);
         LocalDate arrivalDate = validateArrivalDateAndGet(chemItemInput.getArrivalDate());
         Chemical chemical = chemicalService.getForChemItem(chemItemInput.getChemicalShortName(), lab);
         Manufacturer manufacturer = manufacturerService.findById(chemItemInput.getManufacturerId());
@@ -79,10 +78,10 @@ public class ChemItemService {
         return createBatchedChemItems(chemItemTemplate, chemItemInput.getAmount());
     }
 
-    public ChemItem openChemItem(Long chemItemId, Principal principal) {
+    public ChemItem openChemItem(Long chemItemId, Principal user) {
         ChemItem chemItem = findById(chemItemId);
-        AppUser appUser = appUserService.getMyAppUser(principal);
-        validateLabAndGet(chemItem.getLab().getKey(), appUser);
+        AppUser appUser = appUserService.getMyAppUser(user);
+        labService.validateLabForUser(chemItem.getLab(), user);
         if (chemItem.getOpeningDate() != null) {
             //TODO
             throw new ValidationException("Chem item is already opened");
@@ -97,10 +96,10 @@ public class ChemItemService {
         return chemItemRepository.save(chemItem);
     }
 
-    public ChemItem consumeChemItem(Long chemItemId, Principal principal) {
+    public ChemItem consumeChemItem(Long chemItemId, Principal user) {
         ChemItem chemItem = findById(chemItemId);
-        AppUser appUser = appUserService.getMyAppUser(principal);
-        validateLabAndGet(chemItem.getLab().getKey(), appUser);
+        AppUser appUser = appUserService.getMyAppUser(user);
+        labService.validateLabForUser(chemItem.getLab(), user);
         if (chemItem.getOpeningDate() == null) {
             //TODO
             throw new ValidationException("");
@@ -111,9 +110,9 @@ public class ChemItemService {
         return chemItemRepository.save(chemItem);
     }
 
-    public PagedList<ChemItem> findByLab(String labKey, Principal principal, boolean available, Integer page, Integer size) {
-        AppUser appUser = appUserService.getMyAppUser(principal);
-        Lab lab = validateLabAndGet(labKey, appUser);
+    public PagedList<ChemItem> findByLab(String labKey, Principal user, boolean available, Integer page, Integer size) {
+        AppUser appUser = appUserService.getMyAppUser(user);
+        Lab lab = labService.findLabForUser(labKey, user);
         Pageable paging = PageRequest.of(page, size, SORT_BY_ID_DESC);
         Page<ChemItem> chemItemPages =
                 available ?
@@ -193,12 +192,6 @@ public class ChemItemService {
             throw new ValidationException(String.format(Lang.CHEM_ITEM_EXP_DATE_IS_IN_PAST, expirationDateBeforeOpened));
         }
         return expirationDateBeforeOpened;
-    }
-
-    private Lab validateLabAndGet(String labKey, AppUser appUser) {
-        Lab proxyLab = labService.findLabByKey(labKey);
-        Lab lab = (Lab)Hibernate.unproxy(proxyLab);
-        return validateLabAndGet(lab, appUser);
     }
 
     private Lab validateLabAndGet(Lab lab, AppUser appUser) {

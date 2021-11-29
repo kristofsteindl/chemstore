@@ -4,6 +4,7 @@ import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import com.ksteindl.chemstore.domain.repositories.ChemicalCategoryRepositoy;
+import com.ksteindl.chemstore.domain.repositories.ChemicalRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.util.Lang;
@@ -14,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.time.Duration;
@@ -31,6 +31,8 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
     private ChemicalCategoryRepositoy chemicalCategoryRepositoy;
     @Autowired
     private LabService labService;
+    @Autowired
+    private ChemicalRepository chemicalRepository;
 
     public ChemicalCategory createCategory(ChemicalCategoryInput chemicalCategoryInput, Principal principal) {
         ChemicalCategory chemicalCategory = new ChemicalCategory();
@@ -44,7 +46,7 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
     }
 
     public ChemicalCategory updateCategory(@Valid ChemicalCategoryInput chemicalCategoryInput, Long id, Principal principal) {
-        ChemicalCategory category = findById(id);
+        ChemicalCategory category = getById(id);
         ChemicalCategoryValidatorWrapper validatorWrapper = ChemicalCategoryValidatorWrapper.builder()
                 .chemicalCategoryInput(chemicalCategoryInput)
                 .chemicalCategory(category)
@@ -54,66 +56,53 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
         return createOrUpdateCategory(validatorWrapper);
     }
 
-
-    public ChemicalCategory findById(Long id) {
-        return findById(id, true);
-    }
-
-    public ChemicalCategory findById(Long id, Boolean onlyActive) {
-        ChemicalCategory category = chemicalCategoryRepositoy.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_CATEGORY_ENTITY_NAME, id));
-        if (onlyActive && category.getDeleted()) {
-            throw new ResourceNotFoundException(String.format(Lang.CHEMICAL_CATEGORY_ALREADY_DELETED, category.getName(), category.getLab().getName()));
-        }
-        return category;
-    }
-
-    public Optional<ChemicalCategory> findByLabAndName(Lab lab, String name) {
-        return chemicalCategoryRepositoy.findByLabAndName(lab, name);
-    }
-
-    public List<ChemicalCategory> findByLab(String labKey, Principal principal) {
-        return findByLab(labKey, true, principal);
-    }
-
-
-    public List<ChemicalCategory> findByLab(String labKey, boolean onlyActive, Principal principal) {
-        Lab lab = labService.getLabForAdmin(labKey, principal);
-        return onlyActive ?
-                chemicalCategoryRepositoy.findByLabOnlyActive(lab) :
-                chemicalCategoryRepositoy.findByLab(lab);
-    }
-
-    public List<ChemicalCategory> getCategories() {
-        return getCategories(true);
-    }
-
-    public List<ChemicalCategory> getCategories(boolean onlyActive) {
-        return onlyActive ?
-                chemicalCategoryRepositoy.findAllActive() :
-                chemicalCategoryRepositoy.findAll();
-    }
-
-    public void deleteChemicalCategory(Long id, Principal principal) {
-        ChemicalCategory category = findById(id);
-        labService.getLabForAdmin(category.getLab().getKey(), principal);
-        category.setDeleted(true);
-        chemicalCategoryRepositoy.save(category);
-    }
-
-    @Transactional
-    public ChemicalCategory createOrUpdateCategory(ChemicalCategoryValidatorWrapper validatorWrapper) {
+    private ChemicalCategory createOrUpdateCategory(ChemicalCategoryValidatorWrapper validatorWrapper) {
         ChemicalCategory category = validatorWrapper.chemicalCategory;
         ChemicalCategoryInput input = validatorWrapper.chemicalCategoryInput;
-        Lab lab = labService.getLabForAdmin(input.getLabKey(), validatorWrapper.principal);
+        Lab lab = labService.findLabForAdmin(input.getLabKey(), validatorWrapper.principal);
         throwExceptionIfNotUnique(input, validatorWrapper.id);
         category.setLab(lab);
         category.setName(input.getName());
         category.setShelfLife(convertToDuration(input));
         chemicalCategoryRepositoy.save(category);
-        return findById(category.getId());
+        return getById(category.getId());
     }
 
 
+    public ChemicalCategory getById(Long id) {
+        ChemicalCategory category = findById(id);
+        if (category.getDeleted()) {
+            throw new ResourceNotFoundException(String.format(Lang.CHEMICAL_CATEGORY_IS_DELETED, category.getName(), category.getLab().getName()));
+        }
+        return category;
+    }
+
+    public ChemicalCategory findById(Long id) {
+        return chemicalCategoryRepositoy.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_CATEGORY_ENTITY_NAME, id));
+    }
+
+    public List<ChemicalCategory> getByLab(String labKey, Principal principal) {
+        return findByLab(labKey, true, principal);
+    }
+
+
+    public List<ChemicalCategory> findByLab(String labKey, boolean onlyActive, Principal principal) {
+        Lab lab = labService.findLabForAdmin(labKey, principal);
+        return onlyActive ?
+                chemicalCategoryRepositoy.findByLabOnlyActive(lab) :
+                chemicalCategoryRepositoy.findByLab(lab);
+    }
+
+    public void deleteChemicalCategory(Long id, Principal principal) {
+        ChemicalCategory category = getById(id);
+        labService.validateLabForAdmin(category.getLab(), principal);
+        chemicalRepository.findByCategory(category).stream().forEach(chemical -> {
+            chemical.setCategory(null);
+            chemicalRepository.save(chemical);
+            });
+        category.setDeleted(true);
+        chemicalCategoryRepositoy.save(category);
+    }
 
     private Duration convertToDuration(ChemicalCategoryInput chemicalCategoryInput) {
         Integer amount = chemicalCategoryInput.getAmount();
@@ -129,14 +118,14 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
 
     @Override
     public void throwExceptionIfNotUnique(ChemicalCategoryInput input, Long id) {
-        Lab lab = labService.findLabByKey(input.getLabKey());
-        Optional<ChemicalCategory> optional = findByLabAndName(lab, input.getName());
+        String labKey = input.getLabKey();
+        Optional<ChemicalCategory> optional = chemicalCategoryRepositoy.findByLabKeyAndName(labKey, input.getName());
         optional.ifPresent(category -> {
             if (!category.getId().equals(id)) {
                 throw new ValidationException(
                         String.format(Lang.CHEMICAL_CATEGORY_ALREADY_EXISTS,
                                 category.getName(),
-                                lab.getName()));
+                                labKey));
             }
         });
     }
