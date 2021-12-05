@@ -76,15 +76,9 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
         return category;
     }
 
-    public ChemicalCategory getById(Long id, Principal principal) {
-        ChemicalCategory category = getById(id);
-        labService.validateLabForUser(category.getLab(), principal);
-        return category;
-    }
-
     public ChemicalCategory findById(Long id, Principal principal) {
         ChemicalCategory category = findById(id);
-        labService.validateLabForUser(category.getLab(), principal);
+        labService.validateLabForAdmin(category.getLab(), principal);
         return category;
     }
 

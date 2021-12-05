@@ -697,7 +697,6 @@ class LabAdminControllerTest extends BaseControllerTest{
     
     
     //READ
-
     @Test
     @Rollback
     @Transactional
@@ -815,7 +814,115 @@ class LabAdminControllerTest extends BaseControllerTest{
                 .andExpect(jsonPath("$[*].deleted", hasItem(false)))
                 .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))));
     }
-    
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoryById_whenAlphaLabAdmin_got200() throws Exception {
+        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
+        mvc.perform(get(CATEGORY_URL + "/" + id)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoryById_whenAlphaLabAdmin_gotExpectedAttributes() throws Exception {
+        ChemicalCategory category = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(found -> found.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get();
+        mvc.perform(get(CATEGORY_URL + "/" + category.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(category.getId().intValue())))
+                .andExpect(jsonPath("$.lab.key", is(category.getLab().getKey())))
+                .andExpect(jsonPath("$.name", is(category.getName())))
+                .andExpect(jsonPath("$.shelfLife").isString())
+                .andExpect(jsonPath("$.deleted", is(false)));
+        ;
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoryById_whenAlphaLabManager_got200() throws Exception {
+        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
+        mvc.perform(get(CATEGORY_URL + "/" + id)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoryById_whenBetaLabAdmin_got403() throws Exception {
+        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
+        mvc.perform(get(CATEGORY_URL + "/" + id)
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoryById_whenAlphaLabUser_got403() throws Exception {
+        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
+        mvc.perform(get(CATEGORY_URL + "/" + id)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoryById_whenAccountManager_got403() throws Exception {
+        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
+        mvc.perform(get(CATEGORY_URL + "/" + id)
+                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoryById_whenIdDoesNotExists_got404() throws Exception {
+        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
+        mvc.perform(get(CATEGORY_URL + "/" + Integer.MAX_VALUE)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoryById_whenCategoryIsDeleted_got404() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "/" + Integer.MAX_VALUE)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoryById_whenDeleted_got200() throws Exception {
+        String deletedName = LabAdminTestUtils.DELETED_CATEGORY;
+        Long id = chemicalCategoryService.getByLab(deletedName, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
+        mvc.perform(get(CATEGORY_URL + "/" + id)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is(deletedName)))
+                .andExpect(jsonPath("$.deleted", is(true)));
+    }
+
+
+
 //
 //    //DELETE
 //    @Test
