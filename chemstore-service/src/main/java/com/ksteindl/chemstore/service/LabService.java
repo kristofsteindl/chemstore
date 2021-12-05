@@ -68,31 +68,33 @@ public class LabService implements UniqueEntityService<LabInput> {
     }
 
     public Lab findLabForAdmin(String labKey, Principal admin) {
-        Lab lab = HibernateProxyUtil.unproxy(findLabByKey(labKey));
+        Lab lab = findLabByKey(labKey);
         validateLabForAdmin(lab, admin);
         return lab;
     }
 
     public Lab findLabForUser(String labKey, Principal admin) {
-        Lab lab = HibernateProxyUtil.unproxy(findLabByKey(labKey));
+        Lab lab = findLabByKey(labKey);
         validateLabForUser(lab, admin);
         return lab;
     }
 
     public void validateLabForUser(Lab lab, Principal userPrincipal) {
+        Lab unproxiedLab = HibernateProxyUtil.unproxy(lab);
         AppUser user = appUserService.getMyAppUser(userPrincipal);
-        if (!user.getLabsAsUser().stream().anyMatch(labAsUser -> labAsUser.equals(lab)) &&
-                !lab.getLabManagers().stream().anyMatch(manager -> manager.equals(user)) &&
-                !user.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(lab))) {
-            throw new ForbiddenException(String.format(Lang.LAB_USER_FORBIDDEN, lab.getName(), userPrincipal.getName()));
+        if (!user.getLabsAsUser().stream().anyMatch(labAsUser -> labAsUser.equals(unproxiedLab)) &&
+                !unproxiedLab.getLabManagers().stream().anyMatch(manager -> manager.equals(user)) &&
+                !user.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(unproxiedLab))) {
+            throw new ForbiddenException(String.format(Lang.LAB_USER_FORBIDDEN, unproxiedLab.getName(), userPrincipal.getName()));
         }
     }
 
     public void validateLabForAdmin(Lab lab, Principal adminPrincipal) {
+        Lab unproxiedLab = HibernateProxyUtil.unproxy(lab);
         AppUser admin = appUserService.getMyAppUser(adminPrincipal);
-        if (!lab.getLabManagers().stream().anyMatch(manager -> manager.equals(admin))
-                && !admin.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(lab))) {
-            throw new ForbiddenException(String.format(Lang.LAB_ADMIN_FORBIDDEN, lab.getName(), adminPrincipal.getName()));
+        if (!unproxiedLab.getLabManagers().stream().anyMatch(manager -> manager.equals(admin))
+                && !admin.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(unproxiedLab))) {
+            throw new ForbiddenException(String.format(Lang.LAB_ADMIN_FORBIDDEN, unproxiedLab.getName(), adminPrincipal.getName()));
         }
     }
 

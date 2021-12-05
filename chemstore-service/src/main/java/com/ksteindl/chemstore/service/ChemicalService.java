@@ -88,14 +88,7 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
         Lab lab = labService.findLabForUser(labKey, user);
         return chemicalRepository.findAllActive(lab, SORT_BY_SHORT_NAME);
     }
-
-    public void deleteChemical(Long id, Principal admin) {
-        Chemical chemical = findById(id, admin);
-        Lab lab = HibernateProxyUtil.unproxy(chemical.getLab());
-        labService.validateLabForAdmin(lab, admin);
-        chemical.setDeleted(true);
-        chemicalRepository.save(chemical);
-    }
+    
 
     public Chemical findById(Long id, Principal user) {
         return findById(id, user, true);
@@ -109,6 +102,14 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
             throw new ResourceNotFoundException(String.format(Lang.CHEMICAL_ALREADY_DELETED, chemical.getExactName(), lab.getName()));
         }
         return chemical;
+    }
+
+    public void deleteChemical(Long id, Principal admin) {
+        Chemical chemical = findById(id, admin);
+        Lab lab = HibernateProxyUtil.unproxy(chemical.getLab());
+        labService.validateLabForAdmin(lab, admin);
+        chemical.setDeleted(true);
+        chemicalRepository.save(chemical);
     }
 
     @Override

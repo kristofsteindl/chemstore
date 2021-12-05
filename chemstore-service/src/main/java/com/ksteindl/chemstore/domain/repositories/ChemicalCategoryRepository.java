@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ChemicalCategoryRepositoy extends CrudRepository<ChemicalCategory, Long> {
+public interface ChemicalCategoryRepository extends CrudRepository<ChemicalCategory, Long> {
 
     @Query("SELECT c FROM ChemicalCategory c WHERE c.lab.key = ?1 and c.name = ?2")
     Optional<ChemicalCategory> findByLabKeyAndName(String labKey, String name);

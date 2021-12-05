@@ -2,15 +2,19 @@ package com.ksteindl.chemstore.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ksteindl.chemstore.BaseControllerTest;
+import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
+import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
+import com.ksteindl.chemstore.service.ChemicalCategoryService;
 import com.ksteindl.chemstore.service.ManufacturerService;
 import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.utils.LabAdminTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hamcrest.core.IsNot;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +32,7 @@ import javax.transaction.Transactional;
 import java.util.Optional;
 
 import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.*;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -44,1122 +47,775 @@ class LabAdminControllerTest extends BaseControllerTest{
 
     @Autowired
     private MockMvc mvc;
+    @Autowired
+    private ChemicalCategoryService categoryService;
 
     private final String BASE_URL = "/api/lab-admin";
     private final String MANUFACTURER_URL = BASE_URL + "/manufacturer";
     private final String CHEMICAL_URL = BASE_URL + "/chemical";
-    private final String SHELF_LIFE_URL = BASE_URL + "/shelf-life";
+    private final String CATEGORY_URL = BASE_URL + "/chem-category";
     private final String CHANGED_ETHANOL_EXACT_NAME = "Changed ethanol exact name";
 
-//
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    void testGetAllChemTypes_whenLabManager_got200(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        mvc.perform(get(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(200));
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    void testGetAllChemTypes_whenAccountManager_got200(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        mvc.perform(get(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(200));
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    void testGetAllChemTypes_whenLabAdmin_got403(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        mvc.perform(get(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(403));
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    void testGetAllChemTypes_whenLabUser_got403(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        mvc.perform(get(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(403));
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    void testGetAllChemTypes_whenLabManager_gotValidArray(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        mvc.perform(get(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER)
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(200))
-//                .andExpect(jsonPath("$").isArray())
-//                .andExpect(jsonPath("$").isNotEmpty())
-//                .andExpect(jsonPath("$[0].id").isNumber())
-//                .andExpect(jsonPath("$[0].name").isString())
-//                .andExpect(jsonPath("$[0].name").isNotEmpty())
-//                .andExpect(jsonPath("$", hasSize(chemTypeService.getChemTypes().size())));
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    void testGetAllChemTypes_whenLabManager_gotArrayWIthoutDeleted(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        mvc.perform(get(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER)
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(200))
-//                .andExpect(jsonPath("$").isArray())
-//                .andExpect(jsonPath("$").isNotEmpty())
-//                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
-//                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))));
-//    }
-//
-//    @Test
-//    @Transactional
-//    @Rollback
-//    void testGetAllChemTypes_WithOnlyActiveFalse_gotArrayWithDeleted(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        mvc.perform(get(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .param("only-active", "false"))
-//                .andExpect(status().is(200))
-//                .andExpect(jsonPath("$").isArray())
-//                .andExpect(jsonPath("$").isNotEmpty())
-//                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
-//                .andExpect(jsonPath("$[*].deleted", hasItem(true)));
-//    }
-//
-//
-//    //DELETE
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testDeleteChemType_whenLabManager_got204(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemType persistedChemType = chemTypeService.getChemTypes().stream().filter(ct -> ct.getName().equals(LabAdminTestUtils.SOLID_CATEGORY)).findAny().get();
-//        String url = URL_CHEM_TYPE + "/" + persistedChemType.getId();
-//
-//        MvcResult result = mvc.perform(delete(url)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isNoContent())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testDeleteChemType_whenUser_got403(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemType persistedChemType = chemTypeService.getChemTypes().stream().filter(ct -> ct.getName().equals(LabAdminTestUtils.SOLID_CATEGORY)).findAny().get();
-//        String url = URL_CHEM_TYPE + "/" + persistedChemType.getId();
-//
-//        MvcResult result = mvc.perform(delete(url)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(403))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testDeleteChemType_whenLabAdmin_got403(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemType persistedChemType = chemTypeService.getChemTypes().stream().filter(ct -> ct.getName().equals(LabAdminTestUtils.SOLID_CATEGORY)).findAny().get();
-//        String url = URL_CHEM_TYPE + "/" + persistedChemType.getId();
-//
-//        MvcResult result = mvc.perform(delete(url)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(403))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testDeleteChemTypeTwoTimes_whenAuthorized_got400SocondTime(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemType persistedChemType = chemTypeService.getChemTypes().stream().filter(ct -> ct.getName().equals(LabAdminTestUtils.SOLID_CATEGORY)).findAny().get();
-//        String url = URL_CHEM_TYPE + "/" + persistedChemType.getId();
-//
-//        MvcResult result1 = mvc.perform(delete(url)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isNoContent())
-//                .andReturn();
-//        logger.info("status code: " + result1.getResponse().getStatus());
-//        MvcResult result2 = mvc.perform(delete(url)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(404))
-//                .andReturn();
-//
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testDeleteChemType_WithNonExistingId_got204(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        String url = URL_CHEM_TYPE + "/" + Integer.MAX_VALUE;
-//        MvcResult result = mvc.perform(delete(url)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(404))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testDeleteDeletedChemType_whenLabManager_got204(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemType persistedChemType = chemTypeService.getChemTypes(false).stream().filter(ct -> ct.getName().equals(LabAdminTestUtils.PHOSPHATE_CATEGORY)).findAny().get();
-//        String url = URL_CHEM_TYPE + "/" + persistedChemType.getId();
-//
-//        MvcResult result = mvc.perform(delete(url)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(404))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//    }
-//
-//
-//    // UPDATE
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateChemType_withAlphaLabManager_got201(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getSolidCompoundInput();
-//        Long id = chemTypeService.getChemTypes().stream()
-//                .filter(storedInput ->  input.getName().equals(storedInput.getName()))
-//                .findAny()
-//                .get()
-//                .getId();
-//        String changedName = "Changed name";
-//        input.setName(changedName);
-//        MvcResult result = mvc.perform(put(URL_CHEM_TYPE + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateChemType_withAccountManager_got201(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getSolidCompoundInput();
-//        Long id = chemTypeService.getChemTypes().stream()
-//                .filter(storedInput ->  input.getName().equals(storedInput.getName()))
-//                .findAny()
-//                .get()
-//                .getId();
-//        String changedName = "Changed name";
-//        input.setName(changedName);
-//        MvcResult result = mvc.perform(put(URL_CHEM_TYPE + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateChemType_withAlphaLabAdmin_got400(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getSolidCompoundInput();
-//        Long id = chemTypeService.getChemTypes().stream()
-//                .filter(storedInput ->  input.getName().equals(storedInput.getName()))
-//                .findAny()
-//                .get()
-//                .getId();
-//        String changedName = "Changed name";
-//        input.setName(changedName);
-//        MvcResult result = mvc.perform(put(URL_CHEM_TYPE + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(403))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateChemType_withAlphaLabUser_got400(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getSolidCompoundInput();
-//        Long id = chemTypeService.getChemTypes().stream()
-//                .filter(storedInput ->  input.getName().equals(storedInput.getName()))
-//                .findAny()
-//                .get()
-//                .getId();
-//        String changedName = "Changed name";
-//        input.setName(changedName);
-//        MvcResult result = mvc.perform(put(URL_CHEM_TYPE + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(403))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateChemType_withAlphaLabManager_fetchedFromDbIsExpected(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getSolidCompoundInput();
-//        Long id = chemTypeService.getChemTypes().stream()
-//                .filter(storedInput ->  input.getName().equals(storedInput.getName()))
-//                .findAny()
-//                .get()
-//                .getId();
-//        String changedName = "Changed name";
-//        input.setName(changedName);
-//        MvcResult result = mvc.perform(put(URL_CHEM_TYPE + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//        ChemType organicSolvent = chemTypeService.findById(id);
-//        Assertions.assertEquals(input.getName(), organicSolvent.getName());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateChemType_withEmptyInput1_got400(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getSolidCompoundInput();
-//        Long id = chemTypeService.getChemTypes().stream()
-//                .filter(storedInput ->  input.getName().equals(storedInput.getName()))
-//                .findAny()
-//                .get()
-//                .getId();
-//        MvcResult result = mvc.perform(put(URL_CHEM_TYPE + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(""))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateChemType_withEmptyInput2_got400(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getSolidCompoundInput();
-//        Long id = chemTypeService.getChemTypes().stream()
-//                .filter(storedInput ->  input.getName().equals(storedInput.getName()))
-//                .findAny()
-//                .get()
-//                .getId();
-//        MvcResult result = mvc.perform(put(URL_CHEM_TYPE + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content("{}"))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateChemType_withEmptyName1_got400(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getSolidCompoundInput();
-//        Long id = chemTypeService.getChemTypes().stream()
-//                .filter(storedInput ->  input.getName().equals(storedInput.getName()))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setName(null);
-//        MvcResult result = mvc.perform(put(URL_CHEM_TYPE + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateChemType_withEmptyName2_got400(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getSolidCompoundInput();
-//        Long id = chemTypeService.getChemTypes().stream()
-//                .filter(storedInput ->  input.getName().equals(storedInput.getName()))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setName("");
-//        MvcResult result = mvc.perform(put(URL_CHEM_TYPE + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateChemType_whenNameAlreadyExists_got400(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getSolidCompoundInput();
-//        Long id = chemTypeService.getChemTypes().stream()
-//                .filter(storedInput ->  input.getName().equals(storedInput.getName()))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setName(LabAdminTestUtils.PHOSPHATE_CATEGORY);
-//        MvcResult result = mvc.perform(put(URL_CHEM_TYPE + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateChemType_whenIdDoesNotExist_got404(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getPhosphateSolutionInput();
-//        input.setName("Changed input");
-//        MvcResult result = mvc.perform(put(URL_CHEM_TYPE + "/" + Integer.MAX_VALUE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(404))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//
-//    // CREATE
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testChemType_withAlphaLabManager_got201() throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getOrganicSolvantInput();
-//        MvcResult result = mvc.perform(post(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testChemType_withAccountManager_got201() throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getOrganicSolvantInput();
-//        MvcResult result = mvc.perform(post(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testChemType_withAlphaLabAdmin_got403() throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getOrganicSolvantInput();
-//        MvcResult result = mvc.perform(post(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(403))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testChemType_withAlphaLabUser_got403() throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getOrganicSolvantInput();
-//        MvcResult result = mvc.perform(post(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(403))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testChemType_withAlphaLabManager_fetchedFromDbIsExpected(@Autowired ChemTypeService chemTypeService) throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getOrganicSolvantInput();
-//        MvcResult result = mvc.perform(post(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        JSONObject testChemItemJSONObject = new JSONObject(result.getResponse().getContentAsString());
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//        ChemType organicSolvent = chemTypeService.findById(testChemItemJSONObject.getLong("id"));
-//        Assertions.assertEquals(input.getName(), organicSolvent.getName());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testChemType_withEmptyInput1_got400() throws Exception {
-//        MvcResult result = mvc.perform(post(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(""))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testChemType_withEmptyInput2_got400() throws Exception {
-//        MvcResult result = mvc.perform(post(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content("{}"))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testChemType_whenEmptyName1_got400() throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getOrganicSolvantInput();
-//        input.setName(null);
-//        MvcResult result = mvc.perform(post(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testChemType_whenEmptyName2_got400() throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getOrganicSolvantInput();
-//        input.setName("");
-//        MvcResult result = mvc.perform(post(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testChemType_withAlreadyExists_got400() throws Exception {
-//        ChemTypeInput input = LabAdminTestUtils.getOrganicSolvantInput();
-//        input.setName(LabAdminTestUtils.SOLID_CATEGORY);
-//        MvcResult result = mvc.perform(post(URL_CHEM_TYPE)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
 
 
-// SHELF LIFE
+
+//CHEMICAL CATEGORY
     //CREATE
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenLabAdmin_got201() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForBetaInput();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenLabManager_got201() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForBetaInput();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenManagerOfAnotherLab_got400() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForBetaInput();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenUser_got403() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForBetaInput();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(403))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenLabManager_gotExpectedAttributes() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForBetaInput();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().isCreated())
-//                .andExpect(jsonPath("$.chemType.name", is(SOLID_CATEGORY)))
-//                .andExpect(jsonPath("$.lab.key", is(BETA_LAB_KEY)))
-//                .andExpect(jsonPath("$.deleted", is(false)))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenChemTypeIdMissing_got400() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForBetaInput();
-//        input.setChemTypeId(null);
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenLabKeyMissing_got400() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForBetaInput();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setLabKey(null);
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenEmptyInput1_got400() throws Exception {
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                        .content(""))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenEmptyInput2_got400() throws Exception {
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                        .content("{}"))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenUnitDoesNotExists_got400() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForBetaInput();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setUnit("helo");
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenAmountBelowZero_got400() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForBetaInput();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setAmount(-1);
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testCreateShelfLife_whenAmountMissing_got400() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForBetaInput();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setAmount(null);
-//        MvcResult result = mvc.perform(post(SHELF_LIFE_URL)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    //UPDATE
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenLabAdmin_got201() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setAmount(7);
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenLabManager_got201() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setAmount(7);
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenManagerOfAnotherLab_got400() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setAmount(7);
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenUser_got403() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setAmount(7);
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(403))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenValid_gotExpectedValues() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setLabKey(BETA_LAB_KEY);
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(201))
-//                .andExpect(jsonPath("$.lab.key", is(BETA_LAB_KEY)))
-//                .andExpect(jsonPath("$.chemType.name", is(SOLID_CATEGORY)))
-//                .andExpect(jsonPath("$.deleted", is(false)))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenChemTypeIdMissing_got400() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        input.setChemTypeId(null);
-//        input.setAmount(7);
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenLabKeyMissing_gotExpectedValues() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setLabKey(null);
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenEmptyInput1_gotExpectedValues() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(""))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenEmptyInput2_gotExpectedValues() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content("{}"))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenUnitDoesNotExists_got400() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setLabKey(BETA_LAB_KEY);
-//        input.setUnit("non-existing");
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenAmountMissing_got400() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setLabKey(BETA_LAB_KEY);
-//        input.setAmount(null);
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testUpdateShelfLife_whenAmountBelowZero_got400() throws Exception {
-//        ChemicalCategoryInput input = getOrganicForAlphaInput();
-//        Long id = chemicalCategoryService.findByLab(input.getLabKey(), ALPHA_LAB_MANAGER_PRINCIPAL).stream()
-//                .filter(shelfLife -> shelfLife.getChemType().getName().equals(SOLID_CATEGORY))
-//                .findAny().get().getId();
-//        Long chemTypeId = chemTypeService.getChemTypes().stream()
-//                .filter(chemType -> chemType.getName().equals(LabAdminTestUtils.SOLID_CATEGORY))
-//                .findAny()
-//                .get()
-//                .getId();
-//        input.setChemTypeId(chemTypeId);
-//        input.setLabKey(BETA_LAB_KEY);
-//        input.setAmount(-1);
-//        MvcResult result = mvc.perform(put(SHELF_LIFE_URL + "/" + id)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
-//                        .content(asJsonString(input)))
-//                .andExpect(status().is(400))
-//                .andReturn();
-//        logger.info("status code: " + result.getResponse().getStatus());
-//        logger.info(result.getResponse().getContentAsString());
-//    }
-//
-//    //READ
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testGetShelfLifesForAlphaLab_whenAlphaLabAdmin_gotValidArray() throws Exception {
-//        mvc.perform(get(SHELF_LIFE_URL + "/" + ALPHA_LAB_KEY)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$").isArray())
-//                .andExpect(jsonPath("$").isNotEmpty())
-//                .andExpect(jsonPath("$[0].id").isNumber())
-//                .andExpect(jsonPath("$[0].lab.key").isString())
-//                .andExpect(jsonPath("$[0].chemType.name").isString())
-//                .andExpect(jsonPath("$", hasSize(chemicalCategoryService.findByLab(ALPHA_LAB_KEY, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL).size())));
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testGetShelfLifesForLab_whenBetaLabAdmin_got400() throws Exception {
-//        mvc.perform(get(SHELF_LIFE_URL + "/" + ALPHA_LAB_KEY)
-//                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(400));
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testGetShelfLifesForLab_whenUser_got403() throws Exception {
-//        mvc.perform(get(SHELF_LIFE_URL + "/" + ALPHA_LAB_KEY)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(403));
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testFindShelfLifesByLab_whenLabKeyDoesNotExists_got404() throws Exception {
-//        mvc.perform(get(SHELF_LIFE_URL + "/non-existing")
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().is(404));
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    void testGetShelfLifesForAlphaLab_withOnlyActiveFalse_gotValidArray() throws Exception {
-//        mvc.perform(get(SHELF_LIFE_URL + "/" + ALPHA_LAB_KEY)
-//                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .param("onlyActive", "false"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$").isArray())
-//                .andExpect(jsonPath("$").isNotEmpty())
-//                .andExpect(jsonPath("$").isArray())
-//                .andExpect(jsonPath("$").isNotEmpty())
-//                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
-//                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))));
-//    }
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenAlphaLabAdmin_got201() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenAlphaLabManager_got201() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenBetaLabManager_got403() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenBetaLabAdmin_got403() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenAlphaLabUser_got403() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenAccountManager_got403() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenNameMissing_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setName(null);
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        Assertions.assertTrue(response.contains("name"));
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenNameBlank_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setName("");
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        Assertions.assertTrue(response.contains("\"name\""));
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenNameAlreadyExists_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setName(LabAdminTestUtils.ORGANIC_CATEGORY);
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        Assertions.assertTrue(response.contains("\"message\""));
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenEmptyInput1_got400() throws Exception {
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(""))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenEmptyInput2_got400() throws Exception {
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenLabKeyMissing_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setLabKey(null);
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        Assertions.assertTrue(response.contains("\"labKey\""));
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenLabKeyNotExists_got404() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setLabKey("not-existing");
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(404))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        Assertions.assertTrue(response.contains("\"lab\""));
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenUnitDoesNotExists_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setUnit("uNOT");
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        Assertions.assertTrue(response.contains("\"unit\""));
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenAmountBelowZero_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setAmount(-1);
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        Assertions.assertTrue(response.contains("\"amount\""));
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenAmountMissing_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setAmount(null);
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        Assertions.assertTrue(response.contains("\"amount\""));
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateCategory_whenDeletedLabKey_got4xx() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getSolidForAlphaInput();
+        input.setLabKey(DELTA_LAB_KEY);
+        MvcResult result = mvc.perform(post(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenAlphaLabAdmin_got201() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        String newName = "this is changed";
+        String newUnit = "d";
+        Integer newAmount = 1;
+        input.setName(newName);
+        input.setUnit(newUnit);
+        input.setAmount(newAmount);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenAlphaLabAdmin_returnedDataIsExpected() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        String newName = "this is changed";
+        String newUnit = "d";
+        Integer newAmount = 1;
+        input.setName(newName);
+        input.setUnit(newUnit);
+        input.setAmount(newAmount);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(jsonPath("$.name", is(newName)))
+                .andExpect(jsonPath("$.lab.key", is(persisted.getLab().getKey())))
+                .andExpect(jsonPath("$.deleted", is(false)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenAlphaLabAdmin_fetcehdDataIsExpected() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        String newName = "this is changed";
+        String newUnit = "d";
+        Integer newAmount = 1;
+        input.setName(newName);
+        input.setUnit(newUnit);
+        input.setAmount(newAmount);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        ChemicalCategory category = categoryService.findById(persisted.getId(),ALPHA_LAB_ADMIN_PRINCIPAL);
+        Assertions.assertEquals(newName, category.getName());
+        Assertions.assertEquals(ALPHA_LAB_KEY, category.getLab().getKey());
+        Assertions.assertEquals((long)newAmount, category.getShelfLife().getSeconds()/60/60/24);
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenAlphaLabManager_got201() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        String newName = "this is changed";
+        String newUnit = "d";
+        Integer newAmount = 1;
+        input.setName(newName);
+        input.setUnit(newUnit);
+        input.setAmount(newAmount);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenBetaLabManager_got403() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        String newName = "this is changed";
+        String newUnit = "d";
+        Integer newAmount = 1;
+        input.setName(newName);
+        input.setUnit(newUnit);
+        input.setAmount(newAmount);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenBetaLabAdmin_got403() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        String newName = "this is changed";
+        String newUnit = "d";
+        Integer newAmount = 1;
+        input.setName(newName);
+        input.setUnit(newUnit);
+        input.setAmount(newAmount);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenAlphaLabUser_got403() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        String newName = "this is changed";
+        String newUnit = "d";
+        Integer newAmount = 1;
+        input.setName(newName);
+        input.setUnit(newUnit);
+        input.setAmount(newAmount);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenAccountManager_got403() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        String newName = "this is changed";
+        String newUnit = "d";
+        Integer newAmount = 1;
+        input.setName(newName);
+        input.setUnit(newUnit);
+        input.setAmount(newAmount);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenNameMissing_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        String newName = null;
+        String newUnit = "d";
+        Integer newAmount = 1;
+        input.setName(newName);
+        input.setUnit(newUnit);
+        input.setAmount(newAmount);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenNameBlank_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        String newName = "";
+        String newUnit = "d";
+        Integer newAmount = 1;
+        input.setName(newName);
+        input.setUnit(newUnit);
+        input.setAmount(newAmount);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenEmptyInput1_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(""))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenEmptyInput2_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenLabKeyNotExists_got404() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        input.setLabKey("not-existing");
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(404))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenUnitNotExists_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        input.setUnit("uNOT");
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenAmountBelowZero_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        input.setAmount(-1);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        Assertions.assertTrue(response.contains("\"amount\""));
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenAmountMissing_got400() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        input.setAmount(null);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        Assertions.assertTrue(response.contains("\"amount\""));
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateCategory_whenDeletedLabKey_got4xx() throws Exception {
+        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
+        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+                .filter(category -> category.getName().equals(input.getName()))
+                .findAny().get();
+        input.setLabKey(DELTA_LAB_KEY);
+        MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    
+    
+    //READ
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenAlphaLabAdmin_got200() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+    
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenAlphaLabAdmin_gotValidArray() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[0].id").isNumber())
+                .andExpect(jsonPath("$[0].lab.key").isString())
+                .andExpect(jsonPath("$[0].name").isString())
+                .andExpect(jsonPath("$[0].shelfLife").isString())
+                .andExpect(jsonPath("$[0].deleted").isBoolean())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", hasItem(true)))
+                .andExpect(jsonPath("$", hasSize(chemicalCategoryService.getByLab(ALPHA_LAB_KEY, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL).size())));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenAlphaLabManager_got200() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenBetaLabAdmin_got403() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenAlphaLabUser_got403() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenAccountManager_got403() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategories_whenKeyDoesNotExists_got404() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "?labKey=" + "not-existing")
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategories_whenLabKeyMissing_got400() throws Exception {
+        mvc.perform(get(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(400));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_withOnlyActiveFalse_gotValidArray() throws Exception {
+        mvc.perform(get(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("labKey", ALPHA_LAB_KEY)
+                        .param("onlyActive", "false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", hasItem(true)));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_withOnlyActiveTrue_gotValidArray() throws Exception {
+        mvc.perform(get(CATEGORY_URL)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("labKey", ALPHA_LAB_KEY)
+                        .param("onlyActive", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))));
+    }
+    
 //
 //    //DELETE
 //    @Test

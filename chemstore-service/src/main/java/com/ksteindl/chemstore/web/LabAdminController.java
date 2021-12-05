@@ -122,9 +122,9 @@ public class LabAdminController {
         return new ResponseEntity<>(chemical, HttpStatus.OK);
     }
 
-    @GetMapping("/chemical/fromLab/{labKey}")
+    @GetMapping("/chemical")
     public ResponseEntity<List<Chemical>> getChemicals(
-            @PathVariable String labKey,
+            @RequestParam String labKey,
             Principal principal,
             @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
         logger.info("GET '/chemical' was called with labKey {} by ", labKey, principal.getName());
@@ -159,8 +159,8 @@ public class LabAdminController {
     @PutMapping("/chem-category/{id}")
     public ResponseEntity<ChemicalCategory> updateChemicalCategory(
             @Valid @RequestBody ChemicalCategoryInput categoryInput,
-            @PathVariable Long id,
             BindingResult result,
+            @PathVariable Long id,
             Principal principal) {
         logger.info("PUT '/chem-category' was called with {}, with id {}, by {}", categoryInput, id, principal.getName());
         mapValidationErrorService.throwExceptionIfNotValid(result);
@@ -169,15 +169,25 @@ public class LabAdminController {
         return new ResponseEntity<>(category, HttpStatus.CREATED);
     }
 
-    @GetMapping("/chem-category/{labKey}")
+    @GetMapping("/chem-category")
     public ResponseEntity<List<ChemicalCategory>> getChemicalCategoriesForLab(
-            @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive,
-            @PathVariable String labKey,
+            @RequestParam(value="onlyActive", required = false, defaultValue = "true") boolean onlyActive,
+            @RequestParam String labKey,
             Principal principal) {
-        logger.info("GET '/chem-category/{labKey}' was called with labKey {}", labKey);
+        logger.info("GET '/chem-category was called with labKey {}", labKey);
         List<ChemicalCategory> categories = chemicalCategoryService.findByLab(labKey, onlyActive, principal);
-        logger.info("GET 'chem-category/{labKey}' was succesful with {} item", categories.size());
+        logger.info("GET '/chem-category' was succesful with {} item", categories.size());
         return new ResponseEntity<>(categories, HttpStatus.OK);
+    }
+
+    @GetMapping("/chem-category/{id}")
+    public ResponseEntity<ChemicalCategory> getChemicalCategory(
+            @PathVariable Long id,
+            Principal principal) {
+        logger.info("GET '/chem-category/{id} was called with id {}", id);
+        ChemicalCategory category = chemicalCategoryService.findById(id, principal);
+        logger.info("GET '/chem-category/{id}' was succesful with {} item", category);
+        return new ResponseEntity<>(category, HttpStatus.OK);
     }
 
     @DeleteMapping("/chem-category/{id}")
