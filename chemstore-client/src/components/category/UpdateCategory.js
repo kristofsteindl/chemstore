@@ -3,7 +3,7 @@ import classNames from 'classnames'
 import React, { Component } from 'react'
 import { checkExpiry } from '../../securityUtils/securityUtils'
 
-export default class UpdateChemType extends Component {
+export default class UpdateCategory extends Component {
     constructor() {
         super()
         this.state = {
@@ -16,7 +16,7 @@ export default class UpdateChemType extends Component {
 
 
     componentDidMount() {
-        axios.get(`/api/lab-manager/chem-type/${this.props.match.params.id}`).then(result => this.setState({name: result.data.name} ))
+        axios.get(`/api/lab-admin/chem-category/${this.props.match.params.id}`).then(result => this.setState({name: result.data.name} ))
     }
 
     onChange(e) {
@@ -28,8 +28,8 @@ export default class UpdateChemType extends Component {
         e.preventDefault()
         const input = {name: this.state.name}
         try {
-            await axios.put(`/api/lab-manager/chem-type/${this.props.match.params.id}`, input)
-            this.props.history.push("/chem-types")
+            await axios.put(`/api/lab-admin/chem-category/${this.props.match.params.id}`, input)
+            this.props.history.push("/chem-categories")
         } catch(error) {
             this.setState({errors: error.response.data})
         }
@@ -37,13 +37,13 @@ export default class UpdateChemType extends Component {
     render() {
         const {errors} = this.state
         return (
-            <div className="update-chem-type">
+            <div className="update-chem-category">
                 <div className="container">
                     <div className="row">
                     
                         <div className="col-md-8 m-auto">
                             <h1 className="display-4 text-center">Update chemical category</h1>
-                            <p className="lead text-center">Modify the category of the chemical (for the whole account/company)</p>
+                            <p className="lead text-center">Modify the category of the chemical</p>
                             <br/>
                             {
                                 (errors.message && <h5 className="invalid-input">{errors.message}</h5>)

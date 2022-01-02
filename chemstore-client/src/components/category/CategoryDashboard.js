@@ -3,56 +3,57 @@ import React, { Component } from 'react'
 import { refreshTokenAndUser } from '../../securityUtils/securityUtils'
 import NamedEntityCard from '../NamedEntityCard'
 import RedirectFormButton from '../RedirectFormButton'
+import CategoryCard from './CategoryCard'
 
-export default class ChemTypeDashboard extends Component {
+export default class CategoryDashboard extends Component {
     constructor() {
         super()
         this.state = {
-            chemTypes: [],
+            categories: [],
             errors: {deleted : {}}
         }
-        this.deleteChemType=this.deleteChemType.bind(this)
+        this.deleteCategory=this.deleteCategory.bind(this)
     }
 
 
-    async deleteChemType(chemType) {
-        const id = chemType.id
-        if (window.confirm(`Are you sure you want to delete ${chemType.name}?`)) {
+    async deleteCategory(category) {
+        const id = category.id
+        if (window.confirm(`Are you sure you want to delete ${category.name}?`)) {
             try {
-                await axios.delete(`/api/lab-manager/chem-type/${id}`)
-                const refreshedCts = this.state.chemTypes.filter(ctFromList => ctFromList.id !== id)
-                this.setState({chemTypes: refreshedCts})
+                await axios.delete(`/api/lab-admin/chem-category/${id}`)
+                const refreshedCts = this.state.categories.filter(ctFromList => ctFromList.id !== id)
+                this.setState({categories: refreshedCts})
             } catch (error) {
                 this.setState({ errors: {deleted: {["id" + id]: error.response.data}}})
             }
 
         }
-        console.log(`Hello ${chemType.name}`)
+        console.log(`Hello ${category.name}`)
     }
 
     componentDidMount() {
         refreshTokenAndUser()
-        axios.get('/api/lab-manager/chem-type').then(result => this.setState({chemTypes: result.data}))
+        axios.get('/api/lab-admin/chem-category?labKey=alab').then(result => this.setState({categories: result.data}))
     }
 
     render() {
         return (
-            <div className="chem-types">
+            <div className="categories">
                 <div className="container">
                     <div className="row"> 
                         <div className="col-md-12">
                             <h1 className="display-4 text-center">Chemical Categories</h1>
                             <p className="lead text-center">Categories of chemicals. With the help of these categories, you can specify shelf lifes for different categories for different lab</p>
                             <br />
-                            <RedirectFormButton formRoute="/add-chem-type" buttonLabel="Add Category"/>
+                            <RedirectFormButton formRoute="/add-category" buttonLabel="Add Category"/>
                             <br />
                             <hr />
-                            {this.state.chemTypes.map(chemType => (
-                                <NamedEntityCard 
-                                    namedEntity={chemType} 
-                                    key={chemType.id} deleteNamedEntity={this.deleteChemType} 
-                                    updateUrl="/update-chem-type"
-                                    errors={this.state.errors.deleted["id" + chemType.id] ? this.state.errors.deleted["id" + chemType.id] : {}}
+                            {this.state.categories.map(category => (
+                                <CategoryCard 
+                                    category={category} 
+                                    key={category.id} 
+                                    deleteCategory={this.deleteCategory} 
+                                    errors={this.state.errors.deleted["id" + category.id] ? this.state.errors.deleted["id" + category.id] : {}}
                                 />
                             ))
                                 

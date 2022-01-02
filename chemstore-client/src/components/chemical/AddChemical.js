@@ -115,8 +115,10 @@ export default class AddChemical extends Component {
                                         }
                                        
                                     </div>
-                                </div>
-                                
+                                </div>  
+                                    <Select
+                                            options={[]}
+                                      />          
                                 <button type="submit" className="btn btn-info btn-block mt-4">Add Chemical</button>
                                 
                             </form>

@@ -24,6 +24,7 @@ export const logoutDispatch = () => dispatch => {
 
 export const logout = () => {
     localStorage.removeItem("jwt");
+    localStorage.removeItem("selectedLab");
     setJwt(false);
     store.dispatch({
         type: SET_CURRENT_USER,

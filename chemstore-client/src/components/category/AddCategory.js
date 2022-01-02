@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from 'axios';
 
-export default class AddChemType extends Component {
+export default class AddCategory extends Component {
     constructor() {
         super()
         this.state = {
@@ -19,10 +19,10 @@ export default class AddChemType extends Component {
 
     async onSubmit(e) {
         e.preventDefault()
-        const newChemType = {name: this.state.name}
+        const newCategory = {name: this.state.name}
         try {
-            await axios.post('/api/lab-manager/chem-type', newChemType)
-            this.props.history.push("/chem-types")
+            await axios.post('/api/lab-admin/chem-category', newCategory)
+            this.props.history.push("/categories")
         } catch(error) {
             this.setState({errors: error.response.data})
         }
@@ -31,12 +31,12 @@ export default class AddChemType extends Component {
     render() {
         const {errors} = this.state
         return (
-            <div className="add-chem-type">
+            <div className="add-category">
                 <div className="container">
                     <div className="row">
                     
                         <div className="col-md-8 m-auto">
-                            <h1 className="display-4 text-center">Add Chemical category</h1>
+                            <h1 className="display-4 text-center">Add chemical category</h1>
                             <p className="lead text-center">Create a chemical category (for the whole account/company)</p>
                             <br/>
                             {
@@ -58,7 +58,7 @@ export default class AddChemType extends Component {
                                             onChange={this.onChange}
                                             type="text" 
                                             className={classNames("form-control form-control-lg", {"is-invalid": errors.name})} 
-                                            placeholder="chem type name (e.g. salt)" 
+                                            placeholder="chemical category name (e.g. salt)" 
                                         />
                                         {
                                             (errors.name && <div className="invalid-feedback">{errors.name}</div>)
@@ -66,7 +66,7 @@ export default class AddChemType extends Component {
                                        
                                     </div>
                                 </div>
-                                <button type="submit" className="btn btn-info btn-block mt-4">Add Chem Type</button>
+                                <button type="submit" className="btn btn-info btn-block mt-4">Add Category</button>
                                 
                             </form>
                         </div>

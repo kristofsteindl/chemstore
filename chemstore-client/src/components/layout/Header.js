@@ -2,14 +2,79 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from "prop-types"
 import { connect } from 'react-redux'
-import { logoutDispatch } from '../../securityUtils/securityUtils'
+import { logoutDispatch, refreshTokenAndUser } from '../../securityUtils/securityUtils'
+import 'semantic-ui-css/semantic.min.css'
+import { Dropdown } from 'semantic-ui-react'
+import Select, {components} from 'react-select'
+import axios from 'axios'
+const { ValueContainer, Placeholder } = components;
+
+const CustomValueContainer = ({ children, ...props }) => {
+  return (
+    <ValueContainer {...props}>
+      <Placeholder {...props}>
+        {props.selectProps.placeholder}
+      </Placeholder>
+    </ValueContainer>
+  );
+};
 
 class Header extends Component {
+    constructor() {
+        super()
+        this.state = {
+            labOptions: [],
+            selectedLab: {id: "", value: "", name: "" }
+        }
+
+        
+        this.onChange=this.onChange.bind(this)
+    }
+
     logout(){
         this.props.logoutDispatch()
         window.location.href = '/'
     }
+
+    onChange(values) {
+        console.log("on changed")
+        console.log(values)
+        this.setState({selectedLab: values})
+        localStorage.setItem("selectedLab", JSON.stringify(values))
+        console.log(localStorage.getItem("selectedLab"))
+    }
+
+    componentDidMount() {
+        refreshTokenAndUser()
+        let storedSelectedLab = JSON.parse(localStorage.getItem("selectedLab"))  
+        console.log(storedSelectedLab)
+        if (storedSelectedLab) {
+            axios.get('/api/logged-in/lab')
+            .then(result => this.setState({
+                labOptions: result.data.map(lab => {return {id: lab.id, value: lab.key, label: lab.name}}),
+                selectedLab: storedSelectedLab
+            }))
+        } else {
+            axios.get('/api/logged-in/lab')
+            .then(result => this.setState({
+                labOptions: result.data.map(lab => {return {id: lab.id, value: lab.key, label: lab.name}}),
+                selectedLab: {id: result.data[0].id, value: result.data[0].key, label: result.data[0].name}
+            }))
+        }
+
+        
+    }
+
+
+
+
     render() {
+        const options = [
+            { value: 'blues', label: 'Blues' },
+            { value: 'rock', label: 'Rock' },
+            { value: 'jazz', label: 'Jazz' },
+            { value: 'orchestra', label: 'Orchestraaaaaaaaaaaa' } 
+          ];
         const { user } = this.props.security;
         const userISAuthenticated = (                    
             <div className="collapse navbar-collapse" id="mobile-nav">
@@ -35,7 +100,7 @@ class Header extends Component {
                         </Link>
                     </li>
                     <li className="nav-item">
-                        <Link className="nav-link " to="/chem-types">
+                        <Link className="nav-link" to="/categories">
                             Categories
                         </Link>
                     </li>
@@ -47,7 +112,18 @@ class Header extends Component {
                 </ul>
 
                 <ul className="navbar-nav ms-auto">
-                <li className="nav-item">
+                    <li className="nav-item" key="react-select">
+                        <Select 
+                            name="form-field-name"
+                            value={this.state.selectedLab}
+                            onChange={this.onChange}
+                            options={this.state.labOptions} 
+                            placeholder="Select lab"
+
+                        />
+                    </li>
+
+                    <li className="nav-item">
                         <Link className="nav-link" to='/change-password'>
                             Change Password
                         </Link>
