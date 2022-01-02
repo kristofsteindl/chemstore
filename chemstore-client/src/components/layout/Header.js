@@ -7,6 +7,8 @@ import 'semantic-ui-css/semantic.min.css'
 import { Dropdown } from 'semantic-ui-react'
 import Select, {components} from 'react-select'
 import axios from 'axios'
+import store from '../../store'
+import { SELECT_LAB } from '../../actions/types'
 const { ValueContainer, Placeholder } = components;
 
 const CustomValueContainer = ({ children, ...props }) => {
@@ -23,8 +25,8 @@ class Header extends Component {
     constructor() {
         super()
         this.state = {
-            labOptions: [],
-            selectedLab: {id: "", value: "", name: "" }
+            labOptions: [], 
+            selectedLab: {}
         }
 
         
@@ -36,17 +38,25 @@ class Header extends Component {
         window.location.href = '/'
     }
 
-    onChange(values) {
+    onChange(justSelected) {
         console.log("on changed")
-        console.log(values)
-        this.setState({selectedLab: values})
-        localStorage.setItem("selectedLab", JSON.stringify(values))
+        console.log(justSelected)
+        this.setState({selectedLab: justSelected})
+        store.dispatch({
+            type: SELECT_LAB,
+            payload: justSelected
+        });
         console.log(localStorage.getItem("selectedLab"))
+    }
+
+    componentWillReceiveProps(nextProps){
+        console.log("in componentWillReceiveProps " + JSON.stringify(nextProps.selectedLab))
+        this.setState({selectedLab: nextProps.selectedLab});
     }
 
     componentDidMount() {
         refreshTokenAndUser()
-        let storedSelectedLab = JSON.parse(localStorage.getItem("selectedLab"))  
+        let storedSelectedLab = this.selectedLab 
         console.log(storedSelectedLab)
         if (storedSelectedLab) {
             axios.get('/api/logged-in/lab')
@@ -115,7 +125,7 @@ class Header extends Component {
                     <li className="nav-item" key="react-select">
                         <Select 
                             name="form-field-name"
-                            value={this.state.selectedLab}
+                            value={this.selectedLab}
                             onChange={this.onChange}
                             options={this.state.labOptions} 
                             placeholder="Select lab"
@@ -173,7 +183,8 @@ Header.propTypes = {
 }
 
 const mapStateToProps = state => ({
-    security: state.security
+    security: state.security,
+    selectedLab: state.selectedLab
 })
 
 export default connect(mapStateToProps, {logoutDispatch}) (Header)

@@ -10,7 +10,11 @@ export default class CategoryDashboard extends Component {
         super()
         this.state = {
             categories: [],
-            errors: {deleted : {}}
+            errors: {
+                deleted : {},
+                categoriesStatus: ""
+
+        }
         }
         this.deleteCategory=this.deleteCategory.bind(this)
     }
@@ -31,10 +35,16 @@ export default class CategoryDashboard extends Component {
         console.log(`Hello ${category.name}`)
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         refreshTokenAndUser()
-        axios.get('/api/lab-admin/chem-category?labKey=alab').then(result => this.setState({categories: result.data}))
+        try {
+            await axios.get('/api/lab-admin/chem-category?labKey=blab').then(result => this.setState({categories: result.data}))
+        } catch (error) {
+            console.log("error in get chem-categories: " + error.response.status)
+            this.setState({ errors: {categoriesStatus: error.response.status}})
+        }
     }
+        
 
     render() {
         return (
