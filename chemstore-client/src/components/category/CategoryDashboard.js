@@ -1,20 +1,22 @@
 import axios from 'axios'
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { refreshTokenAndUser } from '../../securityUtils/securityUtils'
-import NamedEntityCard from '../NamedEntityCard'
+import store from '../../store'
 import RedirectFormButton from '../RedirectFormButton'
 import CategoryCard from './CategoryCard'
+import PropTypes from "prop-types";
 
-export default class CategoryDashboard extends Component {
+class CategoryDashboard extends Component {
     constructor() {
         super()
         this.state = {
             categories: [],
             errors: {
                 deleted : {},
-                categoriesStatus: ""
-
-        }
+                categoriesStatus: "",
+            },
+            selectedLab: {id: "", value: "", name: ""}
         }
         this.deleteCategory=this.deleteCategory.bind(this)
     }
@@ -28,7 +30,7 @@ export default class CategoryDashboard extends Component {
                 const refreshedCts = this.state.categories.filter(ctFromList => ctFromList.id !== id)
                 this.setState({categories: refreshedCts})
             } catch (error) {
-                this.setState({ errors: {deleted: {["id" + id]: error.response.data}}})
+                this.setState({ errors: {...this.state.errors, deleted: {["id" + id]: error.response.data}}})
             }
 
         }
@@ -37,11 +39,28 @@ export default class CategoryDashboard extends Component {
 
     async componentDidMount() {
         refreshTokenAndUser()
+        console.log("in componentDidMount " + this.state.selectedLab.value)
         try {
-            await axios.get('/api/lab-admin/chem-category?labKey=blab').then(result => this.setState({categories: result.data}))
+            await axios.get(`/api/lab-admin/chem-category?labKey=${this.state.selectedLab.value}`).then(result => this.setState({categories: result.data}))
         } catch (error) {
             console.log("error in get chem-categories: " + error.response.status)
-            this.setState({ errors: {categoriesStatus: error.response.status}})
+            this.setState({ errors: {...this.state.errors, categoriesStatus: error.response.status}})
+        }
+    }
+
+    async componentWillReceiveProps(nextProps){
+        const selectedLab = nextProps.selectedLab.selectedLab
+        console.log("in componentWillReceiveProps " + JSON.stringify(selectedLab))
+        if (nextProps.selectedLab && JSON.stringify(selectedLab) !== "{}") {
+            try {
+                await axios.get(`/api/lab-admin/chem-category?labKey=${selectedLab.value}`).then(result => this.setState({categories: result.data}))
+            } catch (error) {
+                console.log("error in get chem-categories: " + error)
+                this.setState({ errors: {...this.state.errors, categoriesStatus: error.response.status}})
+            }
+
+            console.log("in componentWillReceiveProps " + JSON.stringify(selectedLab))
+            this.setState({selectedLab: selectedLab});
         }
     }
         
@@ -76,4 +95,14 @@ export default class CategoryDashboard extends Component {
         ) 
     }
 }
+
+CategoryDashboard.propTypes = {
+    selectedLab: PropTypes.object.isRequired
+}
+
+const mapStateToProps = state => ({
+    selectedLab: state.selectedLab
+})
+
+export default connect(mapStateToProps) (CategoryDashboard)
 

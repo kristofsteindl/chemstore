@@ -1,7 +1,7 @@
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import store from '../store';
-import { SET_CURRENT_USER } from "../actions/types";
+import { FILL_LAB_DROPDOWN, SET_CURRENT_USER } from "../actions/types";
 
 //TODO rename to 'setTokenToHeader
 export const setJwt = token => {
@@ -62,5 +62,20 @@ export const refreshTokenAndUser = () => {
         });
       }
     }
+}
+
+export const fetchLabs = async () => {
+  try {
+    const res = await axios.get('/api/logged-in/lab')
+    console.log("in fetchLabs")
+    store.dispatch({
+      type: FILL_LAB_DROPDOWN,
+      payload: res.data
+  });
+  }
+  catch (error) {
+    console.log(error)
+  }
+
 }
 

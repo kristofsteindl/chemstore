@@ -4,32 +4,17 @@ import PropTypes from "prop-types"
 import { connect } from 'react-redux'
 import { logoutDispatch, refreshTokenAndUser } from '../../securityUtils/securityUtils'
 import 'semantic-ui-css/semantic.min.css'
-import { Dropdown } from 'semantic-ui-react'
 import Select, {components} from 'react-select'
-import axios from 'axios'
 import store from '../../store'
 import { SELECT_LAB } from '../../actions/types'
-const { ValueContainer, Placeholder } = components;
 
-const CustomValueContainer = ({ children, ...props }) => {
-  return (
-    <ValueContainer {...props}>
-      <Placeholder {...props}>
-        {props.selectProps.placeholder}
-      </Placeholder>
-    </ValueContainer>
-  );
-};
 
 class Header extends Component {
     constructor() {
         super()
         this.state = {
-            labOptions: [], 
             selectedLab: {}
         }
-
-        
         this.onChange=this.onChange.bind(this)
     }
 
@@ -39,52 +24,22 @@ class Header extends Component {
     }
 
     onChange(justSelected) {
-        console.log("on changed")
-        console.log(justSelected)
         this.setState({selectedLab: justSelected})
         store.dispatch({
             type: SELECT_LAB,
             payload: justSelected
         });
-        console.log(localStorage.getItem("selectedLab"))
     }
 
     componentWillReceiveProps(nextProps){
-        console.log("in componentWillReceiveProps " + JSON.stringify(nextProps.selectedLab))
-        this.setState({selectedLab: nextProps.selectedLab});
-    }
-
-    componentDidMount() {
-        refreshTokenAndUser()
-        let storedSelectedLab = this.selectedLab 
-        console.log(storedSelectedLab)
-        if (storedSelectedLab) {
-            axios.get('/api/logged-in/lab')
-            .then(result => this.setState({
-                labOptions: result.data.map(lab => {return {id: lab.id, value: lab.key, label: lab.name}}),
-                selectedLab: storedSelectedLab
-            }))
-        } else {
-            axios.get('/api/logged-in/lab')
-            .then(result => this.setState({
-                labOptions: result.data.map(lab => {return {id: lab.id, value: lab.key, label: lab.name}}),
-                selectedLab: {id: result.data[0].id, value: result.data[0].key, label: result.data[0].name}
-            }))
+        console.log("in componentWillReceiveProps " + JSON.stringify(nextProps.selectedLab.selectedLab))
+        if (nextProps.selectedLab && JSON.stringify(nextProps.selectedLab.selectedLab) !== "{}") {
+            this.setState({selectedLab: nextProps.selectedLab.selectedLab});
         }
-
-        
     }
-
-
 
 
     render() {
-        const options = [
-            { value: 'blues', label: 'Blues' },
-            { value: 'rock', label: 'Rock' },
-            { value: 'jazz', label: 'Jazz' },
-            { value: 'orchestra', label: 'Orchestraaaaaaaaaaaa' } 
-          ];
         const { user } = this.props.security;
         const userISAuthenticated = (                    
             <div className="collapse navbar-collapse" id="mobile-nav">
@@ -127,7 +82,7 @@ class Header extends Component {
                             name="form-field-name"
                             value={this.selectedLab}
                             onChange={this.onChange}
-                            options={this.state.labOptions} 
+                            options={this.props.labOptions} 
                             placeholder="Select lab"
 
                         />
@@ -184,7 +139,9 @@ Header.propTypes = {
 
 const mapStateToProps = state => ({
     security: state.security,
-    selectedLab: state.selectedLab
+    selectedLab: state.selectedLab,
+    labs: state.labDropdown.labs,
+    labOptions: state.labDropdown.labOptions
 })
 
 export default connect(mapStateToProps, {logoutDispatch}) (Header)

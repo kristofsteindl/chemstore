@@ -1,6 +1,6 @@
 import axios from "axios";
 import { GET_ERRORS } from "./types";
-import { refreshTokenAndUser } from "../securityUtils/securityUtils";
+import { refreshTokenAndUser, fetchLabs } from "../securityUtils/securityUtils";
 
 
 export const login = (loginRequest, history) => async dispatch => {
@@ -9,6 +9,7 @@ export const login = (loginRequest, history) => async dispatch => {
         const { token } = res.data
         localStorage.setItem("jwt", token)  
         refreshTokenAndUser();
+        fetchLabs();
         history.push("/chem-items")
     } catch (error) {
         dispatch({

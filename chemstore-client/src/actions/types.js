@@ -3,3 +3,5 @@ export const GET_ERRORS = 'GET_ERRORS'
 export const SET_CURRENT_USER = 'SET_CURRENT_USER'
 
 export const SELECT_LAB = 'SELECT_LAB'
+
+export const FILL_LAB_DROPDOWN = 'FILL_LAB_DROPDOWN'
