@@ -134,7 +134,7 @@ public class AccountManagerController {
     public ResponseEntity<List<Lab>> getEveryLab(
             @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
         logger.info("GET '/lab' was called");
-        List<Lab> labs = labService.getLabsForUser(onlyActive);
+        List<Lab> labs = labService.getLabs(onlyActive);
         logger.info("GET '/lab' was succesful with {} item", labs.size());
         return ResponseEntity.ok().body(labs);
     }

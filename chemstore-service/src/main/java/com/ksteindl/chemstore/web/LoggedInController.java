@@ -81,10 +81,9 @@ public class LoggedInController {
     }
 
     @GetMapping("/lab")
-    public List<Lab> getEveryLab(
-            @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
-        logger.info("GET '/api/logged-in/lab' was called with onlyActive=" + onlyActive);
-        List<Lab> labs = labService.getLabsForUser(onlyActive);
+    public List<Lab> getEveryLab(Principal principal) {
+        logger.info("GET '/api/logged-in/lab'");
+        List<Lab> labs = labService.getLabsForUser(principal);
         logger.info("GET '/api/logged-in/lab' was succesful with {} item", labs.size());
         return labs;
     }

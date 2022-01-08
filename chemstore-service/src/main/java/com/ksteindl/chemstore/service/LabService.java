@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,15 +46,23 @@ public class LabService implements UniqueEntityService<LabInput> {
         return labRepository.save(lab);
     }
 
-    public List<Lab> getLabsForUser() {
-        return getLabsForUser(true);
+    public List<Lab> getLabs() {
+        return getLabs(true);
     }
 
-    public List<Lab> getLabsForUser(Boolean onlyActive) {
-        List<Lab> allLabs = onlyActive ?
+    public List<Lab> getLabs(Boolean onlyActive) {
+       return onlyActive ?
                 labRepository.findAllActive(SORT_BY_NAME) :
                 labRepository.findAll(SORT_BY_NAME);
-        return allLabs;
+    }
+
+    public List<Lab> getLabsForUser(Principal principal) {
+        AppUser user = appUserService.getMyAppUser(principal);
+        List<Lab> labsForUser = new ArrayList<>();
+        labsForUser.addAll(user.getLabsAsUser());
+        labsForUser.addAll(user.getLabsAsAdmin());
+        labsForUser.addAll(labRepository.findByLabManagers(user));
+        return labsForUser;
     }
 
     public Lab findLabByKey(String key) {
