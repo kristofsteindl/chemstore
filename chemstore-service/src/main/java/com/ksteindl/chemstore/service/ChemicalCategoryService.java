@@ -86,12 +86,12 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
         return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_CATEGORY_ENTITY_NAME, id));
     }
     
-    public List<ChemicalCategory> getByLab(String labKey, Principal principal) {
-        return findByLab(labKey, true, principal);
+    public List<ChemicalCategory> getByLabForUser(String labKey, Principal principal) {
+        return findByLabForUser(labKey, true, principal);
     }
 
-    public List<ChemicalCategory> findByLab(String labKey, boolean onlyActive, Principal principal) {
-        Lab lab = labService.findLabForAdmin(labKey, principal);
+    public List<ChemicalCategory> findByLabForUser(String labKey, boolean onlyActive, Principal principal) {
+        Lab lab = labService.findLabForUser(labKey, principal);
         return onlyActive ?
                 categoryRepository.findByLabOnlyActive(lab) :
                 categoryRepository.findByLab(lab);

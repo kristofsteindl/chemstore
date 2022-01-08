@@ -167,7 +167,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testUpdateCategory_whenAllValid_gotNoException() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         input.setName("Changed organic for alpha");
@@ -180,7 +180,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testUpdateCategory_whenAllValid_savedValuesAsExpected() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         String newName = "Changed organic for alpha";
@@ -202,7 +202,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testUpdateCategory_whenEmptyInput_gotException() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         Exception exception = Assertions.assertThrows(Exception.class, () -> {
@@ -220,7 +220,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testUpdateCategory_whenNameAlreadyExists_gotValidationExteption() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         input.setName(LabAdminTestUtils.BUFFER_CATEGORY);
@@ -238,7 +238,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testUpdateCategory_whenLabKeyDoesntExists_gotResourceNotFoundExteption() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         input.setLabKey("non-existing-key");
@@ -255,7 +255,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testUpdateCategory_whenUserNeitherAdminNorManager_gotForbiddenException() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
@@ -271,7 +271,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testUpdateCategory_whenUserBetaLabAdmin_gotForbiddenException() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
@@ -288,7 +288,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testUpdateCategory_whenDurationUnitIsNotValid_gotValidationException() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         input.setUnit("not-valid-unit");
@@ -306,7 +306,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testUpdateCategory_whenLabIsDeleted_gotFrobiddenException() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         input.setLabKey(AccountManagerTestUtils.DELTA_LAB_KEY);
@@ -338,7 +338,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testGetCategoryById_whenValid_gotNoException() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         chemicalCategoryService.getById(persisted.getId());
@@ -350,7 +350,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testGetCategoryById_whenValid_gotAttributesAsExpected() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         ChemicalCategory fetched = chemicalCategoryService.getById(persisted.getId());
@@ -379,7 +379,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testGetCategoryById_whenCategoryAlreadyDeleted_gotResourceNotFoundException() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        ChemicalCategory deleted = chemicalCategoryService.findByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin).stream()
+        ChemicalCategory deleted = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.DELETED_CATEGORY))
                 .findAny().get();
         Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
@@ -396,7 +396,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testFindCategoryById_whenValid_gotNoException() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         chemicalCategoryService.findById(persisted.getId());
@@ -408,7 +408,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testFindCategoryById_whenValid_gotAttributesAsExpected() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         ChemicalCategory fetched = chemicalCategoryService.findById(persisted.getId());
@@ -437,7 +437,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testFindCategoryById_whenCategoryAlreadyDeleted_gotAttributesAsExpected() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        ChemicalCategory deleted = chemicalCategoryService.findByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin).stream()
+        ChemicalCategory deleted = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.DELETED_CATEGORY))
                 .findAny().get();
         ChemicalCategory fetched = chemicalCategoryService.findById(deleted.getId());
@@ -449,16 +449,16 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Rollback
     @Transactional
     public void testGetCategoriesByLab_gotNoException() {
-        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        chemicalCategoryService.getByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL;
+        chemicalCategoryService.getByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
     }
 
     @Test
     @Rollback
     @Transactional
     public void testGetCategoriesByLab_gotRightSize() {
-        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        List<ChemicalCategory> categories = chemicalCategoryService.getByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL;
+        List<ChemicalCategory> categories = chemicalCategoryService.getByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
         Assertions.assertEquals(2, categories.size());
     }
 
@@ -466,8 +466,8 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Rollback
     @Transactional
     public void testGetCategoriesByLab_gotOrganicAsExpected() {
-        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        List<ChemicalCategory> categories = chemicalCategoryService.getByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL;
+        List<ChemicalCategory> categories = chemicalCategoryService.getByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
         categories.stream().filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get();
     }
 
@@ -475,8 +475,8 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Rollback
     @Transactional
     public void testGetCategoriesByLab_gotNoDeleted() {
-        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        List<ChemicalCategory> categories = chemicalCategoryService.getByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL;
+        List<ChemicalCategory> categories = chemicalCategoryService.getByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
         boolean deletedNotFound = true;
         for (ChemicalCategory category :categories) {
             deletedNotFound = deletedNotFound && !category.getDeleted();
@@ -489,7 +489,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testGetCategoriesByLab_whenBlabAdmin_gotForbiddenException() {
         Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
-            chemicalCategoryService.getByLab(
+            chemicalCategoryService.getByLabForUser(
                     AccountManagerTestUtils.ALPHA_LAB_KEY, 
                     AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
         });
@@ -497,27 +497,14 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
         logger.info("with class: " + exception.getClass());
         logger.info("with message: " + exception.getMessage());
     }
-
-    @Test
-    @Rollback
-    @Transactional
-    public void testGetCategoriesByLab_whenAlabUser_gotForbiddenException() {
-        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
-            chemicalCategoryService.getByLab(
-                    AccountManagerTestUtils.ALPHA_LAB_KEY,
-                    AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
-        });
-        logger.info("Expected Exception is thrown:");
-        logger.info("with class: " + exception.getClass());
-        logger.info("with message: " + exception.getMessage());
-    }
+    
 
     @Test
     @Rollback
     @Transactional
     public void testFindCategoriesByLab_gotNoException() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        chemicalCategoryService.findByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
+        chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
     }
 
     @Test
@@ -525,7 +512,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testFindCategoriesByLab_gotRightSize() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        List<ChemicalCategory> categories = chemicalCategoryService.findByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
+        List<ChemicalCategory> categories = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
         Assertions.assertEquals(3, categories.size());
     }
 
@@ -534,7 +521,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testFindCategoriesByLab_gotDeletedCategory() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        List<ChemicalCategory> categories = chemicalCategoryService.findByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
+        List<ChemicalCategory> categories = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
         categories.stream().filter(category -> category.getName().equals(LabAdminTestUtils.DELETED_CATEGORY)).findAny().get();
     }
 
@@ -543,7 +530,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testGetCategoriesByLab_gotDeletedAsWell() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        List<ChemicalCategory> categories = chemicalCategoryService.findByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
+        List<ChemicalCategory> categories = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
         boolean deletedFound = false;
         for (ChemicalCategory category :categories) {
             deletedFound = deletedFound || category.getDeleted();
@@ -556,7 +543,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testFindCategoriesByLab_whenBlabAdmin_gotForbiddenException() {
         Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
-            chemicalCategoryService.findByLab(
+            chemicalCategoryService.findByLabForUser(
                     AccountManagerTestUtils.ALPHA_LAB_KEY,
                     false,
                     AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
@@ -565,21 +552,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
         logger.info("with class: " + exception.getClass());
         logger.info("with message: " + exception.getMessage());
     }
-
-    @Test
-    @Rollback
-    @Transactional
-    public void testFindCategoriesByLab_whenAlabUser_gotForbiddenException() {
-        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
-            chemicalCategoryService.findByLab(
-                    AccountManagerTestUtils.ALPHA_LAB_KEY,
-                    false,
-                    AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
-        });
-        logger.info("Expected Exception is thrown:");
-        logger.info("with class: " + exception.getClass());
-        logger.info("with message: " + exception.getMessage());
-    }
+    
 
     @Test
     @Rollback
@@ -587,7 +560,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testDeleteCategory_gotGotNoException() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         chemicalCategoryService.deleteChemicalCategory(persisted.getId(), admin);
@@ -599,7 +572,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     public void testDeleteCategory_categoryIsDeleted() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         chemicalCategoryService.deleteChemicalCategory(persisted.getId(), admin);
@@ -625,7 +598,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testDeleteCategory_whenBetaLabAdmin_gotForbiddenException() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
@@ -641,7 +614,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testDeleteCategory_whenAlphaLabUser_gotForbiddenException() {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
@@ -656,7 +629,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Rollback
     @Transactional
     public void testDeleteCategory_whenAlreadyDeleted_gotResourceNotFoundException() {
-        ChemicalCategory persisted = chemicalCategoryService.findByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, false, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.DELETED_CATEGORY))
                 .findAny().get();
         Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
@@ -672,7 +645,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
     @Transactional
     public void testDeleteCategory_categoriesAreDeletedFromChemicals() {
         Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(AccountManagerTestUtils.ALPHA_LAB_KEY, admin).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, admin).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY))
                 .findAny().get();
         chemicalCategoryService.deleteChemicalCategory(persisted.getId(), admin);

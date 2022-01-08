@@ -23,9 +23,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import javax.transaction.Transactional;
 import java.util.Map;
 
+import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.ALPHA_LAB_KEY;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,6 +48,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     private final static String URL_CHEMICAL = URL + "/chemical";
     private final static String URL_CHEMICAL_ALAB = URL_CHEMICAL + "/alab";
     private final static String URL_ME = URL + "/user/me";
+    private final static String CATEGORY_URL = URL + "/chem-category";
 
     @Autowired
     JwtProvider jwtProvider;
@@ -544,6 +549,116 @@ public class LoggedInControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.roles[*].key", hasItem("ACCOUNT_MANAGER")))
         ;
 
+    }
+    
+    //CATEGORY
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenAlphaLabUser_got200() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(200));
+    }
+    
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenAlphaLabAdmin_got200() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenAlphaLabUser_gotValidArray() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[0].id").isNumber())
+                .andExpect(jsonPath("$[0].lab.key").isString())
+                .andExpect(jsonPath("$[0].name").isString())
+                .andExpect(jsonPath("$[0].shelfLife").isString())
+                .andExpect(jsonPath("$[0].deleted").isBoolean())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))))
+                .andExpect(jsonPath("$", hasSize(chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL).size())));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenAlphaLabManager_got200() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenBetaLabAdmin_got403() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_whenAccountManager_got403() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_withOnlyActiveFalse_gotValidArray() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("onlyActive", "false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", hasItem(true)));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategoriesForAlphaLab_withOnlyActiveTrue_gotValidArray() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "/" + ALPHA_LAB_KEY)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("onlyActive", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))));
+    }
+
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetCategories_whenKeyDoesNotExists_got404() throws Exception {
+        mvc.perform(get(CATEGORY_URL + "/" + "not-existing")
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(404));
     }
 
 

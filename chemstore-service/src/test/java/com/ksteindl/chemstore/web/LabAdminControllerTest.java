@@ -31,9 +31,19 @@ import org.springframework.test.web.servlet.MvcResult;
 import javax.transaction.Transactional;
 import java.util.Optional;
 
-import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.*;
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME;
+import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME;
+import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.ALPHA_LAB_KEY;
+import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME;
+import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.DELTA_LAB_KEY;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -327,7 +337,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenAlphaLabAdmin_got201() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         String newName = "this is changed";
@@ -350,7 +360,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenAlphaLabAdmin_returnedDataIsExpected() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         String newName = "this is changed";
@@ -376,7 +386,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenAlphaLabAdmin_fetcehdDataIsExpected() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         String newName = "this is changed";
@@ -403,7 +413,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenAlphaLabManager_got201() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         String newName = "this is changed";
@@ -426,7 +436,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenBetaLabManager_got403() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         String newName = "this is changed";
@@ -449,7 +459,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenBetaLabAdmin_got403() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         String newName = "this is changed";
@@ -472,7 +482,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenAlphaLabUser_got403() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         String newName = "this is changed";
@@ -495,7 +505,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenAccountManager_got403() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         String newName = "this is changed";
@@ -518,7 +528,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenNameMissing_got400() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         String newName = null;
@@ -542,7 +552,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenNameBlank_got400() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         String newName = "";
@@ -566,7 +576,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenEmptyInput1_got400() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
@@ -584,7 +594,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenEmptyInput2_got400() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         MvcResult result = mvc.perform(put(CATEGORY_URL + "/" + persisted.getId())
@@ -602,7 +612,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenLabKeyNotExists_got404() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         input.setLabKey("not-existing");
@@ -621,7 +631,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenUnitNotExists_got400() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         input.setUnit("uNOT");
@@ -640,7 +650,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenAmountBelowZero_got400() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         input.setAmount(-1);
@@ -660,7 +670,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenAmountMissing_got400() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         input.setAmount(null);
@@ -680,7 +690,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testUpdateCategory_whenDeletedLabKey_got4xx() throws Exception {
         ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-        ChemicalCategory persisted = chemicalCategoryService.getByLab(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(input.getName()))
                 .findAny().get();
         input.setLabKey(DELTA_LAB_KEY);
@@ -697,129 +707,12 @@ class LabAdminControllerTest extends BaseControllerTest{
     
     
     //READ
-    @Test
-    @Rollback
-    @Transactional
-    void testGetCategoriesForAlphaLab_whenAlphaLabAdmin_got200() throws Exception {
-        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-    
-    @Test
-    @Rollback
-    @Transactional
-    void testGetCategoriesForAlphaLab_whenAlphaLabAdmin_gotValidArray() throws Exception {
-        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isNotEmpty())
-                .andExpect(jsonPath("$[0].id").isNumber())
-                .andExpect(jsonPath("$[0].lab.key").isString())
-                .andExpect(jsonPath("$[0].name").isString())
-                .andExpect(jsonPath("$[0].shelfLife").isString())
-                .andExpect(jsonPath("$[0].deleted").isBoolean())
-                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
-                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))))
-                .andExpect(jsonPath("$", hasSize(chemicalCategoryService.getByLab(ALPHA_LAB_KEY, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL).size())));
-    }
-
-    @Test
-    @Rollback
-    @Transactional
-    void testGetCategoriesForAlphaLab_whenAlphaLabManager_got200() throws Exception {
-        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @Rollback
-    @Transactional
-    void testGetCategoriesForAlphaLab_whenBetaLabAdmin_got403() throws Exception {
-        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
-                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(403));
-    }
-
-    @Test
-    @Rollback
-    @Transactional
-    void testGetCategoriesForAlphaLab_whenAlphaLabUser_got403() throws Exception {
-        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(403));
-    }
-
-    @Test
-    @Rollback
-    @Transactional
-    void testGetCategoriesForAlphaLab_whenAccountManager_got403() throws Exception {
-        mvc.perform(get(CATEGORY_URL + "?labKey=" + ALPHA_LAB_KEY)
-                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(403));
-    }
-
-    @Test
-    @Rollback
-    @Transactional
-    void testGetCategories_whenKeyDoesNotExists_got404() throws Exception {
-        mvc.perform(get(CATEGORY_URL + "?labKey=" + "not-existing")
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(404));
-    }
-
-    @Test
-    @Rollback
-    @Transactional
-    void testGetCategories_whenLabKeyMissing_got400() throws Exception {
-        mvc.perform(get(CATEGORY_URL)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
-    }
-
-    @Test
-    @Rollback
-    @Transactional
-    void testGetCategoriesForAlphaLab_withOnlyActiveFalse_gotValidArray() throws Exception {
-        mvc.perform(get(CATEGORY_URL)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("labKey", ALPHA_LAB_KEY)
-                        .param("onlyActive", "false"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isNotEmpty())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isNotEmpty())
-                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
-                .andExpect(jsonPath("$[*].deleted", hasItem(true)));
-    }
-
-    @Test
-    @Rollback
-    @Transactional
-    void testGetCategoriesForAlphaLab_withOnlyActiveTrue_gotValidArray() throws Exception {
-        mvc.perform(get(CATEGORY_URL)
-                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("labKey", ALPHA_LAB_KEY)
-                        .param("onlyActive", "true"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isNotEmpty())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isNotEmpty())
-                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
-                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))));
-    }
 
     @Test
     @Rollback
     @Transactional
     void testGetCategoryById_whenAlphaLabAdmin_got200() throws Exception {
-        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
         mvc.perform(get(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -830,7 +723,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testGetCategoryById_whenAlphaLabAdmin_gotExpectedAttributes() throws Exception {
-        ChemicalCategory category = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        ChemicalCategory category = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(found -> found.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get();
         mvc.perform(get(CATEGORY_URL + "/" + category.getId())
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -847,7 +740,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testGetCategoryById_whenAlphaLabManager_got200() throws Exception {
-        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
         mvc.perform(get(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -858,7 +751,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testGetCategoryById_whenBetaLabAdmin_got403() throws Exception {
-        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
         mvc.perform(get(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -869,7 +762,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testGetCategoryById_whenAlphaLabUser_got403() throws Exception {
-        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
         mvc.perform(get(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -880,7 +773,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testGetCategoryById_whenAccountManager_got403() throws Exception {
-        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
         mvc.perform(get(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -902,7 +795,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testGetCategoryById_whenDeleted_got200() throws Exception {
         String deletedName = LabAdminTestUtils.DELETED_CATEGORY;
-        Long id = chemicalCategoryService.findByLab(ALPHA_LAB_KEY, false, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLabForUser(ALPHA_LAB_KEY, false, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(deletedName)).findAny().get().getId();
         mvc.perform(get(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -915,7 +808,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteCategory_whenAlphaLabAdmin_got204() throws Exception {
-        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
         mvc.perform(delete(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -926,7 +819,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteCategory_whenAlphaLabAdmin_persisted() throws Exception {
-        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
         mvc.perform(delete(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -939,7 +832,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteCategory_whenAlphaLabManager_got204() throws Exception {
-        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
         mvc.perform(delete(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -950,7 +843,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteCategory_whenBetaLabAdmin_got403() throws Exception {
-        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
         mvc.perform(delete(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON))
@@ -961,7 +854,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteCategory_whenAlphaLabUser_got403() throws Exception {
-        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
         mvc.perform(delete(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
@@ -972,7 +865,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Rollback
     @Transactional
     void testDeleteCategory_whenAccountManager_got403() throws Exception {
-        Long id = chemicalCategoryService.getByLab(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.getByLabForUser(ALPHA_LAB_KEY, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get().getId();
         mvc.perform(delete(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
@@ -993,7 +886,7 @@ class LabAdminControllerTest extends BaseControllerTest{
     @Transactional
     void testDeleteCategory_whenCategoryIsDeleted_got404() throws Exception {
         String deletedName = LabAdminTestUtils.DELETED_CATEGORY;
-        Long id = chemicalCategoryService.findByLab(ALPHA_LAB_KEY, false, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
+        Long id = chemicalCategoryService.findByLabForUser(ALPHA_LAB_KEY, false, ALPHA_LAB_ADMIN_PRINCIPAL).stream()
                 .filter(category -> category.getName().equals(deletedName)).findAny().get().getId();
         mvc.perform(delete(CATEGORY_URL + "/" + id)
                         .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))

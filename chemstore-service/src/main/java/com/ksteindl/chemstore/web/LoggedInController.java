@@ -2,12 +2,14 @@ package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Chemical;
+import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.PasswordInput;
 import com.ksteindl.chemstore.security.role.Role;
 import com.ksteindl.chemstore.security.role.RoleService;
 import com.ksteindl.chemstore.service.AppUserService;
+import com.ksteindl.chemstore.service.ChemicalCategoryService;
 import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.LabService;
 import com.ksteindl.chemstore.service.ManufacturerService;
@@ -18,7 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -43,13 +52,15 @@ public class LoggedInController {
     private ManufacturerService manufacturerService;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private ChemicalCategoryService chemicalCategoryService;
 
     @PatchMapping("/user")
     public ResponseEntity<AppUser> updateteLoggedInUserPassword(
             @Valid @RequestBody PasswordInput passwordInput,
             BindingResult result,
             Principal principal) {
-        logger.info("PATCH '/api/logged-in/user' was called with and input {}", passwordInput);
+        logger.info("PATCH '/api/logged-in/user' was called with and password input");
         mapValidationErrorService.throwExceptionIfNotValid(result);
         AppUser appUser = appUserService.updatePassword(passwordInput, principal);
         logger.info("PATCH '/api/logged-in/user/{id}' was succesful with returned result{}", appUser);
@@ -73,9 +84,20 @@ public class LoggedInController {
     public List<Lab> getEveryLab(
             @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
         logger.info("GET '/api/logged-in/lab' was called with onlyActive=" + onlyActive);
-        List<Lab> labs = labService.getLabs(onlyActive);
+        List<Lab> labs = labService.getLabsForUser(onlyActive);
         logger.info("GET '/api/logged-in/lab' was succesful with {} item", labs.size());
         return labs;
+    }
+
+    @GetMapping("/chem-category/{labKey}")
+    public ResponseEntity<List<ChemicalCategory>> getChemicalCategoriesForLab(
+            @RequestParam(value="onlyActive", required = false, defaultValue = "true") boolean onlyActive,
+            @PathVariable String labKey,
+            Principal principal) {
+        logger.info("GET 'logged-in/chem-category was called with labKey {}", labKey);
+        List<ChemicalCategory> categories = chemicalCategoryService.findByLabForUser(labKey, onlyActive, principal);
+        logger.info("GET 'logged-in/chem-category' was succesful with {} item", categories.size());
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
     @GetMapping("/manufacturer")

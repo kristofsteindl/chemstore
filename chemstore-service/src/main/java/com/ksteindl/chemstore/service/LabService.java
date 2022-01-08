@@ -45,14 +45,15 @@ public class LabService implements UniqueEntityService<LabInput> {
         return labRepository.save(lab);
     }
 
-    public List<Lab> getLabs() {
-        return getLabs(true);
+    public List<Lab> getLabsForUser() {
+        return getLabsForUser(true);
     }
 
-    public List<Lab> getLabs(Boolean onlyActive) {
-        return onlyActive ?
+    public List<Lab> getLabsForUser(Boolean onlyActive) {
+        List<Lab> allLabs = onlyActive ?
                 labRepository.findAllActive(SORT_BY_NAME) :
                 labRepository.findAll(SORT_BY_NAME);
+        return allLabs;
     }
 
     public Lab findLabByKey(String key) {

@@ -39,21 +39,22 @@ class CategoryDashboard extends Component {
 
     async componentDidMount() {
         refreshTokenAndUser()
+        const selectedLab = this.props.selectedLab
         console.log("in componentDidMount " + this.state.selectedLab.value)
-        try {
-            await axios.get(`/api/lab-admin/chem-category?labKey=${this.state.selectedLab.value}`).then(result => this.setState({categories: result.data}))
-        } catch (error) {
-            console.log("error in get chem-categories: " + error.response.status)
-            this.setState({ errors: {...this.state.errors, categoriesStatus: error.response.status}})
-        }
+        this.loadCategories(selectedLab)
     }
 
     async componentWillReceiveProps(nextProps){
-        const selectedLab = nextProps.selectedLab.selectedLab
+        const selectedLab = nextProps.selectedLab
         console.log("in componentWillReceiveProps " + JSON.stringify(selectedLab))
-        if (nextProps.selectedLab && JSON.stringify(selectedLab) !== "{}") {
+        this.loadCategories(selectedLab)
+    }
+
+
+    async loadCategories(selectedLab) {
+        if (selectedLab && JSON.stringify(selectedLab) !== "{}") {
             try {
-                await axios.get(`/api/lab-admin/chem-category?labKey=${selectedLab.value}`).then(result => this.setState({categories: result.data}))
+                await axios.get(`/api/logged-in/chem-category/${selectedLab.value}`).then(result => this.setState({categories: result.data}))
             } catch (error) {
                 console.log("error in get chem-categories: " + error)
                 this.setState({ errors: {...this.state.errors, categoriesStatus: error.response.status}})
@@ -63,6 +64,7 @@ class CategoryDashboard extends Component {
             this.setState({selectedLab: selectedLab});
         }
     }
+
         
 
     render() {
