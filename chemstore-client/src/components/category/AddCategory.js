@@ -4,6 +4,7 @@ import axios from 'axios';
 import PropTypes from "prop-types";
 import { connect } from 'react-redux';
 import Select from 'react-dropdown-select';
+import { refreshTokenAndUser } from '../../utils/securityUtils';
 
 class AddCategory extends Component {
     constructor() {
