@@ -8,5 +8,5 @@ export default combineReducers ({
     errors: errorReducer,
     security: securityReducer,
     selectedLab: selectedLabReducer,
-    labDropdown: setLabDropdownReducer
+    labs: setLabDropdownReducer
 })

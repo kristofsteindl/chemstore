@@ -2,7 +2,6 @@ import axios from 'axios'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { refreshTokenAndUser } from '../../securityUtils/securityUtils'
-import store from '../../store'
 import RedirectFormButton from '../RedirectFormButton'
 import CategoryCard from './CategoryCard'
 import PropTypes from "prop-types";
@@ -68,6 +67,8 @@ class CategoryDashboard extends Component {
         
 
     render() {
+        const isAdmin = this.props.user.labsAsAdmin.includes(this.props.selectedLab.value) || 
+                        this.props.selectedLab.labManagers.map(manager => manager.username).includes(this.props.user.username)
         return (
             <div className="categories">
                 <div className="container">
@@ -76,17 +77,21 @@ class CategoryDashboard extends Component {
                             <h1 className="display-4 text-center">Chemical Categories</h1>
                             <p className="lead text-center">Categories of chemicals. With the help of these categories, you can specify shelf lifes for different categories for different lab</p>
                             <br />
-                            <RedirectFormButton formRoute="/add-category" buttonLabel="Add Category"/>
+                            { isAdmin && (
+                                <RedirectFormButton formRoute="/add-category" buttonLabel="Add Category"/>)
+                            }
                             <br />
                             <hr />
                             {this.state.categories.map(category => (
                                 <CategoryCard 
+                                    lab={this.props.selectedLab}
+                                    isAdmin={isAdmin}
                                     category={category} 
                                     key={category.id} 
                                     deleteCategory={this.deleteCategory} 
                                     errors={this.state.errors.deleted["id" + category.id] ? this.state.errors.deleted["id" + category.id] : {}}
                                 />
-                            ))
+                                ))
                                 
                             }
                            
@@ -103,7 +108,8 @@ CategoryDashboard.propTypes = {
 }
 
 const mapStateToProps = state => ({
-    selectedLab: state.selectedLab
+    selectedLab: state.selectedLab,
+    user: state.security.user
 })
 
 export default connect(mapStateToProps) (CategoryDashboard)

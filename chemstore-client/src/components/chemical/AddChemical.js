@@ -48,9 +48,9 @@ export default class AddChemical extends Component {
         return (
             <div className="add-chemical">
                 <div className="container">
-                    <div className="row">                        <div className="col-md-8 m-auto">
+                    <div className="row">                        
+                        <div className="col-md-8 m-auto">
 
-                    
                             <h1 className="display-4 text-center">Add Chemical</h1>
                             <p className="lead text-center">Create a chemical (for the whole account/company)</p>
                             <br/>

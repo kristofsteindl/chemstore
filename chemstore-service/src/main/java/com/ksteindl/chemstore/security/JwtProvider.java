@@ -40,6 +40,8 @@ public class JwtProvider {
         claims.put("fullName", appUser.getFullName());
         UserDetails userDetails = new UserDetailsImpl(appUser);
         claims.put("authorities", userDetails.getAuthorities());
+        claims.put("labsAsUser", appUser.getLabKeysAsUser());
+        claims.put("labsAsAdmin", appUser.getLabKeysAsAdmin());
 
         return Jwts.builder()
                 .setSubject(userId)

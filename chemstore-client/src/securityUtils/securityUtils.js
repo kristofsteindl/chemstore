@@ -67,7 +67,6 @@ export const refreshTokenAndUser = () => {
 export const fetchLabs = async () => {
   try {
     const res = await axios.get('/api/logged-in/lab')
-    console.log("in fetchLabs")
     store.dispatch({
       type: FILL_LAB_DROPDOWN,
       payload: res.data

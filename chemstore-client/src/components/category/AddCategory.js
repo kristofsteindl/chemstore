@@ -1,16 +1,45 @@
 import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from 'axios';
+import PropTypes from "prop-types";
+import { connect } from 'react-redux';
+import Select from 'react-dropdown-select';
 
-export default class AddCategory extends Component {
+class AddCategory extends Component {
     constructor() {
         super()
         this.state = {
             name: "",
+            amount: 0,
+            unit: "",
             errors: {}
         }
         this.onChange = this.onChange.bind(this)
         this.onSubmit = this.onSubmit.bind(this)
+        this.unitOnChanged = this.unitOnChanged.bind(this)
+        this.unitOptions = [
+            {
+                value: "d",
+                label: "day"
+            },
+            {
+                value: "m",
+                label: "month"
+            },
+            {
+                value: "y",
+                label: "year"
+            },
+        ]
+    }
+
+    unitOnChanged(justSelected) {
+        this.setState({unit: justSelected})
+        
+    }
+
+    onChange(e) {
+        this.setState({[e.target.name]: e.target.value})
     }
 
     onChange(e) {
@@ -19,7 +48,12 @@ export default class AddCategory extends Component {
 
     async onSubmit(e) {
         e.preventDefault()
-        const newCategory = {name: this.state.name}
+        const newCategory = {
+            labKey: this.props.selectedLab.key,
+            name: this.state.name,
+            amount: this.state.amount,
+            unit: "d"
+        }
         try {
             await axios.post('/api/lab-admin/chem-category', newCategory)
             this.props.history.push("/categories")
@@ -50,7 +84,7 @@ export default class AddCategory extends Component {
                             }
                             <form onSubmit={this.onSubmit}>
                                 <div className="form-group row mb-3">
-                                    <label htmlFor="username" className="col-sm-4 col-form-label">name</label>
+                                    <label htmlFor="name" className="col-sm-4 col-form-label">name</label>
                                     <div className="col-sm-8">
                                         <input 
                                             name="name"
@@ -66,6 +100,33 @@ export default class AddCategory extends Component {
                                        
                                     </div>
                                 </div>
+                                
+                                <div className="row" >
+                                    <label htmlFor="amount" className="col-sm-4 col-form-label">shelf life</label>
+                                    
+                                    <div className="col-sm-4">
+                                        <input 
+                                            name="amount"
+                                            value={this.state.amount}
+                                            onChange={this.onChange}
+                                            type="number" 
+                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.amount})} 
+                                            placeholder="chemical category name (e.g. salt)" 
+                                        />
+                                    </div>
+                                    <div className="col-sm-4">
+                                        <Select 
+                                            name="amount"
+                                            onChange={this.unitOnChanged}
+                                            options={this.unitOptions} 
+                                            placeholder="unit"
+
+                                        />
+                                    </div>
+     
+                                </div>
+                                
+
                                 <button type="submit" className="btn btn-info btn-block mt-4">Add Category</button>
                                 
                             </form>
@@ -76,3 +137,13 @@ export default class AddCategory extends Component {
         )
     }
 }
+
+AddCategory.propTypes = {
+    selectedLab: PropTypes.object.isRequired
+}
+
+const mapStateToProps = state => ({
+    selectedLab: state.selectedLab
+})
+
+export default connect(mapStateToProps) (AddCategory)

@@ -24,21 +24,25 @@ export default class CategoryCard extends Component {
                             <span>{this.getShelfLife(category)}</span>
                         </div>
                         <div className="col-sm-2">
-                            <Link to={`/update-category/${category.id}`}>
-                                <li className="list-group-item update">
-                                    <i className="fa fa-edit pr-1">Update</i>
-                                </li>
-                            </Link>
+                            { this.props.isAdmin && (
+                                <Link to={`/update-category/${category.id}`}>
+                                    <li className="list-group-item update">
+                                        <i className="fa fa-edit pr-1">Update</i>
+                                    </li>
+                                </Link>) 
+                            }
                         </div>
                         <div className="col-sm-2">
-                            <span onClick={() => this.deleteNamedEntity(category)}>
-                                <li className="list-group-item delete">
-                                    <i className="fa fa-minus-circle pr-1">Delete</i>
-                                    {
-                                        (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
-                                    }
-                                </li>
-                            </span> 
+                            { this.props.isAdmin && (
+                                <span onClick={() => this.deleteNamedEntity(category)}>
+                                    <li className="list-group-item delete">
+                                        <i className="fa fa-minus-circle pr-1">Delete</i>
+                                        {
+                                            (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
+                                        }
+                                    </li>
+                                </span>) 
+                            }
                         </div>
                     </div>
                 </div>
@@ -50,7 +54,7 @@ export default class CategoryCard extends Component {
     getShelfLife(category) {
         const days = category.shelfLife.split('H')[0].substring(2) / 24
         if (days > 365) {
-            return `${days / 365} days`
+            return `${Math.round(days / 365)} days`
         } else if (days > 30) {
             return `${days / 30} months`
         }

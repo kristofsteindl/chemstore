@@ -7,11 +7,7 @@ const initialState = {
 export default function selectedLabReducer(state = initialState, action) {
     switch (action.type) {
         case FILL_LAB_DROPDOWN:
-            return {
-                ...state,
-                labs: action.payload,
-                labOptions: action.payload.map(lab => {return {id: lab.id, value: lab.key, label: lab.name}})
-            }
+            return action.payload.map(lab => {return {...lab, id: lab.id, value: lab.key, label: lab.name}})
         default: 
             return state
     }

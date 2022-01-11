@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import { connect } from 'react-redux'
 import { logoutDispatch, refreshTokenAndUser } from '../../securityUtils/securityUtils'
 import 'semantic-ui-css/semantic.min.css'
-import Select, {components} from 'react-select'
+import Select from 'react-select'
 import store from '../../store'
 import { SELECT_LAB } from '../../actions/types'
 
@@ -82,7 +82,7 @@ class Header extends Component {
                             name="form-field-name"
                             value={this.selectedLab}
                             onChange={this.onChange}
-                            options={this.props.labOptions} 
+                            options={this.props.labs} 
                             placeholder="Select lab"
 
                         />
@@ -140,8 +140,7 @@ Header.propTypes = {
 const mapStateToProps = state => ({
     security: state.security,
     selectedLab: state.selectedLab,
-    labs: state.labDropdown.labs,
-    labOptions: state.labDropdown.labOptions
+    labs: state.labs
 })
 
 export default connect(mapStateToProps, {logoutDispatch}) (Header)
