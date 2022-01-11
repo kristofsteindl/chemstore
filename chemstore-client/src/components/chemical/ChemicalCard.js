@@ -25,22 +25,26 @@ export default class ChemicalCard extends Component {
                             { this.getChemType(chemical)}
                         </div>
                         <div className="col-sm-2">
-                            <Link to={`update-chemical/${chemical.id}`}>
-                                <li className="list-group-item update">
-                                
-                                    <i className="fa fa-edit pr-1">Update</i>
-                                </li>
-                            </Link>
+                            { this.props.isAdmin && 
+                                (<Link to={`update-chemical/${chemical.id}`}>
+                                    <li className="list-group-item update">
+                                    
+                                        <i className="fa fa-edit pr-1">Update</i>
+                                    </li>
+                                </Link>)
+                            }
                         </div>
                         <div className="col-sm-2">
-                            <span onClick={() => this.deleteChemical(chemical)}>
-                                <li className="list-group-item delete">
-                                    <i className="fa fa-minus-circle pr-1">Delete</i>
-                                    {
-                                        (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
-                                    }
-                                </li>
-                            </span> 
+                            { this.props.isAdmin && 
+                                (<span onClick={() => this.deleteChemical(chemical)}>
+                                    <li className="list-group-item delete">
+                                        <i className="fa fa-minus-circle pr-1">Delete</i>
+                                        {
+                                            (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
+                                        }
+                                    </li>
+                                </span>)
+                            }
                         </div>
                     </div>
                 </div>

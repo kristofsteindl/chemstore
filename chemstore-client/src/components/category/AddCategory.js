@@ -4,7 +4,7 @@ import axios from 'axios';
 import PropTypes from "prop-types";
 import { connect } from 'react-redux';
 import Select from 'react-dropdown-select';
-import { refreshTokenAndUser } from '../../utils/securityUtils';
+import { checkExpiry, refreshTokenAndUser } from '../../utils/securityUtils';
 
 class AddCategory extends Component {
     constructor() {
@@ -35,7 +35,7 @@ class AddCategory extends Component {
     }
 
     componentDidMount() {
-        refreshTokenAndUser()
+        checkExpiry()
     }
 
     unitOnChanged(justSelected) {
@@ -120,6 +120,7 @@ class AddCategory extends Component {
                                             onChange={this.unitOnChanged}
                                             options={this.unitOptions} 
                                             placeholder="unit"
+                                            style={{height: "42px", fontSize: "16px"}}
 
                                         />
                                     </div>
@@ -143,7 +144,8 @@ AddCategory.propTypes = {
 }
 
 const mapStateToProps = state => ({
-    selectedLab: state.selectedLab
+    selectedLab: state.selectedLab,
+    user: state.security.user
 })
 
 export default connect(mapStateToProps) (AddCategory)

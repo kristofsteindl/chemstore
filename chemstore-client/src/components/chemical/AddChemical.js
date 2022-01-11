@@ -3,12 +3,15 @@ import classNames from "classnames";
 import axios from 'axios';
 import Select from 'react-dropdown-select';
 import { checkExpiry } from '../../utils/securityUtils';
+import { connect } from 'react-redux';
+import PropTypes from "prop-types";
 
 
-export default class AddChemical extends Component {
+class AddChemical extends Component {
     constructor() {
         super()
         this.state = {
+            categories: [],
             shortName: "",
             exactName: "",
             chemTypes: [],
@@ -16,21 +19,59 @@ export default class AddChemical extends Component {
         }
         this.onChange = this.onChange.bind(this)
         this.onSubmit = this.onSubmit.bind(this)
+        this.categoryOnChanged = this.categoryOnChanged.bind(this)
     }
 
     onChange(e) {
         this.setState({[e.target.name]: e.target.value})
     }
 
+    categoryOnChanged(justSelected) {
+        this.setState({unit: justSelected})
+    }
+
+
+    async componentWillReceiveProps(nextProps){
+        const selectedLab = nextProps.selectedLab
+        console.log("in componentWillReceiveProps " + nextProps + ", " + JSON.stringify(selectedLab))
+        this.checkIfAdmin(selectedLab)
+        this.loadCategories(selectedLab)
+    }
+
     componentDidMount() {
         checkExpiry()
-        axios.get('/api/lab-manager/chem-type').then(result => this.setState({chemTypes: result.data}))
+        const selectedLab = this.props.selectedLab
+        this.checkIfAdmin(selectedLab)
+        this.loadCategories(selectedLab)
+    }
+
+    checkIfAdmin(selectedLab) {
+        console.log(selectedLab.key)
+        const isAdmin = (selectedLab.key) && 
+                        (this.props.user.labsAsAdmin.includes(selectedLab.value) || 
+                        selectedLab.labManagers.map(manager => manager.username).includes(this.props.user.username))
+        if (!isAdmin) {
+            this.props.history.push("/chemicals")
+        }
+    }
+
+    async loadCategories(selectedLab) {
+        if (selectedLab && JSON.stringify(selectedLab) !== "{}") {
+            try {
+                await axios.get(`/api/logged-in/chem-category/${selectedLab.value}`).then(result => this.setState({categories: result.data}))
+            } catch (error) {
+                console.log("error in get chem-categories: " + error)
+                this.setState({ errors: {...this.state.errors, categoriesErrorStatus: error.response.status}})
+            }
+            this.setState({selectedLab: selectedLab});
+        }
     }
 
     async onSubmit(e) {
         checkExpiry()
         e.preventDefault()
         const newChemical = {
+            labKey: this.props.selectedLab.key,
             shortName: this.state.shortName,
             exactName: this.state.exactName,
             chemTypeId: this.state.chemTypeId
@@ -100,14 +141,14 @@ export default class AddChemical extends Component {
                                     <label htmlFor="category" className="col-sm-4 col-form-label">category</label>
                                     <div className="col-sm-8">
                                       <Select
-                                            options={this.state.chemTypes}
+                                            options={this.state.categories}
                                             labelField="name"
                                             valueField="id"
                                             placeholder="category"
                                             searchable="true"
                                             searchBy="name"
                                             clearable="true"
-                                            style={{height: "50px", fontSize: "20px"}}
+                                            style={{height: "42px", fontSize: "16px"}}
                                             onChange={(items) => this.setState({chemTypeId: items[0].id })}
                                       />
                                         {
@@ -115,10 +156,7 @@ export default class AddChemical extends Component {
                                         }
                                        
                                     </div>
-                                </div>  
-                                    <Select
-                                            options={[]}
-                                      />          
+                                </div>    
                                 <button type="submit" className="btn btn-info btn-block mt-4">Add Chemical</button>
                                 
                             </form>
@@ -129,3 +167,15 @@ export default class AddChemical extends Component {
         )
     }
 }
+
+AddChemical.propTypes = {
+    selectedLab: PropTypes.object.isRequired
+}
+
+const mapStateToProps = state => ({
+    selectedLab: state.selectedLab,
+    user: state.security.user
+})
+
+export default connect(mapStateToProps) (AddChemical)
+

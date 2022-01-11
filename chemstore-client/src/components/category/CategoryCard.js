@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
+import { getShelfLife } from '../../utils/durationUtils'
 
 export default class CategoryCard extends Component {
     constructor(props) {
@@ -21,7 +22,7 @@ export default class CategoryCard extends Component {
                             <h4>{category.name}</h4>
                         </div>
                         <div className="col-sm-4">
-                            <span>{this.getShelfLife(category)}</span>
+                            <span>{getShelfLife(category)}</span>
                         </div>
                         <div className="col-sm-2">
                             { this.props.isAdmin && (
@@ -50,16 +51,6 @@ export default class CategoryCard extends Component {
         )
     }
 
-
-    getShelfLife(category) {
-        const days = category.shelfLife.split('H')[0].substring(2) / 24
-        if (days > 365) {
-            return `${Math.round(days / 365)} days`
-        } else if (days > 30) {
-            return `${days / 30} months`
-        }
-        return `${days} days`
-    } 
 }
 
     

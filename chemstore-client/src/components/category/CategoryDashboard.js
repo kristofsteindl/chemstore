@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { refreshTokenAndUser } from '../../utils/securityUtils'
+import { checkExpiry, refreshTokenAndUser } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
 import CategoryCard from './CategoryCard'
 import PropTypes from "prop-types";
@@ -13,7 +13,7 @@ class CategoryDashboard extends Component {
             categories: [],
             errors: {
                 deleted : {},
-                categoriesStatus: "",
+                categoriesErrorStatus: "",
             }
         }
         this.deleteCategory=this.deleteCategory.bind(this)
@@ -36,14 +36,13 @@ class CategoryDashboard extends Component {
     }
 
     async componentDidMount() {
-        refreshTokenAndUser()
+        checkExpiry()
         const selectedLab = this.props.selectedLab
         this.loadCategories(selectedLab)
     }
 
     async componentWillReceiveProps(nextProps){
         const selectedLab = nextProps.selectedLab
-        console.log("in componentWillReceiveProps " + JSON.stringify(selectedLab))
         this.loadCategories(selectedLab)
     }
 
@@ -54,7 +53,7 @@ class CategoryDashboard extends Component {
                 await axios.get(`/api/logged-in/chem-category/${selectedLab.value}`).then(result => this.setState({categories: result.data}))
             } catch (error) {
                 console.log("error in get chem-categories: " + error)
-                this.setState({ errors: {...this.state.errors, categoriesStatus: error.response.status}})
+                this.setState({ errors: {...this.state.errors, categoriesErrorStatus: error.response.status}})
             }
 
             console.log("in componentWillReceiveProps " + JSON.stringify(selectedLab))
@@ -74,10 +73,10 @@ class CategoryDashboard extends Component {
                     <div className="row"> 
                         <div className="col-md-12">
                             <h1 className="display-4 text-center">Chemical Categories</h1>
-                            <p className="lead text-center">Categories of chemicals. With the help of these categories, you can specify shelf lifes for different categories for different lab</p>
+                            <p className="lead text-center">With the help of these categories, shelf lifes of the chemicals can be calculated, after opened</p>
                             <br />
-                            { isAdmin && (
-                                <RedirectFormButton formRoute="/add-category" buttonLabel="Add Category"/>)
+                            { isAdmin && 
+                                (<RedirectFormButton formRoute="/add-category" buttonLabel="Add Category"/>)
                             }
                             <br />
                             <hr />
