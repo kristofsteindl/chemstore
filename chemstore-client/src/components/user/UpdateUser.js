@@ -2,7 +2,7 @@ import Multiselect from 'multiselect-react-dropdown'
 import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from "axios";
-import { checkExpiry } from '../../securityUtils/securityUtils'
+import { checkExpiry } from '../../utils/securityUtils'
 
 const getEmptyUser = () => {
     return {

@@ -33,13 +33,12 @@ class AddCategory extends Component {
         ]
     }
 
-    unitOnChanged(justSelected) {
-        this.setState({unit: justSelected})
-        
+    componentDidMount() {
+        refreshTokenAndUser()
     }
 
-    onChange(e) {
-        this.setState({[e.target.name]: e.target.value})
+    unitOnChanged(justSelected) {
+        this.setState({unit: justSelected})
     }
 
     onChange(e) {
@@ -52,7 +51,7 @@ class AddCategory extends Component {
             labKey: this.props.selectedLab.key,
             name: this.state.name,
             amount: this.state.amount,
-            unit: "d"
+            unit: this.state.unit,
         }
         try {
             await axios.post('/api/lab-admin/chem-category', newCategory)
@@ -71,7 +70,7 @@ class AddCategory extends Component {
                     
                         <div className="col-md-8 m-auto">
                             <h1 className="display-4 text-center">Add chemical category</h1>
-                            <p className="lead text-center">Create a chemical category (for the whole account/company)</p>
+                            <p className="lead text-center">Create a chemical category with shelf life for the given lab</p>
                             <br/>
                             {
                                 (errors.message && <h5 className="invalid-input">{errors.message}</h5>)

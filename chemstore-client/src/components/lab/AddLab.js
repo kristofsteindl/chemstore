@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from 'axios';
-import { checkExpiry } from '../../securityUtils/securityUtils';
+import { checkExpiry } from '../../utils/securityUtils';
 import Multiselect from 'multiselect-react-dropdown';
 
 

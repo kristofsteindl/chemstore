@@ -1,6 +1,6 @@
 import axios from 'axios'
 import React, { Component } from 'react'
-import { refreshTokenAndUser } from '../../securityUtils/securityUtils'
+import { refreshTokenAndUser } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
 import LabCard from './LabCard'
 

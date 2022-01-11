@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { refreshTokenAndUser } from '../../securityUtils/securityUtils'
+import { refreshTokenAndUser } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
 import CategoryCard from './CategoryCard'
 import PropTypes from "prop-types";
@@ -14,8 +14,7 @@ class CategoryDashboard extends Component {
             errors: {
                 deleted : {},
                 categoriesStatus: "",
-            },
-            selectedLab: {id: "", value: "", name: ""}
+            }
         }
         this.deleteCategory=this.deleteCategory.bind(this)
     }
@@ -39,7 +38,6 @@ class CategoryDashboard extends Component {
     async componentDidMount() {
         refreshTokenAndUser()
         const selectedLab = this.props.selectedLab
-        console.log("in componentDidMount " + this.state.selectedLab.value)
         this.loadCategories(selectedLab)
     }
 
@@ -67,8 +65,9 @@ class CategoryDashboard extends Component {
         
 
     render() {
-        const isAdmin = this.props.user.labsAsAdmin.includes(this.props.selectedLab.value) || 
-                        this.props.selectedLab.labManagers.map(manager => manager.username).includes(this.props.user.username)
+        const isAdmin = (this.props.selectedLab.key) && 
+                        (this.props.user.labsAsAdmin.includes(this.props.selectedLab.value) || 
+                        this.props.selectedLab.labManagers.map(manager => manager.username).includes(this.props.user.username))
         return (
             <div className="categories">
                 <div className="container">

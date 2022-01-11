@@ -1,7 +1,7 @@
 import axios from 'axios'
 import classNames from 'classnames'
 import React, { Component } from 'react'
-import { checkExpiry } from '../../securityUtils/securityUtils'
+import { checkExpiry } from '../../utils/securityUtils'
 
 export default class UpdateManufacturer extends Component {
     constructor() {

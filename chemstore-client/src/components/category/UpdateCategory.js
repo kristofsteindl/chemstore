@@ -1,35 +1,70 @@
 import axios from 'axios'
 import classNames from 'classnames'
 import React, { Component } from 'react'
-import { checkExpiry } from '../../securityUtils/securityUtils'
+import Select from 'react-dropdown-select'
+import { connect } from 'react-redux'
+import { getDays } from '../../utils/durationUtils'
+import { checkExpiry } from '../../utils/securityUtils'
+import PropTypes from "prop-types";
 
-export default class UpdateCategory extends Component {
+class UpdateCategory extends Component {
     constructor() {
         super()
         this.state = {
-            name: "",
+            name: "",            
+            amount: 0,
+            unit: "",
             errors: {}
         }
         this.onChange = this.onChange.bind(this)
         this.onSubmit = this.onSubmit.bind(this)
+        this.unitOnChanged = this.unitOnChanged.bind(this)
+        this.unitOptions = [
+            {
+                value: "d",
+                label: "day"
+            },
+            {
+                value: "m",
+                label: "month"
+            },
+            {
+                value: "y",
+                label: "year"
+            },
+        ]
     }
 
 
     componentDidMount() {
-        axios.get(`/api/lab-admin/chem-category/${this.props.match.params.id}`).then(result => this.setState({name: result.data.name} ))
+        axios.get(`/api/lab-admin/chem-category/${this.props.match.params.id}`).then(result => this.setState({
+            name: result.data.name,
+            amount: getDays(result.data.shelfLife),
+            unit: "d"
+        } ))
     }
 
     onChange(e) {
         this.setState({[e.target.name]: e.target.value})
     }
 
+    unitOnChanged(justSelected) {
+        this.setState({unit: justSelected[0].value})
+        
+    }
+
     async onSubmit(e) {
         checkExpiry()
         e.preventDefault()
-        const input = {name: this.state.name}
+        const input = {
+            labKey: this.props.selectedLab.key,
+            name: this.state.name,
+            amount: this.state.amount,
+            unit: this.state.unit
+        }
         try {
             await axios.put(`/api/lab-admin/chem-category/${this.props.match.params.id}`, input)
-            this.props.history.push("/chem-categories")
+            this.props.history.push("/categories")
         } catch(error) {
             this.setState({errors: error.response.data})
         }
@@ -56,7 +91,7 @@ export default class UpdateCategory extends Component {
                             }
                             <form onSubmit={this.onSubmit}>
                                 <div className="form-group row mb-3">
-                                    <label htmlFor="username" className="col-sm-4 col-form-label">name</label>
+                                    <label htmlFor="name" className="col-sm-4 col-form-label">name</label>
                                     <div className="col-sm-8">
                                         <input 
                                             name="name"
@@ -72,6 +107,33 @@ export default class UpdateCategory extends Component {
                                        
                                     </div>
                                 </div>
+                                <div className="row" >
+                                    <label htmlFor="amount" className="col-sm-4 col-form-label">shelf life</label>
+                                    
+                                    <div className="col-sm-4">
+                                        <input 
+                                            name="amount"
+                                            value={this.state.amount}
+                                            onChange={this.onChange}
+                                            type="number" 
+                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.amount})} 
+                                            placeholder="chemical category name (e.g. salt)" 
+                                        />
+                                        {
+                                            (errors.amount && <div className="invalid-feedback">{errors.amount}</div>)
+                                        }
+                                    </div>
+                                    <div className="col-sm-4">
+                                        <Select 
+                                            name="amount"
+                                            values={[{value: "d", label: "day"}]}
+                                            onChange={this.unitOnChanged}
+                                            options={this.unitOptions} 
+                                            placeholder="unit"
+                                        />
+                                    </div>
+     
+                                </div>
                                 <button type="submit" className="btn btn-info btn-block mt-4">Update Category</button>
                                 
                             </form>
@@ -82,3 +144,13 @@ export default class UpdateCategory extends Component {
         )
     }
 }
+
+UpdateCategory.propTypes = {
+    selectedLab: PropTypes.object.isRequired
+}
+
+const mapStateToProps = state => ({
+    selectedLab: state.selectedLab
+})
+
+export default connect(mapStateToProps) (UpdateCategory)

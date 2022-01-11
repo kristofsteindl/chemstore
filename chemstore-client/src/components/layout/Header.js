@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from "prop-types"
 import { connect } from 'react-redux'
-import { logoutDispatch, refreshTokenAndUser } from '../../securityUtils/securityUtils'
+import { logoutDispatch, refreshTokenAndUser } from '../../utils/securityUtils'
 import 'semantic-ui-css/semantic.min.css'
 import Select from 'react-select'
 import store from '../../store'

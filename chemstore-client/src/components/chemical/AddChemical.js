@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from 'axios';
 import Select from 'react-dropdown-select';
-import { checkExpiry } from '../../securityUtils/securityUtils';
+import { checkExpiry } from '../../utils/securityUtils';
 
 
 export default class AddChemical extends Component {

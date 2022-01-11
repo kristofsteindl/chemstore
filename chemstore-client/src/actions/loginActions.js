@@ -1,6 +1,6 @@
 import axios from "axios";
 import { GET_ERRORS } from "./types";
-import { refreshTokenAndUser, fetchLabs } from "../securityUtils/securityUtils";
+import { refreshTokenAndUser, fetchLabs } from "../utils/securityUtils";
 
 
 export const login = (loginRequest, history) => async dispatch => {
