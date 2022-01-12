@@ -53,7 +53,7 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
         Long categoryId = chemicalInput.getCategoryId();
         if (categoryId != null && categoryId > 0) {
             ChemicalCategory category = chemicalCategoryService.getById(categoryId);
-            if (!category.getLab().equals(lab)) {
+            if (!category.getLab().getKey().equals(lab.getKey())) {
                 throw new ValidationException(String.format(
                         Lang.CHEMICAL_CATEGORY_LAB_NOT_THE_SAME,
                         category.getName(),
