@@ -83,18 +83,8 @@ class ChemicalDashboard extends Component {
                             }
                             <br />
                             <hr />
-                            {this.state.chemicals.map(chemical => (
-                                <ChemicalCard 
-                                    lab={this.props.selectedLab}
-                                    isAdmin={isAdmin}
-                                    chemical={chemical} 
-                                    key={chemical.id} 
-                                    deleteChemical={this.deleteChemical}
-                                    errors={this.state.errors.deleted["id" + chemical.id] ? this.state.errors.deleted["id" + chemical.id] : {}}
-                                />
-                            ))
-                                
-                            }
+                            {this.getCards(isAdmin)}
+                               
                            
                         </div>
                     </div>
@@ -102,7 +92,21 @@ class ChemicalDashboard extends Component {
             </div>
         ) 
     }
+
+    getCards(isAdmin) {
+        return this.state.chemicals.map(chemical => (
+                <ChemicalCard 
+                    lab={this.props.selectedLab}
+                    isAdmin={isAdmin}
+                    chemical={chemical} 
+                    key={chemical.id} 
+                    deleteChemical={this.deleteChemical}
+                    errors={this.state.errors.deleted["id" + chemical.id] ? this.state.errors.deleted["id" + chemical.id] : {}}
+                />))
+    }
 }
+
+
 
 ChemicalDashboard.propTypes = {
     selectedLab: PropTypes.object.isRequired

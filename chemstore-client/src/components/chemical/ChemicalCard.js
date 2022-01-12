@@ -22,7 +22,7 @@ export default class ChemicalCard extends Component {
                         </div>
                         <div className="col-sm-6">
                             <h4>{chemical.exactName}</h4>
-                            { this.getChemType(chemical)}
+                            { this.drawCategory(chemical)}
                         </div>
                         <div className="col-sm-2">
                             { this.props.isAdmin && 
@@ -52,9 +52,9 @@ export default class ChemicalCard extends Component {
         )
     }
 
-    getChemType(chemical) {
-        if (chemical.chemType) {
-            return (<i>{chemical.chemType.name}</i>)
+    drawCategory(chemical) {
+        if (chemical.category) {
+            return (<i>{chemical.category.name}</i>)
         }
         return (<i>n.a</i>)
     }
