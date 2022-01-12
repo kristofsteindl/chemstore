@@ -80,17 +80,9 @@ class CategoryDashboard extends Component {
                             }
                             <br />
                             <hr />
-                            {this.state.categories.map(category => (
-                                <CategoryCard 
-                                    lab={this.props.selectedLab}
-                                    isAdmin={isAdmin}
-                                    category={category} 
-                                    key={category.id} 
-                                    deleteCategory={this.deleteCategory} 
-                                    errors={this.state.errors.deleted["id" + category.id] ? this.state.errors.deleted["id" + category.id] : {}}
-                                />
-                                ))
-                                
+                            {this.props.selectedLab ? 
+                                this.getCards(isAdmin) :
+                                <p className="lead"><i>Please select a lab</i></p>
                             }
                            
                         </div>
@@ -98,6 +90,18 @@ class CategoryDashboard extends Component {
                 </div>
             </div>
         ) 
+    }
+
+    getCards(isAdmin) {
+        return this.state.categories.map(category => (
+            <CategoryCard 
+                lab={this.props.selectedLab}
+                isAdmin={isAdmin}
+                category={category} 
+                key={category.id} 
+                deleteCategory={this.deleteCategory} 
+                errors={this.state.errors.deleted["id" + category.id] ? this.state.errors.deleted["id" + category.id] : {}}
+            />))
     }
 }
 

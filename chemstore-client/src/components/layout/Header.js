@@ -13,7 +13,7 @@ class Header extends Component {
     constructor() {
         super()
         this.state = {
-            selectedLab: {}
+            selectedLab: false
         }
         this.onChange=this.onChange.bind(this)
     }
@@ -32,9 +32,9 @@ class Header extends Component {
     }
 
     componentWillReceiveProps(nextProps){
-        console.log("in componentWillReceiveProps " + JSON.stringify(nextProps.selectedLab.selectedLab))
-        if (nextProps.selectedLab && JSON.stringify(nextProps.selectedLab.selectedLab) !== "{}") {
-            this.setState({selectedLab: nextProps.selectedLab.selectedLab});
+        console.log("in componentWillReceiveProps " + JSON.stringify(nextProps.selectedLab))
+        if (nextProps.selectedLab && JSON.stringify(nextProps.selectedLab) !== "{}") {
+            this.setState({selectedLab: nextProps.selectedLab});
         }
     }
 

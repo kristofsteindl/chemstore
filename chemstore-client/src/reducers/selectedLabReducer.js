@@ -1,8 +1,6 @@
 import { SELECT_LAB } from "../actions/types";
 
-const initialState = {
-    selectedLab: {}
-}
+const initialState = false
 
 export default function selectedLabReducer(state = initialState, action) {
     switch (action.type) {

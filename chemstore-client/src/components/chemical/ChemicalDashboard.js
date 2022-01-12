@@ -83,7 +83,10 @@ class ChemicalDashboard extends Component {
                             }
                             <br />
                             <hr />
-                            {this.getCards(isAdmin)}
+                            {this.props.selectedLab ? 
+                                this.getCards(isAdmin) :
+                                <p className="lead"><i>Please select a lab</i></p>
+                            }
                                
                            
                         </div>
