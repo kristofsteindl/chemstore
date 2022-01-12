@@ -78,3 +78,14 @@ export const fetchLabs = async () => {
 
 }
 
+export const checkIfAdmin = selectedLab => {
+  console.log(selectedLab.key)
+  const isAdmin = (selectedLab && selectedLab.key) && 
+                  (this.props.user.labsAsAdmin.includes(selectedLab.value) || 
+                  selectedLab.labManagers.map(manager => manager.username).includes(this.props.user.username))
+  if (!isAdmin) {
+      this.props.history.push("/chemicals")
+  }
+}
+
+

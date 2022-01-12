@@ -3,15 +3,17 @@ import classNames from 'classnames'
 import React, { Component } from 'react'
 import { checkExpiry } from '../../utils/securityUtils'
 import Select from 'react-dropdown-select';
+import { connect } from 'react-redux';
+import PropTypes from "prop-types";
 
-export default class UpdateChemical extends Component {
+class UpdateChemical extends Component {
     constructor() {
         super()
         this.state = {
+            categories: [],
             shortName: "",
             exactName: "",
-            chemTypes: [],
-            chemType: {name: "", id: -1},
+            categoryId: 0,
             errors: {}
         }
         this.onChange = this.onChange.bind(this)
@@ -22,23 +24,56 @@ export default class UpdateChemical extends Component {
         this.setState({[e.target.name]: e.target.value})
     }
 
+    async componentWillReceiveProps(nextProps){
+        const selectedLab = nextProps.selectedLab
+        this.handleChange(selectedLab)
+    }
+
     componentDidMount() {
-        checkExpiry()
-        axios.get('/api/lab-manager/chem-type').then(result => this.setState({chemTypes: result.data}))
+        const selectedLab = this.props.selectedLab
+        this.handleChange(selectedLab)
         axios.get(`/api/lab-admin/chemical/${this.props.match.params.id}`).then(result => this.setState({
             shortName: result.data.shortName,
             exactName: result.data.exactName,
-            chemType: result.data.chemType ? result.data.chemType : {name: "", id: -1}}))
+            categoryId: result.data.category.id
+        } ))
     }
 
+    handleChange(selectedLab) {
+        checkExpiry()
+        this.checkIfAdmin(selectedLab)
+        this.loadCategories(selectedLab)
+
+    }
+
+    checkIfAdmin(selectedLab) {
+        const isAdmin = (selectedLab && selectedLab.key) && 
+                        (this.props.user.labsAsAdmin.includes(selectedLab.value) || 
+                        selectedLab.labManagers.map(manager => manager.username).includes(this.props.user.username))
+        if (!isAdmin) {
+            this.props.history.push("/chemicals")
+        }
+      }
+
+    async loadCategories(selectedLab) {
+        if (selectedLab && selectedLab.key) {
+            try {
+                await axios.get(`/api/logged-in/chem-category/${selectedLab.value}`).then(result => this.setState({categories: result.data}))
+            } catch (error) {
+                console.log("error in get chem-categories: " + error)
+                this.setState({ errors: {...this.state.errors, categoriesErrorStatus: error.response.status}})
+            }
+        }
+    }
 
     async onSubmit(e) {
         checkExpiry()
         e.preventDefault()
         const updatedChemical = {
+            labKey: this.props.selectedLab.key,
             shortName: this.state.shortName,
             exactName: this.state.exactName,
-            chemTypeId: this.state.chemType.id
+            categoryId: this.state.categoryId
         }
         try {
             await axios.put(`/api/lab-admin/chemical/${this.props.match.params.id}`, updatedChemical)
@@ -56,7 +91,6 @@ export default class UpdateChemical extends Component {
                     
                         <div className="col-md-8 m-auto">
                             <h1 className="display-4 text-center">Update Chemical</h1>
-                            <p className="lead text-center">Modify chemical (for the whole account/company)</p>
                             <br/>
                             {
                                 (errors.message && <h5 className="invalid-input">{errors.message}</h5>)
@@ -106,18 +140,18 @@ export default class UpdateChemical extends Component {
                                 <div className="form-group row mb-3">
                                     <label htmlFor="exactName" className="col-sm-4 col-form-label">category</label>
                                     <div className="col-sm-8">
-                                      <Select
-                                            options={this.state.chemTypes}
-                                            values={[this.state.chemType]}
-                                            labelField="name"
-                                            valueField="id"
-                                            placeholder="category"
-                                            searchable="true"
-                                            searchBy="name"
-                                            clearable="true"
-                                            style={{height: "50px", fontSize: "20px"}}
-                                            onChange={(items) => this.setState({chemType: items[0]})}
-                                      />
+                                        <Select
+                                                options={this.state.categories}
+                                                labelField="name"
+                                                values={this.state.categories.filter(category => category.id === this.state.categoryId)}
+                                                valueField="id"
+                                                placeholder="category"
+                                                searchable="true"
+                                                searchBy="name"
+                                                clearable="true"
+                                                style={{height: "42px", fontSize: "16px"}}
+                                                onChange={(items) => this.setState({categoryId: items[0].id })}
+                                        />
                                         {
                                             (errors.chemType && <div className="invalid-feedback">{errors.chemType}</div>)
                                         }
@@ -135,3 +169,14 @@ export default class UpdateChemical extends Component {
         )
     }
 }
+
+UpdateChemical.propTypes = {
+    selectedLab: PropTypes.object.isRequired
+}
+
+const mapStateToProps = state => ({
+    selectedLab: state.selectedLab,
+    user: state.security.user
+})
+
+export default connect(mapStateToProps) (UpdateChemical)

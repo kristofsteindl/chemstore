@@ -14,33 +14,30 @@ class AddChemical extends Component {
             categories: [],
             shortName: "",
             exactName: "",
-            chemTypes: [],
+            categoryId: 0,
             errors: {}
         }
         this.onChange = this.onChange.bind(this)
         this.onSubmit = this.onSubmit.bind(this)
-        this.categoryOnChanged = this.categoryOnChanged.bind(this)
     }
 
     onChange(e) {
         this.setState({[e.target.name]: e.target.value})
     }
 
-    categoryOnChanged(justSelected) {
-        this.setState({unit: justSelected})
-    }
-
 
     async componentWillReceiveProps(nextProps){
         const selectedLab = nextProps.selectedLab
-        console.log("in componentWillReceiveProps " + nextProps + ", " + JSON.stringify(selectedLab))
-        this.checkIfAdmin(selectedLab)
-        this.loadCategories(selectedLab)
+        this.handleChange(selectedLab)
     }
 
     componentDidMount() {
-        checkExpiry()
         const selectedLab = this.props.selectedLab
+        this.handleChange(selectedLab)
+    }
+
+    handleChange(selectedLab) {
+        checkExpiry()
         this.checkIfAdmin(selectedLab)
         this.loadCategories(selectedLab)
     }
@@ -56,14 +53,13 @@ class AddChemical extends Component {
     }
 
     async loadCategories(selectedLab) {
-        if (selectedLab && JSON.stringify(selectedLab) !== "{}") {
+        if (selectedLab && selectedLab.key) {
             try {
                 await axios.get(`/api/logged-in/chem-category/${selectedLab.value}`).then(result => this.setState({categories: result.data}))
             } catch (error) {
                 console.log("error in get chem-categories: " + error)
                 this.setState({ errors: {...this.state.errors, categoriesErrorStatus: error.response.status}})
             }
-            this.setState({selectedLab: selectedLab});
         }
     }
 
@@ -74,7 +70,7 @@ class AddChemical extends Component {
             labKey: this.props.selectedLab.key,
             shortName: this.state.shortName,
             exactName: this.state.exactName,
-            chemTypeId: this.state.chemTypeId
+            categoryId: this.state.categoryId
         }
         try {
             await axios.post('/api/lab-admin/chemical', newChemical)
@@ -149,7 +145,7 @@ class AddChemical extends Component {
                                             searchBy="name"
                                             clearable="true"
                                             style={{height: "42px", fontSize: "16px"}}
-                                            onChange={(items) => this.setState({chemTypeId: items[0].id })}
+                                            onChange={(items) => this.setState({categoryId: items[0].id })}
                                       />
                                         {
                                             (errors.chemType && <div className="invalid-feedback">{errors.chemType}</div>)

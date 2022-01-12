@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import Select from 'react-dropdown-select'
 import { connect } from 'react-redux'
 import { getDays } from '../../utils/durationUtils'
-import { checkExpiry, refreshTokenAndUser } from '../../utils/securityUtils'
+import { checkExpiry } from '../../utils/securityUtils'
 import PropTypes from "prop-types";
 
 class UpdateCategory extends Component {
@@ -37,7 +37,7 @@ class UpdateCategory extends Component {
 
 
     componentDidMount() {
-        refreshTokenAndUser()
+        checkExpiry()
         axios.get(`/api/lab-admin/chem-category/${this.props.match.params.id}`).then(result => this.setState({
             name: result.data.name,
             amount: getDays(result.data.shelfLife),

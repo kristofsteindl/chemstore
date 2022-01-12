@@ -83,7 +83,7 @@ class ChemicalDashboard extends Component {
                             }
                             <br />
                             <hr />
-                            {this.props.selectedLab ? 
+                            {this.props.selectedLab.key ? 
                                 this.getCards(isAdmin) :
                                 <p className="lead"><i>Please select a lab</i></p>
                             }
