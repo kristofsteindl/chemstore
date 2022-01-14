@@ -4,13 +4,17 @@ import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.LabInput;
 import com.ksteindl.chemstore.domain.repositories.LabRepository;
+import com.ksteindl.chemstore.exceptions.ForbiddenException;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
+import com.ksteindl.chemstore.util.HibernateProxyUtil;
 import com.ksteindl.chemstore.util.Lang;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,9 +51,18 @@ public class LabService implements UniqueEntityService<LabInput> {
     }
 
     public List<Lab> getLabs(Boolean onlyActive) {
-        return onlyActive ?
+       return onlyActive ?
                 labRepository.findAllActive(SORT_BY_NAME) :
                 labRepository.findAll(SORT_BY_NAME);
+    }
+
+    public List<Lab> getLabsForUser(Principal principal) {
+        AppUser user = appUserService.getMyAppUser(principal);
+        List<Lab> labsForUser = new ArrayList<>();
+        labsForUser.addAll(user.getLabsAsUser());
+        labsForUser.addAll(user.getLabsAsAdmin());
+        labsForUser.addAll(labRepository.findByLabManagers(user));
+        return labsForUser;
     }
 
     public Lab findLabByKey(String key) {
@@ -64,11 +77,35 @@ public class LabService implements UniqueEntityService<LabInput> {
         labRepository.save(lab);
     }
 
-    public void removeUserFromLabs(AppUser labManager) {
-        labRepository.findByLabManagers(labManager).forEach(lab -> {
-            lab.getLabManagers().remove(labManager);
-            labRepository.save(lab);
-        });
+    public Lab findLabForAdmin(String labKey, Principal admin) {
+        Lab lab = findLabByKey(labKey);
+        validateLabForAdmin(lab, admin);
+        return lab;
+    }
+
+    public Lab findLabForUser(String labKey, Principal admin) {
+        Lab lab = findLabByKey(labKey);
+        validateLabForUser(lab, admin);
+        return lab;
+    }
+
+    public void validateLabForUser(Lab lab, Principal userPrincipal) {
+        Lab unproxiedLab = HibernateProxyUtil.unproxy(lab);
+        AppUser user = appUserService.getMyAppUser(userPrincipal);
+        if (!user.getLabsAsUser().stream().anyMatch(labAsUser -> labAsUser.equals(unproxiedLab)) &&
+                !unproxiedLab.getLabManagers().stream().anyMatch(manager -> manager.equals(user)) &&
+                !user.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(unproxiedLab))) {
+            throw new ForbiddenException(String.format(Lang.LAB_USER_FORBIDDEN, unproxiedLab.getName(), userPrincipal.getName()));
+        }
+    }
+
+    public void validateLabForAdmin(Lab lab, Principal adminPrincipal) {
+        Lab unproxiedLab = HibernateProxyUtil.unproxy(lab);
+        AppUser admin = appUserService.getMyAppUser(adminPrincipal);
+        if (!unproxiedLab.getLabManagers().stream().anyMatch(manager -> manager.equals(admin))
+                && !admin.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(unproxiedLab))) {
+            throw new ForbiddenException(String.format(Lang.LAB_ADMIN_FORBIDDEN, unproxiedLab.getName(), adminPrincipal.getName()));
+        }
     }
 
     public Lab findById(Long id) {

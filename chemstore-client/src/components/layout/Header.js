@@ -2,13 +2,43 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from "prop-types"
 import { connect } from 'react-redux'
-import { logoutDispatch } from '../../securityUtils/securityUtils'
+import { logoutDispatch, refreshTokenAndUser } from '../../utils/securityUtils'
+import 'semantic-ui-css/semantic.min.css'
+import Select from 'react-select'
+import store from '../../store'
+import { SELECT_LAB } from '../../actions/types'
+
 
 class Header extends Component {
+    constructor() {
+        super()
+        this.state = {
+            selectedLab: false
+        }
+        this.onChange=this.onChange.bind(this)
+    }
+
     logout(){
         this.props.logoutDispatch()
         window.location.href = '/'
     }
+
+    onChange(justSelected) {
+        this.setState({selectedLab: justSelected})
+        store.dispatch({
+            type: SELECT_LAB,
+            payload: justSelected
+        });
+    }
+
+    componentWillReceiveProps(nextProps){
+        console.log("in componentWillReceiveProps " + JSON.stringify(nextProps.selectedLab))
+        if (nextProps.selectedLab && JSON.stringify(nextProps.selectedLab) !== "{}") {
+            this.setState({selectedLab: nextProps.selectedLab});
+        }
+    }
+
+
     render() {
         const { user } = this.props.security;
         const userISAuthenticated = (                    
@@ -35,7 +65,7 @@ class Header extends Component {
                         </Link>
                     </li>
                     <li className="nav-item">
-                        <Link className="nav-link " to="/chem-types">
+                        <Link className="nav-link" to="/categories">
                             Categories
                         </Link>
                     </li>
@@ -47,7 +77,18 @@ class Header extends Component {
                 </ul>
 
                 <ul className="navbar-nav ms-auto">
-                <li className="nav-item">
+                    <li className="nav-item" key="react-select">
+                        <Select 
+                            name="form-field-name"
+                            value={this.selectedLab}
+                            onChange={this.onChange}
+                            options={this.props.labs} 
+                            placeholder="Select lab"
+
+                        />
+                    </li>
+
+                    <li className="nav-item">
                         <Link className="nav-link" to='/change-password'>
                             Change Password
                         </Link>
@@ -97,7 +138,9 @@ Header.propTypes = {
 }
 
 const mapStateToProps = state => ({
-    security: state.security
+    security: state.security,
+    selectedLab: state.selectedLab,
+    labs: state.labs
 })
 
 export default connect(mapStateToProps, {logoutDispatch}) (Header)

@@ -4,11 +4,23 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ksteindl.chemstore.security.role.Role;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -46,13 +58,18 @@ public class AppUser {
     private OffsetDateTime createdAt;
     @JsonIgnore
     private OffsetDateTime updatedAt;
+    
+    public List<String> getLabKeysAsUser() {
+        return null == labsAsUser ?
+                new ArrayList<>() :
+                labsAsUser.stream().map(lab -> lab.getKey()).collect(Collectors.toList());
+    }
 
-//    @JsonProperty("labKeys")
-//    public List<String> getLabKeysAsUser() {
-//        return null == labsAsUser ?
-//                new ArrayList<String>() :
-//                labsAsUser.stream().map(lab -> lab.getKey()).collect(Collectors.toList());
-//    }
+    public List<String> getLabKeysAsAdmin() {
+        return null == labsAsUser ?
+                new ArrayList<>() :
+                labsAsAdmin.stream().map(lab -> lab.getKey()).collect(Collectors.toList());
+    }
 
     @PrePersist
     protected void onCreate() {

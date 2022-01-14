@@ -21,21 +21,25 @@ export default class NamedEntityCard extends Component {
                         <h4>{namedEntity.name}</h4>
                         </div>
                         <div className="col-sm-2">
-                            <Link to={`${this.props.updateUrl}/${namedEntity.id}`}>
-                                <li className="list-group-item update">
-                                    <i className="fa fa-edit pr-1">Update</i>
-                                </li>
-                            </Link>
+                            {this.props.isAdmin && 
+                                (<Link to={`${this.props.updateUrl}/${namedEntity.id}`}>
+                                    <li className="list-group-item update">
+                                        <i className="fa fa-edit pr-1">Update</i>
+                                    </li>
+                                </Link>)
+                            }
                         </div>
                         <div className="col-sm-2">
-                            <span onClick={() => this.deleteNamedEntity(namedEntity)}>
-                                <li className="list-group-item delete">
-                                    <i className="fa fa-minus-circle pr-1">Delete</i>
-                                    {
-                                        (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
-                                    }
-                                </li>
-                            </span> 
+                            {this.props.isAdmin && 
+                                (<span onClick={() => this.deleteNamedEntity(namedEntity)}>
+                                    <li className="list-group-item delete">
+                                        <i className="fa fa-minus-circle pr-1">Delete</i>
+                                        {
+                                            (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
+                                        }
+                                    </li>
+                                </span>)
+                            } 
                         </div>
                     </div>
                 </div>

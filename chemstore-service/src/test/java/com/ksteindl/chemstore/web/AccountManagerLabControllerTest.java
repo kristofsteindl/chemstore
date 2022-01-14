@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -170,15 +171,15 @@ class AccountManagerLabControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.name").value(changedLabName))
                 .andExpect(jsonPath("$.deleted").isBoolean())
                 .andExpect(jsonPath("$.deleted").value(false))
-                .andExpect(jsonPath("$.labManagerUsernames").isArray())
-                .andExpect(jsonPath("$.labManagerUsernames[0]").isNotEmpty())
-                .andExpect(jsonPath("$.labManagerUsernames[*]").value(Matchers.containsInAnyOrder(alphaLabInput.getLabManagerUsernames().get(0), alphaLabInput.getLabManagerUsernames().get(1))))
+                .andExpect(jsonPath("$.labManagers").isArray())
+                .andExpect(jsonPath("$.labManagers[0]").isNotEmpty())
+                .andExpect(jsonPath("$.labManagers[*].username").value(Matchers.containsInAnyOrder(alphaLabInput.getLabManagerUsernames().get(0), alphaLabInput.getLabManagerUsernames().get(1))))
                 .andExpect(status().isOk())
                 .andReturn();
         Lab changedGammaLab = labService.findLabByKey(alphaLabInput.getKey());
         Assertions.assertEquals(alphaLabInput.getKey(), changedGammaLab.getKey());
         Assertions.assertEquals(alphaLabInput.getName(), changedGammaLab.getName());
-        Assertions.assertEquals(alphaLabInput.getLabManagerUsernames(), changedGammaLab.getLabManagerUsernames());
+        Assertions.assertEquals(alphaLabInput.getLabManagerUsernames(), changedGammaLab.getLabManagerUserCards().stream().map(card -> card.getUsername()).collect(Collectors.toList()));
         Assertions.assertTrue(!changedGammaLab.getDeleted());
         logger.info("status code: " + result.getResponse().getStatus());
         logger.info(result.getResponse().getContentAsString());
@@ -195,7 +196,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest {
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_MANAGER_USERNAME);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(alphaLab)))
+                .content(asJsonString(alphaLabInput)))
                 .andExpect(status().is(403))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -213,7 +214,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest {
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_ADMIN_USERNAME);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(alphaLab)))
+                .content(asJsonString(alphaLabInput)))
                 .andExpect(status().is(403))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -232,7 +233,7 @@ class AccountManagerLabControllerTest extends BaseControllerTest {
         String token = jwtProvider.generateToken(AccountManagerTestUtils.ALPHA_BETA_LAB_USER_USERNAME);
         MvcResult result = mvc.perform(put(URL + "/" + alphaLab.getId())
                 .header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(alphaLab)))
+                .content(asJsonString(alphaLabInput)))
                 .andExpect(status().is(403))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
@@ -441,15 +442,15 @@ class AccountManagerLabControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.name").value(labInput.getName()))
                 .andExpect(jsonPath("$.deleted").isBoolean())
                 .andExpect(jsonPath("$.deleted").value(false))
-                .andExpect(jsonPath("$.labManagerUsernames").isArray())
-                .andExpect(jsonPath("$.labManagerUsernames[0]").isNotEmpty())
-                .andExpect(jsonPath("$.labManagerUsernames[*]").value(Matchers.containsInAnyOrder(labInput.getLabManagerUsernames().get(0), labInput.getLabManagerUsernames().get(1))))
+                .andExpect(jsonPath("$.labManagers").isArray())
+                .andExpect(jsonPath("$.labManagers[0]").isNotEmpty())
+                .andExpect(jsonPath("$.labManagers[*].username").value(Matchers.containsInAnyOrder(labInput.getLabManagerUsernames().get(0), labInput.getLabManagerUsernames().get(1))))
                 .andExpect(status().isCreated())
                 .andReturn();
         Lab gammaLab = labService.findLabByKey(labInput.getKey());
         Assertions.assertEquals(labInput.getKey(), gammaLab.getKey());
         Assertions.assertEquals(labInput.getName(), gammaLab.getName());
-        Assertions.assertEquals(labInput.getLabManagerUsernames(), gammaLab.getLabManagerUsernames());
+        Assertions.assertEquals(labInput.getLabManagerUsernames(), gammaLab.getLabManagerUserCards().stream().map(card -> card.getUsername()).collect(Collectors.toList()));
         Assertions.assertTrue(!gammaLab.getDeleted());
         logger.info("status code: " + result.getResponse().getStatus());
         logger.info(result.getResponse().getContentAsString());

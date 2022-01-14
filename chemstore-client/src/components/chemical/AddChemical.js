@@ -2,16 +2,19 @@ import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from 'axios';
 import Select from 'react-dropdown-select';
-import { checkExpiry } from '../../securityUtils/securityUtils';
+import { checkExpiry } from '../../utils/securityUtils';
+import { connect } from 'react-redux';
+import PropTypes from "prop-types";
 
 
-export default class AddChemical extends Component {
+class AddChemical extends Component {
     constructor() {
         super()
         this.state = {
+            categories: [],
             shortName: "",
             exactName: "",
-            chemTypes: [],
+            categoryId: 0,
             errors: {}
         }
         this.onChange = this.onChange.bind(this)
@@ -22,18 +25,52 @@ export default class AddChemical extends Component {
         this.setState({[e.target.name]: e.target.value})
     }
 
+
+    async componentWillReceiveProps(nextProps){
+        const selectedLab = nextProps.selectedLab
+        this.handleChange(selectedLab)
+    }
+
     componentDidMount() {
+        const selectedLab = this.props.selectedLab
+        this.handleChange(selectedLab)
+    }
+
+    handleChange(selectedLab) {
         checkExpiry()
-        axios.get('/api/lab-manager/chem-type').then(result => this.setState({chemTypes: result.data}))
+        this.checkIfAdmin(selectedLab)
+        this.loadCategories(selectedLab)
+    }
+
+    checkIfAdmin(selectedLab) {
+        console.log(selectedLab.key)
+        const isAdmin = (selectedLab.key) && 
+                        (this.props.user.labsAsAdmin.includes(selectedLab.value) || 
+                        selectedLab.labManagers.map(manager => manager.username).includes(this.props.user.username))
+        if (!isAdmin) {
+            this.props.history.push("/chemicals")
+        }
+    }
+
+    async loadCategories(selectedLab) {
+        if (selectedLab && selectedLab.key) {
+            try {
+                await axios.get(`/api/logged-in/chem-category/${selectedLab.value}`).then(result => this.setState({categories: result.data}))
+            } catch (error) {
+                console.log("error in get chem-categories: " + error)
+                this.setState({ errors: {...this.state.errors, categoriesErrorStatus: error.response.status}})
+            }
+        }
     }
 
     async onSubmit(e) {
         checkExpiry()
         e.preventDefault()
         const newChemical = {
+            labKey: this.props.selectedLab.key,
             shortName: this.state.shortName,
             exactName: this.state.exactName,
-            chemTypeId: this.state.chemTypeId
+            categoryId: this.state.categoryId
         }
         try {
             await axios.post('/api/lab-admin/chemical', newChemical)
@@ -48,9 +85,9 @@ export default class AddChemical extends Component {
         return (
             <div className="add-chemical">
                 <div className="container">
-                    <div className="row">                        <div className="col-md-8 m-auto">
+                    <div className="row">                        
+                        <div className="col-md-8 m-auto">
 
-                    
                             <h1 className="display-4 text-center">Add Chemical</h1>
                             <p className="lead text-center">Create a chemical (for the whole account/company)</p>
                             <br/>
@@ -100,23 +137,22 @@ export default class AddChemical extends Component {
                                     <label htmlFor="category" className="col-sm-4 col-form-label">category</label>
                                     <div className="col-sm-8">
                                       <Select
-                                            options={this.state.chemTypes}
+                                            options={this.state.categories}
                                             labelField="name"
                                             valueField="id"
                                             placeholder="category"
                                             searchable="true"
                                             searchBy="name"
                                             clearable="true"
-                                            style={{height: "50px", fontSize: "20px"}}
-                                            onChange={(items) => this.setState({chemTypeId: items[0].id })}
+                                            style={{height: "42px", fontSize: "16px"}}
+                                            onChange={(items) => this.setState({categoryId: items[0].id })}
                                       />
                                         {
                                             (errors.chemType && <div className="invalid-feedback">{errors.chemType}</div>)
                                         }
                                        
                                     </div>
-                                </div>
-                                
+                                </div>    
                                 <button type="submit" className="btn btn-info btn-block mt-4">Add Chemical</button>
                                 
                             </form>
@@ -127,3 +163,15 @@ export default class AddChemical extends Component {
         )
     }
 }
+
+AddChemical.propTypes = {
+    selectedLab: PropTypes.object.isRequired
+}
+
+const mapStateToProps = state => ({
+    selectedLab: state.selectedLab,
+    user: state.security.user
+})
+
+export default connect(mapStateToProps) (AddChemical)
+

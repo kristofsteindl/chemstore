@@ -14,6 +14,10 @@ public class ChemicalInput implements Input{
     @NotBlank(message = "Exact name of chemical cannot be blank")
     private String exactName;
 
-    @Min(value = 1, message = "Chemical type id must be a valid id (chemicalTypeId)")
-    private Long chemTypeId;
+    //labId would be better?
+    @NotBlank(message = "Lab (labKey) cannot be blank")
+    private String labKey;
+
+    @Min(value = 1, message = "Chemical category id must be a valid id (categoryId)")
+    private Long categoryId;
 }

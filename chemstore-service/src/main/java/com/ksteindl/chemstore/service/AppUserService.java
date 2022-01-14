@@ -5,6 +5,7 @@ import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
 import com.ksteindl.chemstore.domain.input.PasswordInput;
 import com.ksteindl.chemstore.domain.repositories.AppUserRepository;
+import com.ksteindl.chemstore.domain.repositories.LabRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.security.UserDetailsImpl;
@@ -38,7 +39,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
     @Autowired
     private AppUserRepository appUserRepository;
     @Autowired
-    private LabService labService;
+    private LabRepository labRepository;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
@@ -55,7 +56,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
     public UserDetails loadUserById(Long id) {
         AppUser appUser = appUserRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         //return appUser;
-                return new UserDetailsImpl(appUser);
+        return new UserDetailsImpl(appUser);
     }
 
     public AppUser createUser(AppUserInput appUserInput) {
@@ -119,7 +120,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
 
     public List<AppUser> getUsersFromManagedLab(Principal managerPrincipal, String labKey) {
         AppUser manager = getMyAppUser(managerPrincipal);
-        Lab managedLab = labService.findLabByKey(labKey);
+        Lab managedLab = findLabByKey(labKey);
         if (!managedLab.getLabManagers().stream().anyMatch(appUser -> appUser.equals(manager))) {
             throw new ValidationException("authorization", "User " + manager.getUsername() + " is not manager of " + managedLab.getKey() + ", please the account admin");
         }
@@ -137,7 +138,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         appUser.setDeleted(true);
         appUser.setLabsAsAdmin(Collections.emptyList());
         appUser.setLabsAsUser(Collections.emptyList());
-        labService.removeUserFromLabs(appUser);
+        removeUserFromLabs(appUser);
         appUserRepository.save(appUser);
     }
 
@@ -177,6 +178,17 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
 
     }
 
+    private void removeUserFromLabs(AppUser labManager) {
+        labRepository.findByLabManagers(labManager).forEach(lab -> {
+            lab.getLabManagers().remove(labManager);
+            labRepository.save(lab);
+        });
+    }
+
+    private Lab findLabByKey(String key) {
+        return labRepository.findByKey(key).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, key));
+    }
+
     private void validateAndSetAppUser(AppUser appUser, AppUserInput appUserInput) {
         Set<Role> roles = appUserInput.getRoles()
                 .stream()
@@ -184,11 +196,11 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
                 .collect(Collectors.toSet());
         List<Lab> labsAsUser = appUserInput.getLabKeysAsUser()
                 .stream()
-                .map(labKey -> labService.findLabByKey(labKey))
+                .map(labKey -> findLabByKey(labKey))
                 .collect(Collectors.toList());
         List<Lab> labsAsAdmin = appUserInput.getLabKeysAsAdmin()
                 .stream()
-                .map(labKey -> labService.findLabByKey(labKey))
+                .map(labKey -> findLabByKey(labKey))
                 .collect(Collectors.toList());
         appUser.setUsername(appUserInput.getUsername());
         appUser.setFullName(appUserInput.getFullName());
