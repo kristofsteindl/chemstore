@@ -35,7 +35,7 @@ export default class CategoryCard extends Component {
                         </div>
                         <div className="col-sm-2">
                             { this.props.isAdmin && (
-                                <span onClick={() => this.deleteNamedEntity(category)}>
+                                <span onClick={() => this.deleteCategory(category)}>
                                     <li className="list-group-item delete">
                                         <i className="fa fa-minus-circle pr-1">Delete</i>
                                         {

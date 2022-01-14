@@ -39,7 +39,7 @@ class AddCategory extends Component {
     }
 
     unitOnChanged(justSelected) {
-        this.setState({unit: justSelected})
+        this.setState({unit: justSelected[0]})
     }
 
     onChange(e) {
@@ -52,7 +52,7 @@ class AddCategory extends Component {
             labKey: this.props.selectedLab.key,
             name: this.state.name,
             amount: this.state.amount,
-            unit: this.state.unit,
+            unit: this.state.unit.value,
         }
         try {
             await axios.post('/api/lab-admin/chem-category', newCategory)

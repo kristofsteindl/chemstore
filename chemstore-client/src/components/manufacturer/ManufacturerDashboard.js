@@ -3,8 +3,9 @@ import React, { Component } from 'react'
 import { refreshTokenAndUser } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
 import NamedEntityCard from '../NamedEntityCard'
+import { connect } from 'react-redux';
 
-export default class ManufacturerDashboard extends Component {
+class ManufacturerDashboard extends Component {
     constructor() {
         super()
         this.state = {
@@ -31,10 +32,11 @@ export default class ManufacturerDashboard extends Component {
 
     componentDidMount() {
         refreshTokenAndUser()
-        axios.get('/api/lab-admin/manufacturer').then(result => this.setState({manufacturers: result.data}))
+        axios.get('/api/logged-in/manufacturer').then(result => this.setState({manufacturers: result.data}))
     }
 
     render() {
+        const isAdmin = this.props.user.authorities.some(listItem => listItem.authority === "LAB_MANAGER" || listItem.authority === "LAB_ADMIN")
         return (
             <div className="manufacturers">
                 <div className="container">
@@ -42,11 +44,14 @@ export default class ManufacturerDashboard extends Component {
                         <div className="col-md-12">
                             <h1 className="display-4 text-center">Manufacturers</h1>
                             <br />
-                            <RedirectFormButton formRoute="/add-manufacturer" buttonLabel="Add Manufacturer"/>
+                            {isAdmin &&
+                                (<RedirectFormButton formRoute="/add-manufacturer" buttonLabel="Add Manufacturer"/>)
+                            }
                             <br />
                             <hr />
                             {this.state.manufacturers.map(manufacturer => (
                                 <NamedEntityCard 
+                                    isAdmin={isAdmin}
                                     namedEntity={manufacturer} 
                                     updateUrl="/update-manufacturer"
                                     key={manufacturer.id} deleteNamedEntity={this.deleteManufacturer} 
@@ -63,4 +68,11 @@ export default class ManufacturerDashboard extends Component {
         ) 
     }
 }
+
+
+const mapStateToProps = state => ({
+    user: state.security.user
+})
+
+export default connect(mapStateToProps) (ManufacturerDashboard)
 
