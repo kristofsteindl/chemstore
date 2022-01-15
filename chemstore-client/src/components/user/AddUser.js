@@ -2,7 +2,8 @@ import Multiselect from 'multiselect-react-dropdown'
 import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from "axios";
-import { check } from '../../utils/securityUtils'
+import { check, checkIfAccountManager } from '../../utils/securityUtils'
+import { connect } from 'react-redux';
 
 
 class AddUser extends Component {
@@ -26,8 +27,17 @@ class AddUser extends Component {
 
     componentDidMount() {
         check()
-        axios.get('/api/account/lab').then((results) => this.setState({ labs: results.data }));
-        axios.get('/api/logged-in/role').then((results) => this.setState({ roles: results.data }));
+        if (!checkIfAccountManager(this.props.user)) {
+            this.props.history.push("/users")
+        } else {
+            axios.get('/api/logged-in/lab')
+                .then((results) => this.setState({ labs: results.data }))
+                .catch(error => this.props.history.push("/users"))
+            axios.get('/api/logged-in/role')
+                .then((results) => this.setState({ roles: results.data }))
+                .catch(error => this.props.history.push("/users"))
+        }
+
     }
 
 
@@ -119,7 +129,7 @@ class AddUser extends Component {
                                             placeholder='labs as user'
                                             onSearch={function noRefCheck(){}}
                                             closeOnSelect={false}
-                                            style={{searchBox: {"fontSize": "20px"}}}
+                                            style={{searchBox: {"fontSize": "16px"}}}
                                             options={this.state.labs}
                                             ref={this.labsAsUserMultiSelect}
                                             showCheckbox
@@ -134,7 +144,7 @@ class AddUser extends Component {
                                             placeholder='admin in labs'
                                             onSearch={function noRefCheck(){}}
                                             closeOnSelect={false}
-                                            style={{searchBox: {"fontSize": "20px"}}}
+                                            style={{searchBox: {"fontSize": "16px"}}}
                                             options={this.state.labs}
                                             ref={this.labsAsAdminMultiselect}
                                             showCheckbox
@@ -149,7 +159,7 @@ class AddUser extends Component {
                                             placeholder='roles'
                                             onSearch={function noRefCheck(){}}
                                             closeOnSelect={false}
-                                            style={{searchBox: {"fontSize": "20px"}}}
+                                            style={{searchBox: {"fontSize": "16px"}}}
                                             options={this.state.roles}
                                             ref={this.rolesMultiselect}
                                             showCheckbox
@@ -167,4 +177,8 @@ class AddUser extends Component {
     }
 }
 
-export default AddUser
+const mapStateToProps = state => ({
+    user: state.security.user
+})
+
+export default connect(mapStateToProps) (AddUser)

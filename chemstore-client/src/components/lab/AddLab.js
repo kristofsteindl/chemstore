@@ -27,7 +27,7 @@ class AddLab extends Component {
 
     componentDidMount() {
         check()
-        if (checkIfAccountManager(this.props.user)) {
+        if (!checkIfAccountManager(this.props.user)) {
             this.props.history.push("/labs")
         } else {
             axios.get('/api/account/user')

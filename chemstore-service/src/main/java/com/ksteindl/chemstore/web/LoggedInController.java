@@ -13,7 +13,6 @@ import com.ksteindl.chemstore.service.ChemicalCategoryService;
 import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.LabService;
 import com.ksteindl.chemstore.service.ManufacturerService;
-import com.ksteindl.chemstore.service.wrapper.AppUserCard;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,11 +67,11 @@ public class LoggedInController {
     }
 
     @GetMapping("/user")
-    public List<AppUserCard> getAllAppUser() {
+    public List<AppUser> getAllAppUser() {
         logger.info("GET '/api/public/user' was called");
-        List<AppUserCard> users =  appUserService.getAppUserCards();
+        List<AppUser> users =  appUserService.getAppUsers();
         logger.info("GET '/api/logged-in/user' is returning with {} item", users.size());
-        return appUserService.getAppUserCards();
+        return users;
     }
 
     @GetMapping("/user/me")

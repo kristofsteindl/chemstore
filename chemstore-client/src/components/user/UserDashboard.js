@@ -1,6 +1,7 @@
 import axios from 'axios'
 import React, { Component } from 'react'
-import { refreshState } from '../../utils/securityUtils'
+import { connect } from 'react-redux'
+import { checkIfAccountManager, refreshState } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
 import User from './User'
 
@@ -30,10 +31,11 @@ class UserDashboard extends Component {
 
     componentDidMount() {
         refreshState()
-        axios.get('/api/account/user').then((results) => this.setState({ users: results.data }));
+        axios.get('/api/logged-in/user').then((results) => this.setState({ users: results.data }));
     } 
 
     render() {
+        const isAccountManager = checkIfAccountManager(this.props.user)
         return (
             <div className="users">
                 <div className="container">
@@ -41,11 +43,19 @@ class UserDashboard extends Component {
                         <div className="col-md-12">
                             <h1 className="display-4 text-center">Users</h1>
                             <br />
-                            <RedirectFormButton formRoute="/add-user" buttonLabel="Add User"/>
+                            { isAccountManager &&
+                                ( <RedirectFormButton formRoute="/add-user" buttonLabel="Add User"/>)
+                            }
+                           
                             <br />
                             <hr />
                             {this.state.users.map(user => (
-                                <User key={user.id } user={user} deleteUser={this.deleteUser} errors={this.state.errors.deleted["id" + user.id] ? this.state.errors.deleted["id" + user.id] : {}}/>
+                                <User 
+                                    isAccountManager={isAccountManager}
+                                    key={user.id } 
+                                    user={user} 
+                                    deleteUser={this.deleteUser} 
+                                    errors={this.state.errors.deleted["id" + user.id] ? this.state.errors.deleted["id" + user.id] : {}}/>
                             ))
                                 
                             }
@@ -58,4 +68,8 @@ class UserDashboard extends Component {
     }
 }
 
-export default UserDashboard
+const mapStateToProps = state => ({
+    user: state.security.user
+})
+
+export default connect(mapStateToProps) (UserDashboard)

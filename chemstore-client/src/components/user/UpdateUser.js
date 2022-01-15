@@ -2,7 +2,8 @@ import Multiselect from 'multiselect-react-dropdown'
 import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from "axios";
-import { check } from '../../utils/securityUtils'
+import { check, checkIfAccountManager } from '../../utils/securityUtils'
+import { connect } from 'react-redux';
 
 const getEmptyUser = () => {
     return {
@@ -36,18 +37,23 @@ class UpdateUser extends Component {
 
     componentDidMount() {
         check()
-        const id = this.props.match.params.id
-        this.setState({
-            id: id
-        })
-        axios.get('/api/account/lab').then((results) => this.setState({ labs: results.data }));
-        axios.get('/api/logged-in/role').then((results) => this.setState({ roles: results.data }));
-        axios.get(`/api/account/user/${id}`).then((results) => {
-            this.setState({ 
-            persistedUser: results.data,
-            username: results.data.username,
-            fullName: results.data.fullName,
-        })});
+        if (!checkIfAccountManager(this.props.user)) {
+            this.props.history.push("/users")
+        } else {
+            const id = this.props.match.params.id
+            this.setState({
+                id: id
+            })
+            axios.get('/api/logged-in/lab').then((results) => this.setState({ labs: results.data }))
+            axios.get('/api/logged-in/role').then((results) => this.setState({ roles: results.data }));
+            axios.get(`/api/account/user/${id}`).then((results) => {
+                this.setState({ 
+                persistedUser: results.data,
+                username: results.data.username,
+                fullName: results.data.fullName,
+            })});
+        }
+
     }
 
     onChangeBasicInputs(e) {
@@ -190,4 +196,8 @@ class UpdateUser extends Component {
     }
 }
 
-export default UpdateUser
+const mapStateToProps = state => ({
+    user: state.security.user
+})
+
+export default connect(mapStateToProps) (UpdateUser)

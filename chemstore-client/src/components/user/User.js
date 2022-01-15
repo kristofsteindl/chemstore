@@ -39,19 +39,24 @@ class User extends Component {
                         </div>
                         <div className="col-md-4 d-none d-lg-block">
                             <ul className="list-group">
-                                <Link to={`/update-user/${user.id}`}>
-                                    <li className="list-group-item update">
-                                        <i className="fa fa-edit pr-1">Update User</i>
-                                    </li>
-                                </Link>
-                                <span onClick={() => this.deleteUser(user)}>
-                                    <li className="list-group-item delete">
-                                        <i className="fa fa-minus-circle pr-1">Delete User</i>
-                                        {
-                                            (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
-                                        }
-                                    </li>
-                                </span> 
+                                { this.props.isAccountManager && 
+                                    ( <Link to={`/update-user/${user.id}`}>
+                                        <li className="list-group-item update">
+                                            <i className="fa fa-edit pr-1">Update User</i>
+                                        </li>
+                                    </Link>)
+                                }
+                                { this.props.isAccountManager && 
+                                    ( <span onClick={() => this.deleteUser(user)}>
+                                        <li className="list-group-item delete">
+                                            <i className="fa fa-minus-circle pr-1">Delete User</i>
+                                            {
+                                                (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
+                                            }
+                                        </li>
+                                    </span> )
+                                }
+
                             </ul>
                         </div>
                     </div>

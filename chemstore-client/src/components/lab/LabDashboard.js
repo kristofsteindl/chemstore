@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { refreshState } from '../../utils/securityUtils'
+import { checkIfAccountManager, refreshState } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
 import LabCard from './LabCard'
 
@@ -36,7 +36,7 @@ class LabDashboard extends Component {
     }
 
     render() {
-        const isAccountManager = this.props.user.authorities.some(listItem => listItem.authority === "ACCOUNT_MANAGER")
+        const isAccountManager = checkIfAccountManager(this.props.user)
         return (
             <div className="labs">
                 <div className="container">
