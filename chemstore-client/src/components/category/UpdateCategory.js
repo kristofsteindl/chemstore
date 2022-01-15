@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import Select from 'react-dropdown-select'
 import { connect } from 'react-redux'
 import { getDays } from '../../utils/durationUtils'
-import { checkExpiry } from '../../utils/securityUtils'
+import { check, checkIfAdmin } from '../../utils/securityUtils'
 import PropTypes from "prop-types";
 
 class UpdateCategory extends Component {
@@ -35,14 +35,28 @@ class UpdateCategory extends Component {
         ]
     }
 
+    componentWillReceiveProps(nextProps){
+        const selectedLab = nextProps.selectedLab
+        this.handleChange(selectedLab)
+    }
 
     componentDidMount() {
-        checkExpiry()
-        axios.get(`/api/lab-admin/chem-category/${this.props.match.params.id}`).then(result => this.setState({
-            name: result.data.name,
-            amount: getDays(result.data.shelfLife),
-            unit: "d"
-        } ))
+        const selectedLab = this.props.selectedLab
+        this.handleChange(selectedLab)
+    }
+
+    handleChange(selectedLab) {
+        check()
+        if (!checkIfAdmin(selectedLab, this.props.user)) {
+            this.props.history.push("/categories")
+        } else {
+            axios.get(`/api/lab-admin/chem-category/${this.props.match.params.id}`).then(result => this.setState({
+                    name: result.data.name,
+                    amount: getDays(result.data.shelfLife),
+                    unit: "d"
+                } 
+            ))
+        }
     }
 
     onChange(e) {
@@ -55,7 +69,7 @@ class UpdateCategory extends Component {
     }
 
     async onSubmit(e) {
-        checkExpiry()
+        check()
         e.preventDefault()
         const input = {
             labKey: this.props.selectedLab.key,
@@ -152,7 +166,8 @@ UpdateCategory.propTypes = {
 }
 
 const mapStateToProps = state => ({
-    selectedLab: state.selectedLab
+    selectedLab: state.selectedLab,
+    user: state.security.user
 })
 
 export default connect(mapStateToProps) (UpdateCategory)

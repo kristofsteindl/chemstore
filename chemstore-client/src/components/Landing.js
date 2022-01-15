@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import PropTypes from "prop-types"
-import Select from 'react-dropdown-select'
+import { fetchLabs } from '../utils/securityUtils'
 
 class Landing extends Component {
     componentDidMount() {
         const user = this.props.security.user
         if (user && JSON.stringify(user) !== '{}') {
-            //TODO do we really want to navigate here?
+            fetchLabs()
             this.props.history.push('/chem-items')
         }
     }

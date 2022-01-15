@@ -9,7 +9,7 @@ import store from './store'
 import Landing from './components/Landing';
 import AddUser from './components/user/AddUser';
 import Login from './components/login/Login';
-import { refreshTokenAndUser } from './utils/securityUtils';
+import { refreshState } from './utils/securityUtils';
 import SecuredRoute from './utils/SecuredRoute'
 import UserDashboard from './components/user/UserDashboard';
 import ChangePassword from './components/user/ChangePassword';
@@ -28,7 +28,7 @@ import AddCategory from './components/category/AddCategory';
 import UpdateCategory from './components/category/UpdateCategory';
 
 
-refreshTokenAndUser()
+refreshState()
 
 function App() {
   return (

@@ -1,10 +1,11 @@
 import axios from 'axios'
 import React, { Component } from 'react'
-import { refreshTokenAndUser } from '../../utils/securityUtils'
+import { connect } from 'react-redux'
+import { refreshState } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
 import LabCard from './LabCard'
 
-export default class LabDashboard extends Component {
+class LabDashboard extends Component {
     constructor() {
         super()
         this.state = {
@@ -17,7 +18,7 @@ export default class LabDashboard extends Component {
 
     async deleteLab(lab) {
         const id = lab.id
-        if (window.confirm(`Are you sure you want to delete \'${lab.name}\' (${lab.key})?`)) {
+        if (window.confirm(`Are you sure you want to delete '${lab.name}' (${lab.key})?`)) {
             try {
                 await axios.delete(`/api/account/lab/${id}`)
                 const refreshedLabs = this.state.labs.filter(labFromList => labFromList.id !== id)
@@ -30,24 +31,28 @@ export default class LabDashboard extends Component {
     }
 
     componentDidMount() {
-        refreshTokenAndUser()
-        axios.get('/api/account/lab').then(result => this.setState({labs: result.data}))
+        refreshState()
+        axios.get('/api/logged-in/lab').then(result => this.setState({labs: result.data}))
     }
 
     render() {
+        const isAccountManager = this.props.user.authorities.some(listItem => listItem.authority === "ACCOUNT_MANAGER")
         return (
             <div className="labs">
                 <div className="container">
                     <div className="row"> 
                         <div className="col-md-12">
                             <h1 className="display-4 text-center">Labs</h1>
-                            <p className="lead text-center">Manage labs (craete, delete, modify) as account admin</p>
+                            <p className="lead text-center">Manage labs (create, delete, modify) as account admin</p>
                             <br />
-                            <RedirectFormButton formRoute="/add-lab" buttonLabel="Add Lab"/>
+                            {isAccountManager &&
+                                (<RedirectFormButton formRoute="/add-lab" buttonLabel="Add Lab"/>)
+                            }
                             <br />
                             <hr />
                             {this.state.labs.map(lab => (
                                 <LabCard 
+                                    isAccountManager={isAccountManager}
                                     lab={lab} 
                                     key={lab.id} 
                                     deleteLab={this.deleteLab}
@@ -64,4 +69,10 @@ export default class LabDashboard extends Component {
         ) 
     }
 }
+
+const mapStateToProps = state => ({
+    user: state.security.user
+})
+
+export default connect(mapStateToProps) (LabDashboard)
 

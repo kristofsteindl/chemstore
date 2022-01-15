@@ -81,9 +81,16 @@ public class LoggedInController {
     }
 
     @GetMapping("/lab")
-    public List<Lab> getEveryLab(Principal principal) {
-        logger.info("GET '/api/logged-in/lab'");
-        List<Lab> labs = labService.getLabsForUser(principal);
+    public List<Lab> getEveryLab(
+            @RequestParam(value="onlyAvailable", defaultValue = "false") boolean onlyAvailable,
+            Principal principal) {
+        logger.info("GET '/api/logged-in/lab' with 'onlyAvailable' param {}", onlyAvailable);
+        List<Lab> labs;
+        if (onlyAvailable) {
+            labs = labService.getLabsForUser(principal);
+        } else {
+            labs = labService.getLabs();
+        }
         logger.info("GET '/api/logged-in/lab' was succesful with {} item", labs.size());
         return labs;
     }

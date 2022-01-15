@@ -2,7 +2,7 @@ import Multiselect from 'multiselect-react-dropdown'
 import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from "axios";
-import { checkExpiry } from '../../utils/securityUtils'
+import { check } from '../../utils/securityUtils'
 
 const getEmptyUser = () => {
     return {
@@ -24,7 +24,6 @@ class UpdateUser extends Component {
             labsAsAdmin: [],
             roles: [],
             labs: [],
-            roles: [],
             persistedUser: getEmptyUser(),
             errors: {}
         }
@@ -36,7 +35,7 @@ class UpdateUser extends Component {
     }
 
     componentDidMount() {
-        checkExpiry()
+        check()
         const id = this.props.match.params.id
         this.setState({
             id: id
@@ -52,7 +51,7 @@ class UpdateUser extends Component {
     }
 
     onChangeBasicInputs(e) {
-        checkExpiry()
+        check()
         this.setState({ [e.target.name]: e.target.value})
     }
 

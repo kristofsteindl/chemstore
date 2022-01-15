@@ -4,7 +4,7 @@ import axios from 'axios';
 import PropTypes from "prop-types";
 import { connect } from 'react-redux';
 import Select from 'react-dropdown-select';
-import { checkExpiry, refreshTokenAndUser } from '../../utils/securityUtils';
+import { check, checkIfAdmin } from '../../utils/securityUtils';
 
 class AddCategory extends Component {
     constructor() {
@@ -34,8 +34,21 @@ class AddCategory extends Component {
         ]
     }
 
+    componentWillReceiveProps(nextProps){
+        const selectedLab = nextProps.selectedLab
+        this.handleChange(selectedLab)
+    }
+
     componentDidMount() {
-        checkExpiry()
+        const selectedLab = this.props.selectedLab
+        this.handleChange(selectedLab)
+    }
+
+    handleChange(selectedLab) {
+        check()
+        if (!checkIfAdmin(selectedLab, this.props.user)) {
+            this.props.history.push("/categories")
+        } 
     }
 
     unitOnChanged(justSelected) {

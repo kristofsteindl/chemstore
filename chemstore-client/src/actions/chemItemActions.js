@@ -3,7 +3,7 @@ import { GET_ERRORS } from "./types";
 
 export const createChemItem = (newChemItem, labKey, history) => async dispatch => {
     try {
-        const res = await axios.post(`/api/chem-item/${labKey}`, newChemItem)
+        await axios.post(`/api/chem-item/${labKey}`, newChemItem)
         history.push('/chem-items')
     } catch (err) {
         dispatch({

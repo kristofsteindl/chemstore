@@ -1,6 +1,6 @@
 import axios from 'axios'
 import React, { Component } from 'react'
-import { refreshTokenAndUser } from '../../utils/securityUtils'
+import { refreshState } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
 import NamedEntityCard from '../NamedEntityCard'
 import { connect } from 'react-redux';
@@ -18,7 +18,7 @@ class ManufacturerDashboard extends Component {
 
     async deleteManufacturer(manufacturer) {
         const id = manufacturer.id
-        if (window.confirm(`Are you sure you want to delete \'${manufacturer.name}\'?`)) {
+        if (window.confirm(`Are you sure you want to delete '${manufacturer.name}'?`)) {
             try {
                 await axios.delete(`/api/lab-admin/manufacturer/${id}`)
                 const refreshedMf = this.state.manufacturers.filter(mfFromList => mfFromList.id !== id)
@@ -31,7 +31,7 @@ class ManufacturerDashboard extends Component {
     }
 
     componentDidMount() {
-        refreshTokenAndUser()
+        refreshState()
         axios.get('/api/logged-in/manufacturer').then(result => this.setState({manufacturers: result.data}))
     }
 

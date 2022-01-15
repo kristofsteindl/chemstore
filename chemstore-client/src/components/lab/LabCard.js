@@ -25,22 +25,26 @@ export default class LabCard extends Component {
                             <i>({lab.labManagers.map(manager => manager.fullName).join(",")})</i>
                         </div>
                         <div className="col-sm-2">
-                            <Link to={`update-lab/${lab.id}`}>
-                                <li className="list-group-item update">
-                                
-                                    <i className="fa fa-edit pr-1">Update</i>
-                                </li>
-                            </Link>
+                            {this.props.isAccountManager &&
+                                (<Link to={`update-lab/${lab.id}`}>
+                                    <li className="list-group-item update">
+                                    
+                                        <i className="fa fa-edit pr-1">Update</i>
+                                    </li>
+                                </Link>)
+                            }
                         </div>
                         <div className="col-sm-2">
-                            <span onClick={() => this.deleteLab(lab)}>
-                                <li className="list-group-item delete">
-                                    <i className="fa fa-minus-circle pr-1">Delete</i>
-                                    {
-                                        (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
-                                    }
-                                </li>
-                            </span> 
+                            {this.props.isAccountManager &&
+                                (<span onClick={() => this.deleteLab(lab)}>
+                                    <li className="list-group-item delete">
+                                        <i className="fa fa-minus-circle pr-1">Delete</i>
+                                        {
+                                            (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
+                                        }
+                                    </li>
+                                </span>)
+                            } 
                         </div>
                     </div>
                 </div>

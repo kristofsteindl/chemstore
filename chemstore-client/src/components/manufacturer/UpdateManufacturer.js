@@ -1,7 +1,7 @@
 import axios from 'axios'
 import classNames from 'classnames'
 import React, { Component } from 'react'
-import { checkExpiry } from '../../utils/securityUtils'
+import { check } from '../../utils/securityUtils'
 
 export default class UpdateManufacturer extends Component {
     constructor() {
@@ -23,7 +23,7 @@ export default class UpdateManufacturer extends Component {
     }
 
     async onSubmit(e) {
-        checkExpiry()
+        check()
         e.preventDefault()
         const input = {name: this.state.name}
         try {

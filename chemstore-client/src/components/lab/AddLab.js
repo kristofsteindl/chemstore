@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from 'axios';
-import { checkExpiry } from '../../utils/securityUtils';
+import { check } from '../../utils/securityUtils';
 import Multiselect from 'multiselect-react-dropdown';
 
 
@@ -25,12 +25,14 @@ export default class AddLab extends Component {
     }
 
     componentDidMount() {
-        checkExpiry()
-        axios.get('/api/account/user').then(result => this.setState({users: result.data}))
+        check()
+        axios.get('/api/account/user')
+            .then(result => this.setState({users: result.data}))
+            .catch(error => this.props.history.push("/labs"))
     }
 
     async onSubmit(e) {
-        checkExpiry()
+        check()
         e.preventDefault()
         const input = {
             key: this.state.key,

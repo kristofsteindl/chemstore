@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from 'axios';
 import Select from 'react-dropdown-select';
-import { checkExpiry } from '../../utils/securityUtils';
+import { check, checkIfAdmin } from '../../utils/securityUtils';
 import { connect } from 'react-redux';
 import PropTypes from "prop-types";
 
@@ -26,7 +26,7 @@ class AddChemical extends Component {
     }
 
 
-    async componentWillReceiveProps(nextProps){
+    componentWillReceiveProps(nextProps){
         const selectedLab = nextProps.selectedLab
         this.handleChange(selectedLab)
     }
@@ -37,17 +37,10 @@ class AddChemical extends Component {
     }
 
     handleChange(selectedLab) {
-        checkExpiry()
-        this.checkIfAdmin(selectedLab)
-        this.loadCategories(selectedLab)
-    }
-
-    checkIfAdmin(selectedLab) {
-        console.log(selectedLab.key)
-        const isAdmin = (selectedLab.key) && 
-                        (this.props.user.labsAsAdmin.includes(selectedLab.value) || 
-                        selectedLab.labManagers.map(manager => manager.username).includes(this.props.user.username))
-        if (!isAdmin) {
+        check()
+        if (checkIfAdmin(selectedLab, this.props.user)) {
+            this.loadCategories(selectedLab)
+        } else {
             this.props.history.push("/chemicals")
         }
     }
@@ -64,7 +57,7 @@ class AddChemical extends Component {
     }
 
     async onSubmit(e) {
-        checkExpiry()
+        check()
         e.preventDefault()
         const newChemical = {
             labKey: this.props.selectedLab.key,

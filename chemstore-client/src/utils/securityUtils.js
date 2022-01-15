@@ -12,6 +12,13 @@ export const setJwt = token => {
     }
 }
 
+export const checkIfAdmin = (selectedLab, user) => {
+  console.log(user.username)
+  return (selectedLab.key) && 
+                  (user.labsAsAdmin.includes(selectedLab.value) || 
+                  selectedLab.labManagers.map(manager => manager.username).includes(user.username))
+}
+
 export const logoutDispatch = () => dispatch => {
     localStorage.removeItem("jwt");
     setJwt(false);
@@ -32,7 +39,11 @@ export const logout = () => {
     });
 }
 
-export const checkExpiry = () => {
+export const check = () => {
+  checkExpiry()
+}
+
+const checkExpiry = () => {
     const jwtToken = localStorage.jwt;
     if (jwtToken) {
       const decodedToken = jwt_decode(jwtToken);
@@ -45,7 +56,7 @@ export const checkExpiry = () => {
     }
 }
 
-export const refreshTokenAndUser = () => {
+export const refreshState = () => {
     const jwtToken = localStorage.jwt;
     if (jwtToken) {
       const decodedToken = jwt_decode(jwtToken);
@@ -60,32 +71,22 @@ export const refreshTokenAndUser = () => {
             type: SET_CURRENT_USER,
             payload: decodedToken
         });
+        fetchLabs()
       }
     }
 }
 
 export const fetchLabs = async () => {
   try {
-    const res = await axios.get('/api/logged-in/lab')
+    const res = await axios.get('/api/logged-in/lab?onlyAvailable=true')
     store.dispatch({
-      type: FILL_LAB_DROPDOWN,
-      payload: res.data
-  });
-  }
-  catch (error) {
+        type: FILL_LAB_DROPDOWN,
+        payload: res.data
+    });
+  } catch (error) {
     console.log(error)
   }
 
-}
-
-export const checkIfAdmin = selectedLab => {
-  console.log(selectedLab.key)
-  const isAdmin = (selectedLab && selectedLab.key) && 
-                  (this.props.user.labsAsAdmin.includes(selectedLab.value) || 
-                  selectedLab.labManagers.map(manager => manager.username).includes(this.props.user.username))
-  if (!isAdmin) {
-      this.props.history.push("/chemicals")
-  }
 }
 
 

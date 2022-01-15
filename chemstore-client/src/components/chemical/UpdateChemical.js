@@ -1,7 +1,7 @@
 import axios from 'axios'
 import classNames from 'classnames'
 import React, { Component } from 'react'
-import { checkExpiry } from '../../utils/securityUtils'
+import { check, checkIfAdmin } from '../../utils/securityUtils'
 import Select from 'react-dropdown-select';
 import { connect } from 'react-redux';
 import PropTypes from "prop-types";
@@ -40,20 +40,14 @@ class UpdateChemical extends Component {
     }
 
     handleChange(selectedLab) {
-        checkExpiry()
-        this.checkIfAdmin(selectedLab)
-        this.loadCategories(selectedLab)
-
-    }
-
-    checkIfAdmin(selectedLab) {
-        const isAdmin = (selectedLab && selectedLab.key) && 
-                        (this.props.user.labsAsAdmin.includes(selectedLab.value) || 
-                        selectedLab.labManagers.map(manager => manager.username).includes(this.props.user.username))
-        if (!isAdmin) {
+        check()
+        if (checkIfAdmin(selectedLab, this.props.user)) {
+            this.loadCategories(selectedLab)
+        } else {
             this.props.history.push("/chemicals")
         }
-      }
+        
+    }
 
     async loadCategories(selectedLab) {
         if (selectedLab && selectedLab.key) {
@@ -67,7 +61,7 @@ class UpdateChemical extends Component {
     }
 
     async onSubmit(e) {
-        checkExpiry()
+        check()
         e.preventDefault()
         const updatedChemical = {
             labKey: this.props.selectedLab.key,

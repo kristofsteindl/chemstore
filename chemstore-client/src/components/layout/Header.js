@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from "prop-types"
 import { connect } from 'react-redux'
-import { logoutDispatch, refreshTokenAndUser } from '../../utils/securityUtils'
+import { logoutDispatch } from '../../utils/securityUtils'
 import 'semantic-ui-css/semantic.min.css'
 import Select from 'react-select'
 import store from '../../store'
@@ -12,9 +12,6 @@ import { SELECT_LAB } from '../../actions/types'
 class Header extends Component {
     constructor() {
         super()
-        this.state = {
-            selectedLab: false
-        }
         this.onChange=this.onChange.bind(this)
     }
 
@@ -24,18 +21,10 @@ class Header extends Component {
     }
 
     onChange(justSelected) {
-        this.setState({selectedLab: justSelected})
         store.dispatch({
             type: SELECT_LAB,
             payload: justSelected
         });
-    }
-
-    componentWillReceiveProps(nextProps){
-        console.log("in componentWillReceiveProps " + JSON.stringify(nextProps.selectedLab))
-        if (nextProps.selectedLab && JSON.stringify(nextProps.selectedLab) !== "{}") {
-            this.setState({selectedLab: nextProps.selectedLab});
-        }
     }
 
 
@@ -134,12 +123,12 @@ class Header extends Component {
 
 Header.propTypes = {
     logoutDispatch: PropTypes.func.isRequired,
-    security: PropTypes.object.isRequired
+    security: PropTypes.object.isRequired,
+    labs:PropTypes.array.isRequired
 }
 
 const mapStateToProps = state => ({
     security: state.security,
-    selectedLab: state.selectedLab,
     labs: state.labs
 })
 

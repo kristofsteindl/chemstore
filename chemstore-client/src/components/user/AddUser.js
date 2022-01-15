@@ -2,7 +2,7 @@ import Multiselect from 'multiselect-react-dropdown'
 import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from "axios";
-import { checkExpiry } from '../../utils/securityUtils'
+import { check } from '../../utils/securityUtils'
 
 
 class AddUser extends Component {
@@ -25,14 +25,14 @@ class AddUser extends Component {
     }
 
     componentDidMount() {
-        checkExpiry()
+        check()
         axios.get('/api/account/lab').then((results) => this.setState({ labs: results.data }));
         axios.get('/api/logged-in/role').then((results) => this.setState({ roles: results.data }));
     }
 
 
     onChangeBasicInputs(e) {
-        checkExpiry()
+        check()
         this.setState({ [e.target.name]: e.target.value})
     }
 

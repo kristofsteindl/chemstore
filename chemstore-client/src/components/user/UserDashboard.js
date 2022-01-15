@@ -1,6 +1,6 @@
 import axios from 'axios'
 import React, { Component } from 'react'
-import { refreshTokenAndUser } from '../../utils/securityUtils'
+import { refreshState } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
 import User from './User'
 
@@ -29,12 +29,11 @@ class UserDashboard extends Component {
     }
 
     componentDidMount() {
-        refreshTokenAndUser()
+        refreshState()
         axios.get('/api/account/user').then((results) => this.setState({ users: results.data }));
     } 
 
     render() {
-        const errors = this.state.errors
         return (
             <div className="users">
                 <div className="container">

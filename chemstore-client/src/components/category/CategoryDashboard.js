@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { checkExpiry, refreshTokenAndUser } from '../../utils/securityUtils'
+import { check } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
 import CategoryCard from './CategoryCard'
 import PropTypes from "prop-types";
@@ -36,7 +36,7 @@ class CategoryDashboard extends Component {
     }
 
     async componentDidMount() {
-        checkExpiry()
+        check()
         const selectedLab = this.props.selectedLab
         this.loadCategories(selectedLab)
     }

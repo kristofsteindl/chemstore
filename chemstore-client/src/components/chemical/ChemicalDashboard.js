@@ -1,8 +1,7 @@
 import axios from 'axios'
 import React, { Component } from 'react'
-import { checkExpiry, refreshTokenAndUser } from '../../utils/securityUtils'
+import { check } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
-import NamedEntityCard from '../NamedEntityCard'
 import ChemicalCard from './ChemicalCard'
 import { connect } from 'react-redux'
 import PropTypes from "prop-types";
@@ -22,7 +21,7 @@ class ChemicalDashboard extends Component {
 
     async deleteChemical(chemical) {
         const id = chemical.id
-        if (window.confirm(`Are you sure you want to delete \'${chemical.shortName}\' (${chemical.exactName})?`)) {
+        if (window.confirm(`Are you sure you want to delete '${chemical.shortName}' (${chemical.exactName})?`)) {
             try {
                 await axios.delete(`/api/lab-admin/chemical/${id}`)
                 const refreshedChemical = this.state.chemicals.filter(chemicalFromList => chemicalFromList.id !== id)
@@ -34,13 +33,8 @@ class ChemicalDashboard extends Component {
         }
     }
 
-    componentDidMount() {
-        refreshTokenAndUser()
-        axios.get('/api/lab-admin/chemical').then(result => this.setState({chemicals: result.data}))
-    }
-
     async componentDidMount() {
-        checkExpiry()
+        check()
         const selectedLab = this.props.selectedLab
         this.loadChemicals(selectedLab)
     }
