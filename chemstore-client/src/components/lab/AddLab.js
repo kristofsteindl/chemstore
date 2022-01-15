@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from 'axios';
-import { check } from '../../utils/securityUtils';
+import { check, checkIfAccountManager } from '../../utils/securityUtils';
 import Multiselect from 'multiselect-react-dropdown';
+import { connect } from 'react-redux';
 
 
-export default class AddLab extends Component {
+class AddLab extends Component {
     constructor() {
         super()
         this.state = {
@@ -26,9 +27,14 @@ export default class AddLab extends Component {
 
     componentDidMount() {
         check()
-        axios.get('/api/account/user')
+        if (checkIfAccountManager(this.props.user)) {
+            this.props.history.push("/labs")
+        } else {
+            axios.get('/api/account/user')
             .then(result => this.setState({users: result.data}))
             .catch(error => this.props.history.push("/labs"))
+        }
+        
     }
 
     async onSubmit(e) {
@@ -128,3 +134,8 @@ export default class AddLab extends Component {
         )
     }
 }
+const mapStateToProps = state => ({
+    user: state.security.user
+})
+
+export default connect(mapStateToProps) (AddLab)

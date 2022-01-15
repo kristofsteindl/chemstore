@@ -43,7 +43,7 @@ class LabDashboard extends Component {
                     <div className="row"> 
                         <div className="col-md-12">
                             <h1 className="display-4 text-center">Labs</h1>
-                            <p className="lead text-center">Manage labs (create, delete, modify) as account admin</p>
+                            <p className="lead text-center">Laboratories of the company</p>
                             <br />
                             {isAccountManager &&
                                 (<RedirectFormButton formRoute="/add-lab" buttonLabel="Add Lab"/>)

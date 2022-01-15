@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import classNames from "classnames";
 import axios from 'axios';
-import { check } from '../../utils/securityUtils';
+import { check, checkIfAccountManager } from '../../utils/securityUtils';
 import Multiselect from 'multiselect-react-dropdown';
+import { connect } from 'react-redux';
 
 const getEmptyLab = () => {
     return {
@@ -14,8 +15,7 @@ const getEmptyLab = () => {
 }
 
 
-
-export default class AddLab extends Component {
+class UpdateLab extends Component {
     constructor() {
         super()
         this.state = {
@@ -37,13 +37,18 @@ export default class AddLab extends Component {
 
     componentDidMount() {
         check()
-        const id = this.props.match.params.id
-        axios.get('/api/account/user').then(result => this.setState({users: result.data}))
-        axios.get(`/api/account/lab/${id}`).then(result => this.setState({
-            persistedLab: result.data,
-            key: result.data.key,
-            name: result.data.name,
-        }))
+        if (!checkIfAccountManager(this.props.user)) {
+            this.props.history.push("/labs")
+        } else {
+            const id = this.props.match.params.id
+            axios.get('/api/account/user').then(result => this.setState({users: result.data}))
+            axios.get(`/api/account/lab/${id}`).then(result => this.setState({
+                persistedLab: result.data,
+                key: result.data.key,
+                name: result.data.name,
+            }))
+        }
+
     }
 
     async onSubmit(e) {
@@ -71,8 +76,8 @@ export default class AddLab extends Component {
                         <div className="col-md-8 m-auto">
 
                     
-                            <h1 className="display-4 text-center">Add Lab</h1>
-                            <p className="lead text-center">Create a lab</p>
+                            <h1 className="display-4 text-center">Update Lab</h1>
+                            <p className="lead text-center">Modify the lab</p>
                             <br/>
                             {
                                 (errors.message && 
@@ -144,3 +149,9 @@ export default class AddLab extends Component {
         )
     }
 }
+
+const mapStateToProps = state => ({
+    user: state.security.user
+})
+
+export default connect(mapStateToProps) (UpdateLab)

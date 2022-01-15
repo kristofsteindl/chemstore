@@ -13,10 +13,13 @@ export const setJwt = token => {
 }
 
 export const checkIfAdmin = (selectedLab, user) => {
-  console.log(user.username)
   return (selectedLab.key) && 
                   (user.labsAsAdmin.includes(selectedLab.value) || 
                   selectedLab.labManagers.map(manager => manager.username).includes(user.username))
+}
+
+export const checkIfAccountManager = (user) => {
+  return user.username && user.authorities.map(listItem => listItem.authority).includes("ACCOUNT_MANAGER")
 }
 
 export const logoutDispatch = () => dispatch => {
