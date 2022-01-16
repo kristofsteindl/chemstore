@@ -68,11 +68,10 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
         chemical.setExactName(chemicalInput.getExactName());
     }
 
-    public Chemical getForChemItem(String shortName, Lab lab) {
+    public Chemical getByShortName(String shortName, Lab lab) {
         Chemical chemical = chemicalRepository.findByShortNameAndLab(shortName, lab).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, shortName));
         if (chemical.getDeleted()) {
             throw new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, chemical.getShortName());
-
         }
         return chemical;
     }

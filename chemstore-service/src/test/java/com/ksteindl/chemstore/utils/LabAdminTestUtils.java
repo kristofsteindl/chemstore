@@ -117,6 +117,9 @@ public class LabAdminTestUtils {
     public static final String IPA_EXACT_NAME = "Isopropyl alcohol";
     public static final String IPA_SHORT_NAME = "IPA";
 
+    public static final String FA_EXACT_NAME = "Formic acid";
+    public static final String FA_SHORT_NAME = "FA";
+
     //For Alpha: ACN(O), EtOH(O)
     public static ChemicalInput getAcnForAlphaInput() {
         ChemicalInput chemicalInput = new ChemicalInput();
@@ -163,6 +166,14 @@ public class LabAdminTestUtils {
         chemicalInput.setExactName(ACETONITRIL_EXACT_NAME);
         chemicalInput.setShortName(ACETONITRIL_SHORT_NAME);
         chemicalInput.setLabKey(AccountManagerTestUtils.BETA_LAB_KEY);
+        return chemicalInput;
+    }
+
+    public static ChemicalInput getFaForAlphaInput() {
+        ChemicalInput chemicalInput = new ChemicalInput();
+        chemicalInput.setExactName(FA_EXACT_NAME);
+        chemicalInput.setShortName(FA_SHORT_NAME);
+        chemicalInput.setLabKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         return chemicalInput;
     }
 

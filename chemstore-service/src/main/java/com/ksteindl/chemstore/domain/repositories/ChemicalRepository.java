@@ -16,7 +16,7 @@ public interface ChemicalRepository extends CrudRepository<Chemical, Long> {
 
     Optional<Chemical> findByShortNameAndLab(String shortName, Lab lab);
 
-    @Query("SELECT c FROM Chemical c WHERE c.lab = ?1 and (c.shortName = ?2 or c.shortName = ?3)")
+    @Query("SELECT c FROM Chemical c WHERE c.lab = ?1 and (c.shortName = ?2 or c.exactName = ?3)")
     List<Chemical> findDuplicate(Lab lab, String shortName, String exactName);
 
     List<Chemical> findByCategory(ChemicalCategory category);

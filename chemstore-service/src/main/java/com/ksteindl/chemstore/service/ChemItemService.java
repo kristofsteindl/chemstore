@@ -1,6 +1,10 @@
 package com.ksteindl.chemstore.service;
 
-import com.ksteindl.chemstore.domain.entities.*;
+import com.ksteindl.chemstore.domain.entities.AppUser;
+import com.ksteindl.chemstore.domain.entities.ChemItem;
+import com.ksteindl.chemstore.domain.entities.Chemical;
+import com.ksteindl.chemstore.domain.entities.Lab;
+import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
 import com.ksteindl.chemstore.domain.repositories.ChemItemRepository;
 import com.ksteindl.chemstore.exceptions.ForbiddenException;
@@ -58,7 +62,7 @@ public class ChemItemService {
         AppUser appUser = appUserService.getMyAppUser(user);
         Lab lab = labService.findLabForUser(labKey, user);
         LocalDate arrivalDate = validateArrivalDateAndGet(chemItemInput.getArrivalDate());
-        Chemical chemical = chemicalService.getForChemItem(chemItemInput.getChemicalShortName(), lab);
+        Chemical chemical = chemicalService.getByShortName(chemItemInput.getChemicalShortName(), lab);
         Manufacturer manufacturer = manufacturerService.findById(chemItemInput.getManufacturerId());
         LocalDate expirationDateBeforeOpened = validateExpirationDateBeforeOpenedAndGet(chemItemInput.getExpirationDateBeforeOpened());
         String unit = getUnitAndValidate(chemItemInput.getUnit());
