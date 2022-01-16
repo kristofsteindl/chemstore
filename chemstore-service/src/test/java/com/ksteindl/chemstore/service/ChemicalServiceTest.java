@@ -27,6 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.transaction.Transactional;
 import java.security.Principal;
+import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -50,8 +51,9 @@ public class ChemicalServiceTest extends BaseControllerTest{
     
     @BeforeAll
     public static void init(
-            @Autowired LabService labService, 
-            @Autowired ChemicalCategoryRepository chemicalCategoryRepository) {
+            @Autowired LabService labService,
+            @Autowired ChemicalCategoryRepository chemicalCategoryRepository,
+            @Autowired ChemicalService chemicalService) {
         alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         organicForAlpha = chemicalCategoryRepository
                 .findByLab(alphaLab)
@@ -473,330 +475,309 @@ public class ChemicalServiceTest extends BaseControllerTest{
     }
     
     
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testGetCategoryById_whenValid_gotNoException() {
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
-//                .filter(category -> category.getName().equals(input.getName()))
-//                .findAny().get();
-//        chemicalCategoryService.getById(persisted.getId());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testGetCategoryById_whenValid_gotAttributesAsExpected() {
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
-//                .filter(category -> category.getName().equals(input.getName()))
-//                .findAny().get();
-//        ChemicalCategory fetched = chemicalCategoryService.getById(persisted.getId());
-//        Assertions.assertEquals(input.getLabKey(), fetched.getLab().getKey());
-//        Assertions.assertFalse(fetched.getDeleted());
-//        Assertions.assertEquals(input.getName(), fetched.getName());
-//        Assertions.assertEquals(Duration.between(
-//                        LocalDateTime.now(), LocalDateTime.now().plusYears(LabAdminTestUtils.ORGANIC_FOR_ALPHA_YEARS)).toHours(),
-//                fetched.getShelfLife().toHours());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testGetCategoryById_whenIdDoesNotExist_gotResourceNotFoundException() {
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            chemicalCategoryService.getById((long)Integer.MAX_VALUE);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testGetCategoryById_whenCategoryAlreadyDeleted_gotResourceNotFoundException() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        ChemicalCategory deleted = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin).stream()
-//                .filter(category -> category.getName().equals(LabAdminTestUtils.DELETED_CATEGORY))
-//                .findAny().get();
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            chemicalCategoryService.getById(deleted.getId());
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testFindCategoryById_whenValid_gotNoException() {
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
-//                .filter(category -> category.getName().equals(input.getName()))
-//                .findAny().get();
-//        chemicalCategoryService.findById(persisted.getId());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testFindCategoryById_whenValid_gotAttributesAsExpected() {
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
-//                .filter(category -> category.getName().equals(input.getName()))
-//                .findAny().get();
-//        ChemicalCategory fetched = chemicalCategoryService.findById(persisted.getId());
-//        Assertions.assertEquals(input.getLabKey(), fetched.getLab().getKey());
-//        Assertions.assertFalse(fetched.getDeleted());
-//        Assertions.assertEquals(input.getName(), fetched.getName());
-//        Assertions.assertEquals(Duration.between(
-//                        LocalDateTime.now(), LocalDateTime.now().plusYears(LabAdminTestUtils.ORGANIC_FOR_ALPHA_YEARS)).toHours(),
-//                fetched.getShelfLife().toHours());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testFindCategoryById_whenIdDoesNotExist_gotResourceNotFoundException() {
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            chemicalCategoryService.findById((long)Integer.MAX_VALUE);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testFindCategoryById_whenCategoryAlreadyDeleted_gotAttributesAsExpected() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        ChemicalCategory deleted = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin).stream()
-//                .filter(category -> category.getName().equals(LabAdminTestUtils.DELETED_CATEGORY))
-//                .findAny().get();
-//        ChemicalCategory fetched = chemicalCategoryService.findById(deleted.getId());
-//        Assertions.assertEquals(LabAdminTestUtils.DELETED_CATEGORY, fetched.getName());
-//        Assertions.assertTrue(fetched.getDeleted());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testGetCategoriesByLab_gotNoException() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL;
-//        chemicalCategoryService.getByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testGetCategoriesByLab_gotRightSize() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL;
-//        List<ChemicalCategory> categories = chemicalCategoryService.getByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
-//        Assertions.assertEquals(2, categories.size());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testGetCategoriesByLab_gotOrganicAsExpected() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL;
-//        List<ChemicalCategory> categories = chemicalCategoryService.getByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
-//        categories.stream().filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY)).findAny().get();
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testGetCategoriesByLab_gotNoDeleted() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL;
-//        List<ChemicalCategory> categories = chemicalCategoryService.getByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, admin);
-//        boolean deletedNotFound = true;
-//        for (ChemicalCategory category :categories) {
-//            deletedNotFound = deletedNotFound && !category.getDeleted();
-//        }
-//        Assertions.assertTrue(deletedNotFound);
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testGetCategoriesByLab_whenBlabAdmin_gotForbiddenException() {
-//        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
-//            chemicalCategoryService.getByLabForUser(
-//                    AccountManagerTestUtils.ALPHA_LAB_KEY, 
-//                    AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//    
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testFindCategoriesByLab_gotNoException() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testFindCategoriesByLab_gotRightSize() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        List<ChemicalCategory> categories = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
-//        Assertions.assertEquals(3, categories.size());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testFindCategoriesByLab_gotDeletedCategory() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        List<ChemicalCategory> categories = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
-//        categories.stream().filter(category -> category.getName().equals(LabAdminTestUtils.DELETED_CATEGORY)).findAny().get();
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testGetCategoriesByLab_gotDeletedAsWell() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        List<ChemicalCategory> categories = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, admin);
-//        boolean deletedFound = false;
-//        for (ChemicalCategory category :categories) {
-//            deletedFound = deletedFound || category.getDeleted();
-//        }
-//        Assertions.assertTrue(deletedFound);
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testFindCategoriesByLab_whenBlabAdmin_gotForbiddenException() {
-//        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
-//            chemicalCategoryService.findByLabForUser(
-//                    AccountManagerTestUtils.ALPHA_LAB_KEY,
-//                    false,
-//                    AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//    
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testDeleteCategory_gotGotNoException() {
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
-//                .filter(category -> category.getName().equals(input.getName()))
-//                .findAny().get();
-//        chemicalCategoryService.deleteChemicalCategory(persisted.getId(), admin);
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testDeleteCategory_categoryIsDeleted() {
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), admin).stream()
-//                .filter(category -> category.getName().equals(input.getName()))
-//                .findAny().get();
-//        chemicalCategoryService.deleteChemicalCategory(persisted.getId(), admin);
-//        ChemicalCategory deleted = chemicalCategoryService.findById(persisted.getId());
-//        Assertions.assertTrue(deleted.getDeleted());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testDeleteCategory_whenIdNotExists_gotResourceNotFoundException() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            chemicalCategoryService.deleteChemicalCategory((long)Integer.MAX_VALUE, admin);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testDeleteCategory_whenBetaLabAdmin_gotForbiddenException() {
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-//        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
-//                .filter(category -> category.getName().equals(input.getName()))
-//                .findAny().get();
-//        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
-//            chemicalCategoryService.deleteChemicalCategory(persisted.getId(), AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testDeleteCategory_whenAlphaLabUser_gotForbiddenException() {
-//        ChemicalCategoryInput input = LabAdminTestUtils.getOrganicForAlphaInput();
-//        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(input.getLabKey(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
-//                .filter(category -> category.getName().equals(input.getName()))
-//                .findAny().get();
-//        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
-//            chemicalCategoryService.deleteChemicalCategory(persisted.getId(), AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testDeleteCategory_whenAlreadyDeleted_gotResourceNotFoundException() {
-//        ChemicalCategory persisted = chemicalCategoryService.findByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, false, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL).stream()
-//                .filter(category -> category.getName().equals(LabAdminTestUtils.DELETED_CATEGORY))
-//                .findAny().get();
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            chemicalCategoryService.deleteChemicalCategory(persisted.getId(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testDeleteCategory_categoriesAreDeletedFromChemicals() {
-//        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
-//        ChemicalCategory persisted = chemicalCategoryService.getByLabForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, admin).stream()
-//                .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY))
-//                .findAny().get();
-//        chemicalCategoryService.deleteChemicalCategory(persisted.getId(), admin);
-//        List<Chemical> chemicals = chemicalService.getChemicalsForAdmin(AccountManagerTestUtils.ALPHA_LAB_KEY, admin, false).stream()
-//                .filter(chemical -> chemical.getCategory() != null && chemical.getCategory().equals(persisted))
-//                .collect(Collectors.toList());
-//        Assertions.assertTrue(chemicals.isEmpty());
-//    }
+    // READ
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalByShortName_whenValid_gotNoException() {
+        chemicalService.getByShortName(LabAdminTestUtils.ACETONITRIL_SHORT_NAME, alphaLab);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalByShortName_whenValid_gotAttributesAsExpected() {
+        Chemical acn = chemicalService.getByShortName(LabAdminTestUtils.ACETONITRIL_SHORT_NAME, alphaLab);
+        Assertions.assertEquals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME, acn.getShortName());
+        Assertions.assertEquals(LabAdminTestUtils.ACETONITRIL_EXACT_NAME, acn.getExactName());
+        Assertions.assertEquals(alphaLab.getKey(), acn.getLab().getKey());
+        Assertions.assertEquals(LabAdminTestUtils.ORGANIC_CATEGORY, acn.getCategory().getName());
+        Assertions.assertFalse(acn.getDeleted());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalByShortName_whenShortNameDoesNotExist_gotResourceNotFoundException() {
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            chemicalService.getByShortName("not-existing", alphaLab);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalByShortName_whenAlreadyDeleted_gotResourceNotFoundException() {
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            chemicalService.getByShortName(LabAdminTestUtils.IPA_SHORT_NAME, alphaLab);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalByShortName_whenChemicalExistsAnotherLab_gotResourceNotFoundException(@Autowired LabService labService) {
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            Lab betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
+            chemicalService.getByShortName(LabAdminTestUtils.ETHANOL_SHORT_NAME, betaLab);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalByShortName_whenInvalidLab_gotException() {
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            Lab invalidLab = new Lab();
+            invalidLab.setId((long)Integer.MAX_VALUE);
+            chemicalService.getByShortName(LabAdminTestUtils.ACETONITRIL_SHORT_NAME, invalidLab);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalsForUser_whenValid_gotNoException() {
+        chemicalService.getChemicalsForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalsForUser_whenValid_gotRightSize() {
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(
+                AccountManagerTestUtils.ALPHA_LAB_KEY,
+                AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        // hard coded expected value as the size. If db setup changes, it should be changed too
+        Assertions.assertEquals(4, chemicals.size());
+        Chemical acn = chemicals.stream().filter(chem -> chem.getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME)).findAny().get();
+        Assertions.assertEquals(LabAdminTestUtils.ACETONITRIL_EXACT_NAME, acn.getExactName());
+        Assertions.assertEquals(alphaLab.getKey(), acn.getLab().getKey());
+        Assertions.assertEquals(LabAdminTestUtils.ORGANIC_CATEGORY, acn.getCategory().getName());
+        Assertions.assertFalse(acn.getDeleted());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalsForUser_whenValid_gotNoDeleted() {
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(
+                AccountManagerTestUtils.ALPHA_LAB_KEY,
+                AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        chemicals.forEach(chemical -> Assertions.assertFalse(chemical.getDeleted()));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalsForUser_whenValid_gotAttributesAsExpected() {
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(
+                AccountManagerTestUtils.ALPHA_LAB_KEY, 
+                AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        Chemical acn = chemicals.stream().filter(chem -> chem.getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME)).findAny().get();
+        Assertions.assertEquals(LabAdminTestUtils.ACETONITRIL_EXACT_NAME, acn.getExactName());
+        Assertions.assertEquals(alphaLab.getKey(), acn.getLab().getKey());
+        Assertions.assertEquals(LabAdminTestUtils.ORGANIC_CATEGORY, acn.getCategory().getName());
+        Assertions.assertFalse(acn.getDeleted());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalById_whenValid_gotNoException() {
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(
+                AccountManagerTestUtils.ALPHA_LAB_KEY,
+                AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        Chemical acnInAlpha = chemicals.stream().filter(chem -> chem.getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME)).findAny().get();
+        chemicalService.findById(acnInAlpha.getId(), AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalById_whenValid__gotAttributesAsExpected() {
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(
+                AccountManagerTestUtils.ALPHA_LAB_KEY,
+                AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        Chemical acnInAlpha = chemicals.stream().filter(chem -> chem.getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME)).findAny().get();
+        Chemical fetched = chemicalService.findById(acnInAlpha.getId(), AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        Assertions.assertEquals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME, fetched.getShortName());
+        Assertions.assertEquals(LabAdminTestUtils.ACETONITRIL_EXACT_NAME, fetched.getExactName());
+        Assertions.assertEquals(alphaLab.getKey(), fetched.getLab().getKey());
+        Assertions.assertEquals(LabAdminTestUtils.ORGANIC_CATEGORY, fetched.getCategory().getName());
+        Assertions.assertFalse(fetched.getDeleted());
+    }
+    
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalById_whenIdNonExisting_gotResourceNotFoundException() {
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            chemicalService.findById((long)Integer.MAX_VALUE, AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalById_whenAlreadyDeleted_gotResourceNotFoundException(@Autowired ChemicalRepository chemicalRepository) {
+        Iterable<Chemical> chemIterable = chemicalRepository.findAll();
+        Chemical ipa = null;
+        for (Chemical chemical: chemIterable) {
+            if (chemical.getShortName().equals(LabAdminTestUtils.IPA_SHORT_NAME)) {
+                ipa = chemical; 
+            }
+        }
+        Chemical finalIpa = ipa;
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            chemicalService.findById(finalIpa.getId(), AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalById_whenChemicalIsInAnotherLab_gotForbiddenException(@Autowired ChemicalRepository chemicalRepository) {
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(
+                AccountManagerTestUtils.ALPHA_LAB_KEY,
+                AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        Chemical acnInAlpha = chemicals.stream().filter(chem -> chem.getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME)).findAny().get();
+
+        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
+            chemicalService.findById(acnInAlpha.getId(), AccountManagerTestUtils.BETA_LAB_USER_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetChemicalById_whenOnlyActiveFalseAndChemIsDeleted_gotNoException(@Autowired ChemicalRepository chemicalRepository) {
+        Iterable<Chemical> chemIterable = chemicalRepository.findAll();
+        Chemical ipa = null;
+        for (Chemical chemical: chemIterable) {
+            if (chemical.getShortName().equals(LabAdminTestUtils.IPA_SHORT_NAME)) {
+                ipa = chemical;
+            }
+        }
+        Chemical finalIpa = ipa;
+        Chemical fetched = chemicalService.findById(finalIpa.getId(), AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL, false);
+        Assertions.assertEquals(LabAdminTestUtils.IPA_SHORT_NAME,fetched.getShortName());
+    }
 
 
+    @Test
+    @Rollback
+    @Transactional
+    public void testDeleteChemical_gotGotNoException() {
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(
+                AccountManagerTestUtils.ALPHA_LAB_KEY,
+                AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        Chemical acnInAlpha = chemicals.stream().filter(chem -> chem.getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME)).findAny().get();
+        chemicalService.deleteChemical(acnInAlpha.getId(), admin);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testDeleteChemical_gotGotNoException(@Autowired ChemicalRepository chemicalRepository) {
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(
+                AccountManagerTestUtils.ALPHA_LAB_KEY,
+                AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        Chemical acnInAlpha = chemicals.stream().filter(chem -> chem.getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME)).findAny().get();
+        chemicalService.deleteChemical(acnInAlpha.getId(), admin);
+        Chemical deleted = chemicalRepository.findById(acnInAlpha.getId()).get();
+        Assertions.assertTrue(deleted.getDeleted());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testDeleteChemical_whenIdDoesNotExist_gotResourceNotFoundException(@Autowired ChemicalRepository chemicalRepository) {
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            chemicalCategoryService.deleteChemicalCategory((long)Integer.MAX_VALUE, admin);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testDeleteChemical_whenBetaLabAdmin_gotForbiddenException() {
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(
+                AccountManagerTestUtils.ALPHA_LAB_KEY,
+                AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        Chemical acnInAlpha = chemicals.stream().filter(chem -> chem.getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME)).findAny().get();
+        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
+            chemicalService.deleteChemical(acnInAlpha.getId(), AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testDeleteChemical_whenAlphaLabUser_gotForbiddenException() {
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(
+                AccountManagerTestUtils.ALPHA_LAB_KEY,
+                AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        Chemical acnInAlpha = chemicals.stream().filter(chem -> chem.getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME)).findAny().get();
+        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
+            chemicalService.deleteChemical(acnInAlpha.getId(), AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testDeleteChemical_whenAlreadyDeleted_gotResourceNotFoundException(@Autowired ChemicalRepository chemicalRepository) {
+        Principal admin = AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL;
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(
+                AccountManagerTestUtils.ALPHA_LAB_KEY,
+                AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
+        Chemical nh4 = chemicals.stream().filter(chem -> chem.getShortName().equals(LabAdminTestUtils.NH4_ACETATE_SHORT_NAME)).findAny().get();
+        chemicalService.deleteChemical(nh4.getId(), admin);
+        Chemical deleted = chemicalRepository.findById(nh4.getId()).get();
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            chemicalService.deleteChemical(deleted.getId(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+    
 
 }
