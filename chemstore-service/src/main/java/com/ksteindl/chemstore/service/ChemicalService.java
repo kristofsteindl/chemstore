@@ -76,13 +76,6 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
         return chemical;
     }
 
-    public List<Chemical> getChemicalsForAdmin(String labKey, Principal admin, Boolean onlyActive) {
-        Lab lab = labService.findLabForAdmin(labKey, admin);
-        return onlyActive ?
-                chemicalRepository.findAllActive(lab, SORT_BY_SHORT_NAME) :
-                chemicalRepository.findByLab(lab, SORT_BY_SHORT_NAME);
-    }
-
     public List<Chemical> getChemicalsForUser(String labKey, Principal user) {
         Lab lab = labService.findLabForUser(labKey, user);
         return chemicalRepository.findAllActive(lab, SORT_BY_SHORT_NAME);

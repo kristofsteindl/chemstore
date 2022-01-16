@@ -649,7 +649,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
                 .filter(category -> category.getName().equals(LabAdminTestUtils.ORGANIC_CATEGORY))
                 .findAny().get();
         chemicalCategoryService.deleteChemicalCategory(persisted.getId(), admin);
-        List<Chemical> chemicals = chemicalService.getChemicalsForAdmin(AccountManagerTestUtils.ALPHA_LAB_KEY, admin, false).stream()
+        List<Chemical> chemicals = chemicalService.getChemicalsForUser(AccountManagerTestUtils.ALPHA_LAB_KEY, admin).stream()
                 .filter(chemical -> chemical.getCategory() != null && chemical.getCategory().equals(persisted))
                 .collect(Collectors.toList());
         Assertions.assertTrue(chemicals.isEmpty());

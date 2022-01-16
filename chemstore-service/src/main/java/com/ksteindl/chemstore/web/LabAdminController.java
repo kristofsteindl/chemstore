@@ -132,17 +132,6 @@ public class LabAdminController {
         return new ResponseEntity<>(chemical, HttpStatus.OK);
     }
 
-    @GetMapping("/chemical")
-    public ResponseEntity<List<Chemical>> getChemicals(
-            @RequestParam String labKey,
-            Principal principal,
-            @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
-        logger.info("GET '/chemical' was called with labKey {} by ", labKey, principal.getName());
-        List<Chemical> chemicals = chemicalService.getChemicalsForAdmin(labKey, principal, onlyActive);
-        logger.info("GET '/chemical' was succesful with {} item", chemicals.size());
-        return new ResponseEntity<>(chemicals, HttpStatus.OK);
-    }
-
     @DeleteMapping("/chemical/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteChemical(

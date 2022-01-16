@@ -2,9 +2,9 @@ package com.ksteindl.chemstore.service;
 
 import com.ksteindl.chemstore.BaseControllerTest;
 import com.ksteindl.chemstore.domain.entities.ChemItem;
-import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
+import com.ksteindl.chemstore.domain.repositories.ChemicalRepository;
 import com.ksteindl.chemstore.exceptions.ForbiddenException;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
@@ -234,16 +234,10 @@ public class ChemItemServiceTest extends BaseControllerTest {
     @Test
     @Rollback
     @Transactional
-    public void testCreateChemItem_whenChemicalDeleted_gotResourceNotFoundException() {
+    public void testCreateChemItem_whenChemicalDeleted_gotResourceNotFoundException(@Autowired ChemicalRepository chemicalRepository) {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        String deletedChemicalShortName = chemicalService.getChemicalsForAdmin(
-                AccountManagerTestUtils.ALPHA_LAB_KEY, AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL, false).stream()
-                .filter(Chemical::getDeleted)
-                .findAny()
-                .get()
-                .getShortName();
         Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-            testChemItemInput.setChemicalShortName(deletedChemicalShortName);
+            testChemItemInput.setChemicalShortName("IPA");
             chemItemService.createChemItems(
                     AccountManagerTestUtils.ALPHA_LAB_KEY,
                     testChemItemInput,

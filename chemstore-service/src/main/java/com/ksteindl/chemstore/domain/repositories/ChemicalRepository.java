@@ -21,8 +21,6 @@ public interface ChemicalRepository extends CrudRepository<Chemical, Long> {
 
     List<Chemical> findByCategory(ChemicalCategory category);
 
-    List<Chemical> findByLab(Lab lab, Sort sort);
-
     @Query("SELECT c FROM Chemical c WHERE c.lab = ?1 and c.deleted = false")
     List<Chemical> findAllActive(Lab lab, Sort sort);
 
