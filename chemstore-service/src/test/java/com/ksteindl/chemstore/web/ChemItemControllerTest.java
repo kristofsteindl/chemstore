@@ -7,7 +7,6 @@ import com.ksteindl.chemstore.domain.entities.ChemItem;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
 import com.ksteindl.chemstore.service.ChemItemService;
 import com.ksteindl.chemstore.service.ManufacturerService;
-import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.utils.ChemItemTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,7 +47,6 @@ public class ChemItemControllerTest extends BaseControllerTest {
 
 
     private final String BASE_URL = "/api/chem-item";
-    private final String ALPHA_BASE_URL = BASE_URL + "/" + AccountManagerTestUtils.ALPHA_LAB_KEY;
 
     //CHEM ITEM
     //CREATE
@@ -58,7 +56,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withAlphaLabUser_got201() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         String stringInput = asJsonString(testChemItemInput);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(stringInput))
                 .andDo(MockMvcResultHandlers.print())
@@ -73,7 +71,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Transactional
     void testCreateChemItem_withAlphaLabAdmin_got201() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().isCreated())
@@ -87,7 +85,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Transactional
     void testCreateChemItem_withAlphaLabManager_got201() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().isCreated())
@@ -101,7 +99,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Transactional
     void testCreateChemItem_withAccountManager_got403() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(403))
@@ -115,7 +113,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Transactional
     void testCreateChemItem_withBetaLabUser_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_BETA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(403))
@@ -129,7 +127,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Transactional
     void testCreateChemItem_withBetaLabAdmin_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(403))
@@ -143,7 +141,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Transactional
     void testCreateChemItem_withBetaLabManager_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(403))
@@ -157,7 +155,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Transactional
     void testCreateChemItem_withAlphaLabUser_fetchedFromDbIsTheSameAsInput(@Autowired ChemItemService chemItemService) throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().isCreated())
@@ -179,7 +177,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Rollback
     @Transactional
     void testCreateChemItem_withEmptyInput1_got400() throws Exception {
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(""))
                 .andExpect(status().is(400))
@@ -192,7 +190,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Rollback
     @Transactional
     void testCreateChemItem_withEmptyInput2_got400() throws Exception {
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().is(400))
@@ -206,10 +204,11 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Transactional
     void testCreateChemItem_withEmptyLabKey_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
+        testChemItemInput.setLabKey("");
         MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
-                .andExpect(status().is(404))
+                .andExpect(status().is(400))
                 .andReturn();
         logger.info("status code: " + result.getResponse().getStatus());
         logger.info(result.getResponse().getContentAsString());
@@ -236,7 +235,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyArrivalDate_got200() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setArrivalDate(null);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(201))
@@ -252,7 +251,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyChemicalShortName1_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setChemicalShortName(null);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(400))
@@ -267,7 +266,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyChemicalShortName2_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setChemicalShortName("");
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(400))
@@ -282,7 +281,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withNonExistingChemicalShortName_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setChemicalShortName("non-existing");
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(404))
@@ -297,7 +296,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyManufacturerId1_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setManufacturerId(null);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(400))
@@ -313,7 +312,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withNonExistingManufacturerName_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setManufacturerId((long)Integer.MAX_VALUE);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(404))
@@ -328,7 +327,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyBatchNumber1_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setBatchNumber(null);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(400))
@@ -343,7 +342,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyBatchNumber2_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setBatchNumber("");
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(400))
@@ -358,7 +357,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyQuantity1_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setQuantity(null);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(400))
@@ -373,7 +372,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyQuantity2_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         JSONObject jsonObject = new JSONObject(asJsonString(testChemItemInput)).put("quantity", "");
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(jsonObject.toString()))
                 .andExpect(status().is(400))
@@ -389,7 +388,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withZeroQuantity1_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setQuantity(0.0);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(400))
@@ -404,7 +403,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withMinus1Quantity1_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setQuantity(-1.0);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(400))
@@ -419,7 +418,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyUnit1_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setUnit(null);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(400))
@@ -434,7 +433,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyUnit2_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setUnit("");
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(400))
@@ -449,7 +448,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyExpirationDateBeforeOpened1_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setExpirationDateBeforeOpened(null);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testChemItemInput)))
                 .andExpect(status().is(400))
@@ -464,7 +463,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     void testCreateChemItem_withEmptyExpirationDateBeforeOpened2_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         JSONObject jsonObject = new JSONObject(asJsonString(testChemItemInput)).put("expirationDateBeforeOpened", "");
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(jsonObject.toString()))
                 .andExpect(status().is(400))
@@ -480,7 +479,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setAmount(-1);
         String stringInput = asJsonString(testChemItemInput);
-        MvcResult result = mvc.perform(post(ALPHA_BASE_URL)
+        MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
                         .content(stringInput))
                 .andDo(MockMvcResultHandlers.print())

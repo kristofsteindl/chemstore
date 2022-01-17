@@ -10,7 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -28,15 +36,14 @@ public class ChemItemController {
     @Autowired
     private ChemItemService chemItemService;
 
-    @PostMapping("/{labKey}")
+    @PostMapping
     public ResponseEntity<List<ChemItem>> createChemItems(
-            @PathVariable String labKey,
             @Valid @RequestBody ChemItemInput chemItemInput,
             BindingResult result,
             Principal principal) {
         logger.info("POST '/chem-item' was called with {}", chemItemInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        List<ChemItem> chemItems = chemItemService.createChemItems(labKey, chemItemInput, principal);
+        List<ChemItem> chemItems = chemItemService.createChemItems(chemItemInput, principal);
         logger.info("POST '/chem-item' was succesful with returned result{}", chemItems);
         return ResponseEntity.status(HttpStatus.CREATED).body(chemItems);
     }

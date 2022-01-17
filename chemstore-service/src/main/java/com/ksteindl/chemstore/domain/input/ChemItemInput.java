@@ -18,13 +18,16 @@ public class ChemItemInput implements Input{
         return new ChemItemInputBuilder();
     }
 
+    @NotBlank(message = "Lab key is required (labKey)")
+    private String labKey;
+    
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate arrivalDate;
 
     @NotBlank(message = "Chemical name is required (chemicalShortName)")
     private String chemicalShortName;
 
-    @NotNull(message = "Manufacturer name is required (manufacturerName)")
+    @NotNull(message = "Manufacturer id is required (manufacturerId)")
     private Long manufacturerId;
 
     @NotBlank(message = "Batch number of chemical cannot be blank")
@@ -45,7 +48,8 @@ public class ChemItemInput implements Input{
     private LocalDate expirationDateBeforeOpened;
 
     public static class ChemItemInputBuilder {
-
+        
+        private String labKey;
         private LocalDate arrivalDate;
         private String chemicalName;
         private Long manufacturerId;
@@ -54,6 +58,11 @@ public class ChemItemInput implements Input{
         private String unit;
         private Integer amount;
         private LocalDate expirationDateBeforeOpened;
+
+        public ChemItemInputBuilder setLabKey(String labKey) {
+            this.labKey = labKey;
+            return this;
+        }
 
         public ChemItemInputBuilder setArrivalDate(LocalDate arrivalDate) {
             this.arrivalDate = arrivalDate;
@@ -96,7 +105,7 @@ public class ChemItemInput implements Input{
         }
 
         public ChemItemInput build() {
-            return new ChemItemInput(arrivalDate, chemicalName, manufacturerId, batchNumber, quantity, unit, amount, expirationDateBeforeOpened);
+            return new ChemItemInput(labKey, arrivalDate, chemicalName, manufacturerId, batchNumber, quantity, unit, amount, expirationDateBeforeOpened);
         }
     }
 

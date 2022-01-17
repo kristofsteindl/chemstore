@@ -29,6 +29,7 @@ public class ChemItemTestUtils {
             unit = ChemItemService.DEFAULT_UNITS.get(0);
         }
         return ChemItemInput.builder()
+                .setLabKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
                 .setArrivalDate(LocalDate.now().minusDays(1))
                 .setChemicalName(LabAdminTestUtils.ETHANOL_SHORT_NAME)
                 .setManufacturerId(manufacturerService.getManufacturers().stream().filter(m -> m.getName().equals(LabAdminTestUtils.OMEGA_MANUFACTURER_NAME)).findAny().get().getId())

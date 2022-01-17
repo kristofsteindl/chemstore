@@ -47,7 +47,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
     public void testCreateChemItem_whenAllGood_gotNoException() {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         chemItemService.createChemItems(
-                AccountManagerTestUtils.ALPHA_LAB_KEY,
                 testChemItemInput,
                 AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
     }
@@ -58,7 +57,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
     public void testCreateChemItem_whenAllGood_gotListWithRightSize() {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         List<ChemItem> chemItems = chemItemService.createChemItems(
-                AccountManagerTestUtils.ALPHA_LAB_KEY,
                 testChemItemInput,
                 AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
         Assertions.assertEquals(testChemItemInput.getAmount(), chemItems.size());
@@ -69,7 +67,7 @@ public class ChemItemServiceTest extends BaseControllerTest {
     @Transactional
     public void testCreateChemItem_whenAllGood_gotExpectedAttributes() {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        List<ChemItem> chemItems = chemItemService.createChemItems(AccountManagerTestUtils.ALPHA_LAB_KEY, testChemItemInput, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
+        List<ChemItem> chemItems = chemItemService.createChemItems(testChemItemInput, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
         ChemItem chemItem = chemItems.get(0);
         Assertions.assertEquals(testChemItemInput.getBatchNumber(), chemItem.getBatchNumber());
         Assertions.assertEquals(testChemItemInput.getQuantity(), chemItem.getQuantity());
@@ -86,7 +84,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
     public void testCreateChemItem_whenAllGood_fetchedDateAreExpected() {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         List<ChemItem> chemItems = chemItemService.createChemItems(
-                AccountManagerTestUtils.ALPHA_LAB_KEY,
                 testChemItemInput,
                 AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
         Long id = chemItems.get(0).getId();
@@ -106,7 +103,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
     public void testCreateChemItem_whenLabAdmin_gotNoException() {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         chemItemService.createChemItems(
-                AccountManagerTestUtils.ALPHA_LAB_KEY,
                 testChemItemInput,
                 AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
     }
@@ -116,7 +112,7 @@ public class ChemItemServiceTest extends BaseControllerTest {
     @Transactional
     public void testCreateChemItem_whenLabManager_gotNoException() {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        chemItemService.createChemItems(AccountManagerTestUtils.ALPHA_LAB_KEY,
+        chemItemService.createChemItems(
                 testChemItemInput,
                 AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
     }
@@ -128,7 +124,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
             chemItemService.createChemItems(
-                    AccountManagerTestUtils.ALPHA_LAB_KEY,
                     testChemItemInput,
                     AccountManagerTestUtils.BETA_LAB_USER_PRINCIPAL);
         });
@@ -144,7 +139,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
             chemItemService.createChemItems(
-                    AccountManagerTestUtils.ALPHA_LAB_KEY,
                     testChemItemInput,
                     AccountManagerTestUtils.BETA_LAB_ADMIN_PRINCIPAL);
         });
@@ -158,9 +152,9 @@ public class ChemItemServiceTest extends BaseControllerTest {
     @Transactional
     public void testCreateChemItem_whenEmptyLabKey_gotResourceNotFoundException() {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
+        testChemItemInput.setLabKey("");
         Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             chemItemService.createChemItems(
-                    "",
                     testChemItemInput,
                     AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
         });
@@ -174,9 +168,9 @@ public class ChemItemServiceTest extends BaseControllerTest {
     @Transactional
     public void testCreateChemItem_whenLabKeyDoesNotEixists_gotResourceNotFoundException() {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
+        testChemItemInput.setLabKey("non-existing");
         Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             chemItemService.createChemItems(
-                    "non-existing",
                     testChemItemInput,
                     AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
         });
@@ -192,7 +186,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         testChemItemInput.setArrivalDate(null);
         chemItemService.createChemItems(
-                AccountManagerTestUtils.ALPHA_LAB_KEY,
                 testChemItemInput,
                 AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
     }
@@ -205,7 +198,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
             testChemItemInput.setArrivalDate(LocalDate.now().plusDays(1));
             chemItemService.createChemItems(
-                    AccountManagerTestUtils.ALPHA_LAB_KEY,
                     testChemItemInput,
                     AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
         });
@@ -222,7 +214,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
         Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             testChemItemInput.setChemicalShortName("not-existing");
             chemItemService.createChemItems(
-                    AccountManagerTestUtils.ALPHA_LAB_KEY,
                     testChemItemInput,
                     AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
         });
@@ -239,7 +230,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
         Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             testChemItemInput.setChemicalShortName("IPA");
             chemItemService.createChemItems(
-                    AccountManagerTestUtils.ALPHA_LAB_KEY,
                     testChemItemInput,
                     AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
         });
@@ -256,7 +246,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
         Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             testChemItemInput.setManufacturerId((long)Integer.MAX_VALUE);
             chemItemService.createChemItems(
-                    AccountManagerTestUtils.ALPHA_LAB_KEY,
                     testChemItemInput,
                     AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
         });
@@ -278,7 +267,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
         Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             testChemItemInput.setManufacturerId(deletedManufacturerId);
             chemItemService.createChemItems(
-                    AccountManagerTestUtils.ALPHA_LAB_KEY,
                     testChemItemInput,
                     AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
         });
@@ -295,7 +283,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
             testChemItemInput.setExpirationDateBeforeOpened(LocalDate.now().minusDays(1));
             chemItemService.createChemItems(
-                    AccountManagerTestUtils.ALPHA_LAB_KEY,
                     testChemItemInput,
                     AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
         });
@@ -312,7 +299,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
             testChemItemInput.setUnit("non-valid");
             chemItemService.createChemItems(
-                    AccountManagerTestUtils.ALPHA_LAB_KEY,
                     testChemItemInput,
                     AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);
         });

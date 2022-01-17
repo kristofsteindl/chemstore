@@ -58,9 +58,9 @@ public class ChemItemService {
     private ChemItemRepository chemItemRepository;
 
 
-    public List<ChemItem> createChemItems(String labKey, ChemItemInput chemItemInput, Principal user) {
+    public List<ChemItem> createChemItems(ChemItemInput chemItemInput, Principal user) {
         AppUser appUser = appUserService.getMyAppUser(user);
-        Lab lab = labService.findLabForUser(labKey, user);
+        Lab lab = labService.findLabForUser(chemItemInput.getLabKey(), user);
         LocalDate arrivalDate = validateArrivalDateAndGet(chemItemInput.getArrivalDate());
         Chemical chemical = chemicalService.getByShortName(chemItemInput.getChemicalShortName(), lab);
         Manufacturer manufacturer = manufacturerService.findById(chemItemInput.getManufacturerId());
