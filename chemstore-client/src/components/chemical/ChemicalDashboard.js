@@ -47,7 +47,7 @@ class ChemicalDashboard extends Component {
 
 
     async loadChemicals(selectedLab) {
-        if (selectedLab && JSON.stringify(selectedLab) !== "{}") {
+        if (selectedLab && selectedLab.key) {
             try {
                 await axios.get(`/api/logged-in/chemical/${selectedLab.value}`).then(result => this.setState({chemicals: result.data}))
             } catch (error) {
