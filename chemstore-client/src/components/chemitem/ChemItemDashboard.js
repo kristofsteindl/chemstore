@@ -5,6 +5,7 @@ import { check } from '../../utils/securityUtils'
 import axios from 'axios'
 import { connect } from 'react-redux'
 import Pagination from '../Pagination'
+import ChemItemContent from './ChemItemContent'
 
 class ChemItemDashboard extends Component {
 
@@ -44,8 +45,9 @@ class ChemItemDashboard extends Component {
     onPageChanged = data => {
         check()
         const selectedLab = this.props.selectedLab
-        if (selectedLab && selectedLab.key) {
-            const { currentPage, totalPages, pageLimit } = data;
+        const { currentPage, pageLimit } = data;
+        if (selectedLab && selectedLab.key && currentPage) {
+            
             console.log("on page changed " + currentPage)
 
             axios.get(`/api/chem-item/${selectedLab.key}?page=${currentPage - 1}&size=${pageLimit}`)
@@ -60,10 +62,6 @@ class ChemItemDashboard extends Component {
 
     render() {
         const { chemItems, totalItems, currentPage, totalPages } = this.state;
-    
-        if (totalItems === 0) return null;
-    
-        const headerClass = ['text-dark py-2 pr-4 m-0', currentPage ? 'border-gray border-right' : ''].join(' ').trim();
 
         return (
             <div className="projects">
@@ -72,38 +70,19 @@ class ChemItemDashboard extends Component {
                         <div className="col-md-12">
                             <h3 className="display-4 text-center">Registered Chemicals</h3>
                             <RedirectFormButton formRoute="/add-chem-item" buttonLabel="Register Chemical"/>
-                            <div className="container mb-5">
-                                <div className="row d-flex flex-row py-5">
-                                <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
-                                    <div className="d-flex flex-row align-items-center">
-                                    <h2 className={headerClass}>
-                                        <strong className="text-secondary">{totalItems}</strong> Registered Chemicals
-                                    </h2>
-                                    { currentPage && (
-                                        <span className="current-page d-inline-block h-100 pl-4 text-secondary">
-                                        Page <span className="font-weight-bold">{ currentPage }</span> / <span className="font-weight-bold">{ totalPages }</span>
-                                        </span>
-                                    ) }
-                                    </div>
-                                    
-                                    <div className="d-flex flex-row py-4 align-items-center">
-                                        <Pagination 
-                                            totalRecords={totalItems} 
-                                            pageLimit={4} 
-                                            pageNeighbours={1} 
-                                            onPageChanged={this.onPageChanged}
-
-                                        />
-                                    </div>
-                                </div>
-                                { chemItems.map(chemItem => <ChemItem 
-                                    key={chemItem.id}
-                                    chemItem={chemItem}
-
-                                    />) }
-                                </div>
-                            </div>
                             <hr />
+                            {this.props.selectedLab.key ? 
+                                <ChemItemContent 
+                                    chemItems={chemItems}
+                                    totalItems={totalItems}
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChanged={this.onPageChanged}
+
+                                /> :
+                                <p className="lead"><i>Please select a lab</i></p>
+                            }
+
                         </div>
                     </div>
                 </div>

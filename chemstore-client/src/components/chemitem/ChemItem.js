@@ -1,36 +1,35 @@
 import React, { Component } from 'react'
 
 class ChemItem extends Component {
+    
+
     render() {
+        const chemItem = this.props.chemItem
+        const chemical = chemItem.chemical
         return (
             <div className="container">
-                <div className="card card-body bg-light mb-3">
-                    <div className="row">
+                <div className="card card-body bg-light mb-2" style={{padding: "2px"}}>
+                    <div className="row" >
                         <div className="col-2">
-                            <span className="mx-auto">REACT</span>
+                            <h4 className="mx-auto">{chemical.shortName}</h4>
                         </div>
-                        <div className="col-lg-6 col-md-4 col-8">
-                            <h3>Spring / React Project</h3>
-                            <p>Project to create a Kanban Board with Spring Boot and React</p>
+                        <div className="col-sm-1">
+                            <i>{chemItem.quantity} {chemItem.unit}</i>
                         </div>
-                        <div className="col-md-4 d-none d-lg-block">
-                            <ul className="list-group">
-                                <a href="#">
-                                    <li className="list-group-item board">
-                                        <i className="fa fa-flag-checkered pr-1">Project Board </i>
-                                    </li>
-                                </a>
-                                <a href="#">
-                                    <li className="list-group-item update">
-                                        <i className="fa fa-edit pr-1">Update Project Info</i>
-                                    </li>
-                                </a>
-                                <a href="">
-                                    <li className="list-group-item delete">
-                                        <i className="fa fa-minus-circle pr-1">Delete Project</i>
-                                    </li>
-                                </a>
-                            </ul>
+                        <div className="col-1">
+                            <span className="mx-auto">{chemItem.arrivalDate}</span>
+                        </div>
+                        <div className="col-sm-2">
+                            <p>{chemItem.manufacturer.name}</p>
+                        </div>
+                        <div className="col-sm-2">
+                            <p>{chemItem.batchNumber}/{chemItem.seqNumber}</p>
+                        </div>
+                        <div className="col-sm-2">
+                           <p> {chemItem.expirationDateBeforeOpened}</p>
+                        </div>
+                        <div className="col-sm-2">
+                            
                         </div>
                     </div>
                 </div>
