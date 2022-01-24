@@ -4,6 +4,7 @@ import ChemItem from './ChemItem'
 
 function ChemItemContent(props) {
     const { chemItems, totalItems, currentPage, totalPages, onPageChanged } = props;
+    console.log("in ChemItemContent totalItems " + props.totalItems)
     const headerClass = ['text-dark py-2 pr-4 m-0', currentPage ? 'border-gray border-right' : ''].join(' ').trim();
     return (
         
@@ -15,9 +16,13 @@ function ChemItemContent(props) {
                             <strong className="text-secondary">{totalItems}</strong> Registered Chemicals
                         </h2>
                     </div>
+                
                     { currentPage && (
                         <span className="current-page d-inline-block h-100 pl-4 text-secondary">
-                        Page <span className="font-weight-bold">{ currentPage }</span> / <span className="font-weight-bold">{ totalPages }</span>
+                            Page 
+                            <span className="font-weight-bold">{ currentPage }</span> 
+                            / 
+                            <span className="font-weight-bold">{ totalPages }</span>
                         </span>
                     ) }
                     

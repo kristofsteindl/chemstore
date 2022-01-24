@@ -72,14 +72,7 @@ class ChemItemDashboard extends Component {
                             <RedirectFormButton formRoute="/add-chem-item" buttonLabel="Register Chemical"/>
                             <hr />
                             {this.props.selectedLab.key ? 
-                                <ChemItemContent 
-                                    chemItems={chemItems}
-                                    totalItems={totalItems}
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    onPageChanged={this.onPageChanged}
-
-                                /> :
+                                getChemItemContent(this.state, this.onPageChanged) :
                                 <p className="lead"><i>Please select a lab</i></p>
                             }
 
@@ -89,6 +82,23 @@ class ChemItemDashboard extends Component {
             </div>
         )   
     }
+}
+
+const getChemItemContent = (state, onPageChanged) => {
+    const { chemItems, totalItems, currentPage, totalPages } = state;
+    if (!totalItems) {
+        return <p className="lead"><i>There is no registered chemical for this lab so far</i></p>
+    }
+    return (
+        <ChemItemContent 
+            chemItems={chemItems}
+            totalItems={totalItems}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChanged={onPageChanged}
+
+        />
+    )
 }
 
 const mapStateToProps = state => ({

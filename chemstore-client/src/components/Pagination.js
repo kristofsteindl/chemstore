@@ -20,21 +20,18 @@ const range = (from, to, step = 1) => {
   return range;
 };
 
+// PLEASE REFACTOR ME!!!!!!
 class Pagination extends Component {
   constructor(props) {
     super(props);
-    const { totalRecords = null, pageLimit = 30, pageNeighbours = 0 } = props;
-
-    this.pageLimit = typeof pageLimit === "number" ? pageLimit : 30;
-    this.totalRecords = typeof totalRecords === "number" ? totalRecords : 0;
-
     // pageNeighbours can be: 0, 1 or 2
-    this.pageNeighbours =
-      typeof pageNeighbours === "number"
-        ? Math.max(0, Math.min(pageNeighbours, 2))
+    const pageNeighbours =
+      typeof props.pageNeighbours === "number"
+        ? Math.max(0, Math.min(props.pageNeighbours, 2))
         : 0;
 
-    this.totalPages = Math.ceil(this.totalRecords / this.pageLimit);
+    const pageLimit = typeof props.pageLimit === "number" ? props.pageLimit : 30
+    const totalPages = Math.ceil(props.totalRecords / pageLimit);
 
     this.state = { currentPage: 1 };
   }
@@ -51,15 +48,21 @@ class Pagination extends Component {
    * {...x} => represents page neighbours
    */
   fetchPageNumbers = () => {
-    const totalPages = this.totalPages;
+    const pageNeighbours =
+      typeof this.props.pageNeighbours === "number"
+        ? Math.max(0, Math.min(this.props.pageNeighbours, 2))
+        : 0;
+
+    const pageLimit = typeof this.props.pageLimit === "number" ? this.props.pageLimit : 30
+    const totalPages = Math.ceil(this.props.totalRecords / pageLimit);
+
     const currentPage = this.state.currentPage;
-    const pageNeighbours = this.pageNeighbours;
 
     /**
      * totalNumbers: the total page numbers to show on the control
      * totalBlocks: totalNumbers + 2 to cover for the left(<) and right(>) controls
      */
-    const totalNumbers = this.pageNeighbours * 2 + 3;
+    const totalNumbers = pageNeighbours * 2 + 3;
     const totalBlocks = totalNumbers + 2;
 
     if (totalPages > totalBlocks) {
@@ -106,9 +109,19 @@ class Pagination extends Component {
   };
 
   render() {
-    if (!this.totalRecords || this.totalPages === 1) return null;
+    const pageNeighbours =
+      typeof this.props.pageNeighbours === "number"
+        ? Math.max(0, Math.min(this.props.pageNeighbours, 2))
+        : 0;
 
-    const { currentPage } = this.state;
+    const pageLimit = typeof this.props.pageLimit === "number" ? this.props.pageLimit : 30
+    const totalPages = Math.ceil(this.props.totalRecords / pageLimit);
+
+    const currentPage = this.state.currentPage;
+
+    console.log("in Pagination, this.state.totalPages: " + this.state.totalPages)
+    if (!this.props.totalRecords || totalPages === 1) return null;
+
     const pages = this.fetchPageNumbers();
 
     return (
@@ -171,13 +184,15 @@ class Pagination extends Component {
   }
 
   gotoPage = (page) => {
+    const pageLimit = typeof this.props.pageLimit === "number" ? this.props.pageLimit : 30
+    const totalPages = Math.ceil(this.props.totalRecords / pageLimit);
     const { onPageChanged = (f) => f } = this.props;
-    const currentPage = Math.max(0, Math.min(page, this.totalPages));
+    const currentPage = Math.max(0, Math.min(page, totalPages));
     const paginationData = {
       currentPage,
-      totalPages: this.totalPages,
-      pageLimit: this.pageLimit,
-      totalRecords: this.totalRecords,
+      totalPages: totalPages,
+      pageLimit: pageLimit,
+      totalRecords: this.props.totalRecords,
     };
 
     this.setState({ currentPage }, () => onPageChanged(paginationData));
@@ -188,11 +203,19 @@ class Pagination extends Component {
   };
 
   handleMoveLeft = (evt) => {
-    this.gotoPage(this.state.currentPage - this.pageNeighbours * 2 - 1);
+    const pageNeighbours =
+    typeof this.props.pageNeighbours === "number"
+      ? Math.max(0, Math.min(this.props.pageNeighbours, 2))
+      : 0;
+    this.gotoPage(this.state.currentPage - pageNeighbours * 2 - 1);
   };
 
   handleMoveRight = (evt) => {
-    this.gotoPage(this.state.currentPage + this.pageNeighbours * 2 + 1);
+    const pageNeighbours =
+    typeof this.props.pageNeighbours === "number"
+      ? Math.max(0, Math.min(this.props.pageNeighbours, 2))
+      : 0;
+    this.gotoPage(this.state.currentPage + pageNeighbours * 2 + 1);
   };
 }
 
