@@ -3,11 +3,11 @@ package com.ksteindl.chemstore.service;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.ChemItem;
 import com.ksteindl.chemstore.domain.entities.Chemical;
+import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
 import com.ksteindl.chemstore.domain.repositories.ChemItemRepository;
-import com.ksteindl.chemstore.exceptions.ForbiddenException;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.service.wrapper.PagedList;
@@ -87,17 +87,29 @@ public class ChemItemService {
         AppUser appUser = appUserService.getMyAppUser(user);
         labService.validateLabForUser(chemItem.getLab(), user);
         if (chemItem.getOpeningDate() != null) {
-            //TODO
+            //TODO remove Strings
             throw new ValidationException("Chem item is already opened");
         }
         LocalDate now = LocalDate.now();
         if (chemItem.getExpirationDateBeforeOpened().isBefore(now)) {
-            //TODO
-            throw new ValidationException("");
+            //TODO remove Strings
+            throw new ValidationException("Chem item has already expired");
         }
         chemItem.setOpenedBy(appUser);
         chemItem.setOpeningDate(now);
+        chemItem.setExpirationDate(calcExpDate(chemItem));
         return chemItemRepository.save(chemItem);
+    }
+    
+    private LocalDate calcExpDate(ChemItem chemItem) {
+        ChemicalCategory category = chemItem.getChemical().getCategory();
+        LocalDate expBeforeOpened = chemItem.getExpirationDateBeforeOpened();
+        if (category == null) {
+            return expBeforeOpened;
+        }
+        int shelfLifeInDays = (int) category.getShelfLife().toDays();
+        LocalDate maxExpDate = LocalDate.now().plusDays(shelfLifeInDays);
+        return maxExpDate.isAfter(expBeforeOpened) ? expBeforeOpened : maxExpDate;
     }
 
     public ChemItem consumeChemItem(Long chemItemId, Principal user) {
@@ -196,20 +208,6 @@ public class ChemItemService {
             throw new ValidationException(String.format(Lang.CHEM_ITEM_EXP_DATE_IS_IN_PAST, expirationDateBeforeOpened));
         }
         return expirationDateBeforeOpened;
-    }
-
-    private Lab validateLabAndGet(Lab lab, AppUser appUser) {
-        String username = appUser.getUsername();
-        if (lab.getLabManagers().stream().anyMatch(manager -> manager.getUsername().equals(username))) {
-            return lab;
-        }
-        if (appUser.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(lab))) {
-            return lab;
-        }
-        if (appUser.getLabsAsUser().stream().anyMatch(labAsUser -> labAsUser.equals(lab))) {
-            return lab;
-        }
-        throw new ForbiddenException(String.format(Lang.CHEM_ITEM_CREATION_NOT_AUTHORIZED, lab.getName(), username));
     }
 
 }

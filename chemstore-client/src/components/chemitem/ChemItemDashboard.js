@@ -1,105 +1,128 @@
-import React, { Component } from 'react'
-import ChemItem from './ChemItem'
-import RedirectFormButton from '../RedirectFormButton'
-import { check } from '../../utils/securityUtils'
-import axios from 'axios'
-import { connect } from 'react-redux'
+import React, { useEffect, useState } from 'react';
 import Pagination from '../Pagination'
-import ChemItemContent from './ChemItemContent'
+import ChemItem from './ChemItem'
+import ChemItemHeader from './ChemItemHeader';
+import "./ChemItemDashboard.css"
+import { connect, useSelector } from 'react-redux';
+import { check } from '../../utils/securityUtils';
+import axios from 'axios';
+import RedirectFormButton from '../RedirectFormButton';
 
-class ChemItemDashboard extends Component {
-
-    constructor() {
-        super()
-        this.state = {
-            chemItems: [],
-            currentPage: 1, 
-            totalItems: 0,
-            totalPages: 0 
-        }
-    }
-
-    componentDidMount() {
-        const selectedLab = this.props.selectedLab
-        this.loadChemItems(selectedLab)
-    }
-
-    async componentWillReceiveProps(nextProps){
-        const selectedLab = nextProps.selectedLab
-        this.loadChemItems(selectedLab)
-    }
+function ChemItemDashboard() {
     
-    loadChemItems(selectedLab) {
-        check()
-        if (selectedLab && selectedLab.key) {
-            axios.get(`/api/chem-item/${selectedLab.key}?page=${0}&size=${3}`)
-                .then(result => this.setState({
-                    chemItems: result.data.content,
-                    totalItems: result.data.totalItems,
-                    totalPages: result.data.totalPages
-                }))
-                .catch(error => console.log(error))
-        }
-    }  
+    const [onlyAvailable, setOnlyAvailable] = useState(true)
+    const [chemItems, setChemItems] = useState([])
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalItems, setTotalItems] = useState(1)
+    const [totalPages, setTotalPages] = useState(0)
     
-    onPageChanged = data => {
+    const toggleOnlyAvailable = () => {
+        setOnlyAvailable(!onlyAvailable);
+    };
+
+    const selectedLab = useSelector((state) => state.selectedLab)
+
+    useEffect(() => {
+        loadChemItems()
+    }, [])
+
+    useEffect(() => {
+        loadChemItems()
+    }, [selectedLab, onlyAvailable])
+
+    
+    const loadChemItems = () => {
         check()
-        const selectedLab = this.props.selectedLab
-        const { currentPage, pageLimit } = data;
+        onPageChanged({
+            currentPage: 1,
+            pageLimit: 10,
+            onlyAvailable: onlyAvailable
+        })
+    }
+
+    const onPageChanged = data => {
+        check()
+        const { currentPage, pageLimit, onlyAvailable } = data;
         if (selectedLab && selectedLab.key && currentPage) {
-            
-            console.log("on page changed " + currentPage)
 
-            axios.get(`/api/chem-item/${selectedLab.key}?page=${currentPage - 1}&size=${pageLimit}`)
-            .then(result => this.setState({
-                chemItems: result.data.content,
-                currentPage: currentPage,
-                totalItems: result.data.totalItems,
-                totalPages: result.data.totalPages
-            }))
+            axios.get(`/api/chem-item/${selectedLab.key}?page=${currentPage - 1}&size=${pageLimit}&available=${onlyAvailable}`)
+                .then(result => {
+                    setCurrentPage(currentPage)
+                    setChemItems(result.data.content)
+                    setTotalItems(result.data.totalItems)
+                    setTotalPages(result.data.totalPages)
+                })
         }
-      }
+    }
 
-    render() {
-        const { chemItems, totalItems, currentPage, totalPages } = this.state;
-
+    const getChemItemContent = (totalItems) => {
+        if (!totalItems) {
+            return <p className="lead"><i>There is no registered chemical for this lab so far</i></p>
+        }
         return (
-            <div className="projects">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-md-12">
-                            <h3 className="display-4 text-center">Registered Chemicals</h3>
-                            <RedirectFormButton formRoute="/add-chem-item" buttonLabel="Register Chemical"/>
-                            <hr />
-                            {this.props.selectedLab.key ? 
-                                getChemItemContent(this.state, this.onPageChanged) :
-                                <p className="lead"><i>Please select a lab</i></p>
-                            }
-
+            <div className="container mb-5">
+                <div className="row d-flex flex-row py-0">
+                    <div className="w-100 px-4 py-0 d-flex flex-row flex-wrap align-items-center justify-content-between">
+                        
+                        <div className="d-flex flex-row py-2 align-items-center">
+                            <Pagination 
+                                totalRecords={totalItems}
+                                pageLimit={10} 
+                                pageNeighbours={1}
+                                onPageChanged={onPageChanged}
+                                onlyAvailable={onlyAvailable}
+    
+                            />
+                            <div className="pad-50" >
+                                <input
+                                    type="checkbox"
+                                    checked={onlyAvailable}
+                                    onChange={toggleOnlyAvailable}
+                                />
+                                <label className="pad-5" >Only available</label>
+                                
+                            </div>
+                        
                         </div>
+                    </div>
+                
+                    <ChemItemHeader />
+                    <hr />
+                    { chemItems.map(chemItem => 
+                            <ChemItem
+                                key={chemItem.id}
+                                chemItem={chemItem}
+                            />
+                        ) 
+                    }
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <div className="projects">
+            <div className="container">
+                <div className="row">
+                    <div className="col-md-12">
+                        <h3 className="display-4 text-center">Registered Chemicals</h3>
+                        <RedirectFormButton formRoute="/add-chem-item" buttonLabel="Register Chemical"/>
+                        <hr />
+                        {selectedLab.key ? 
+                            getChemItemContent(totalItems) :
+                            <p className="lead"><i>Please select a lab</i></p>
+                        }
+
                     </div>
                 </div>
             </div>
-        )   
-    }
-}
-
-const getChemItemContent = (state, onPageChanged) => {
-    const { chemItems, totalItems, currentPage, totalPages } = state;
-    if (!totalItems) {
-        return <p className="lead"><i>There is no registered chemical for this lab so far</i></p>
-    }
-    return (
-        <ChemItemContent 
-            chemItems={chemItems}
-            totalItems={totalItems}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChanged={onPageChanged}
-
-        />
+        </div>
     )
+    
+    
 }
+
+
 
 const mapStateToProps = state => ({
     selectedLab: state.selectedLab

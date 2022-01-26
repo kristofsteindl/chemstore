@@ -1,5 +1,4 @@
 import './App.css';
-import ChemItemDashboard from './components/chemitem/ChemItemDashboard';
 import Header from './components/layout/Header';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Route, Switch} from "react-router-dom";
@@ -26,6 +25,7 @@ import UpdateLab from './components/lab/UpdateLab';
 import CategoryDashboard from './components/category/CategoryDashboard';
 import AddCategory from './components/category/AddCategory';
 import UpdateCategory from './components/category/UpdateCategory';
+import ChemItemDashboard from './components/chemitem/ChemItemDashboard';
 
 
 refreshState()

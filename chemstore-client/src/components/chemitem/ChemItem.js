@@ -6,9 +6,27 @@ class ChemItem extends Component {
     render() {
         const chemItem = this.props.chemItem
         const chemical = chemItem.chemical
+        const expDate = new Date(chemItem.expirationDate)
+        const expDateBeforeOpened = new Date(chemItem.expirationDateBeforeOpened)
+        const now = Date.now()
+        const available = 
+            !chemItem.consumptionDate && 
+            expDateBeforeOpened > now &&
+            (!chemItem.expirationDate || expDate > now )
+        console.log(!chemItem.consumptionDate)
+        console.log(expDateBeforeOpened > now)
+        console.log(!expDate)
+        console.log(expDate > now )
+        console.log("----")
+
+        const style = {
+                padding: "2px",
+                color: available ? "black" : "grey"
+            }
+        
         return (
             <div className="container">
-                <div className="card card-body bg-light mb-2" style={{padding: "2px"}}>
+                <div className="card card-body bg-light mb-2" style={style}>
                     <div className="row" >
                         <div className="col-2">
                             <h4 className="mx-auto">{chemical.shortName}</h4>
