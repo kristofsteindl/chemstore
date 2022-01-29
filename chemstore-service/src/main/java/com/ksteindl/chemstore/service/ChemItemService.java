@@ -146,7 +146,7 @@ public class ChemItemService {
 
     private String getUnitAndValidate(String unit) {
         if (!units.contains(unit)) {
-            throw new ValidationException(String.format(Lang.INVALID_UNIT, unit, units.toString()));
+            throw new ValidationException(String.format(Lang.INVALID_UNIT, unit, units));
         }
         return unit;
     }
@@ -165,6 +165,10 @@ public class ChemItemService {
         }
         return chemItems;
     }
+    
+    public List<String> getUnits() {
+        return units;
+    }
 
 
     @PostConstruct
@@ -174,7 +178,7 @@ public class ChemItemService {
             logger.info("units loaded succesfully from: " + UNIT_FILE_NAME);
         }
         catch (IOException exception) {
-            logger.error("IOException is thrown when tríing to read units from " + UNIT_FILE_NAME, exception);
+            logger.error("IOException is thrown when trying to read units from " + UNIT_FILE_NAME, exception);
             units = DEFAULT_UNITS;
         }
         logger.info("units are: " + units);

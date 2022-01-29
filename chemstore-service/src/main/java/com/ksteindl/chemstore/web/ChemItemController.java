@@ -80,4 +80,13 @@ public class ChemItemController {
         logger.info("GET '/chem-item' was succesful with returned result{}", chemItems);
         return ResponseEntity.status(HttpStatus.OK).body(chemItems);
     }
+
+
+    @GetMapping("/unit")
+    public List<String> getUnits() {
+        logger.info("GET '/api/chem-item/unit' was called");
+        List<String> units = chemItemService.getUnits();
+        logger.info("GET '/api/chem-item/unit' was succesful with {} item", units.size());
+        return units;
+    }
 }
