@@ -20,11 +20,17 @@ export default function ChemItemHeader() {
                     <div className="col-sm-2">
                         <h4>batch nr / seq nr</h4>
                     </div>
-                    <div className="col-sm-2">
-                    <h4>expration date</h4>
+                    <div className="col-sm-1">
+                    <h4>exp date</h4>
                     </div>
-                    <div className="col-sm-2">
-                        
+                    <div className="col-sm-1">
+                        <h4>open/ed</h4>
+                    </div>
+                    <div className="col-sm-1">
+                        <h4>consume/d</h4>
+                    </div>
+                    <div className="col-sm-1">
+                        <h4>admin</h4>
                     </div>
                 </div>
             </div>

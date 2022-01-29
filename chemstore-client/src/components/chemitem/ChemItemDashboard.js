@@ -21,6 +21,7 @@ function ChemItemDashboard() {
     };
 
     const selectedLab = useSelector((state) => state.selectedLab)
+    const user = useSelector((state) => state.security.user)
 
     useEffect(() => {
         loadChemItems()
@@ -55,6 +56,7 @@ function ChemItemDashboard() {
         }
     }
 
+
     const getChemItemContent = (totalItems) => {
         if (!totalItems) {
             return <p className="lead"><i>There is no registered chemical for this lab so far</i></p>
@@ -67,13 +69,13 @@ function ChemItemDashboard() {
                         <div className="d-flex flex-row py-2 align-items-center">
                             <Pagination 
                                 totalRecords={totalItems}
-                                pageLimit={10} 
+                                pageLimit={20} 
                                 pageNeighbours={1}
                                 onPageChanged={onPageChanged}
                                 onlyAvailable={onlyAvailable}
     
                             />
-                            <div className="pad-50" >
+                            <div className="pad-chckbx" >
                                 <input
                                     type="checkbox"
                                     checked={onlyAvailable}
@@ -92,6 +94,7 @@ function ChemItemDashboard() {
                             <ChemItem
                                 key={chemItem.id}
                                 chemItem={chemItem}
+                            
                             />
                         ) 
                     }
@@ -100,13 +103,19 @@ function ChemItemDashboard() {
         )
     }
 
+    const isAdmin = (selectedLab.key) && 
+    (user.labsAsAdmin.includes(selectedLab.value) || 
+    selectedLab.labManagers.map(manager => manager.username).includes(user.username))
+
     return (
         <div className="projects">
             <div className="container">
                 <div className="row">
                     <div className="col-md-12">
                         <h3 className="display-4 text-center">Registered Chemicals</h3>
-                        <RedirectFormButton formRoute="/add-chem-item" buttonLabel="Register Chemical"/>
+                        {isAdmin && 
+                            <RedirectFormButton formRoute="/add-chem-item" buttonLabel="Register Chemical"/>
+                        }
                         <hr />
                         {selectedLab.key ? 
                             getChemItemContent(totalItems) :
@@ -125,7 +134,8 @@ function ChemItemDashboard() {
 
 
 const mapStateToProps = state => ({
-    selectedLab: state.selectedLab
+    selectedLab: state.selectedLab,
+    user: state.selectedLab
 })
 
 export default connect(mapStateToProps) (ChemItemDashboard)
