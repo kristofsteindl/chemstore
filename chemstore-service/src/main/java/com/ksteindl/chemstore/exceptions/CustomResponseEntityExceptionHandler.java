@@ -26,7 +26,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     }
     @ExceptionHandler
     public final ResponseEntity<String> handleFieldValidationException(ForbiddenException exception, WebRequest request) {
-        return new ResponseEntity(exception.getMessage(), HttpStatus.FORBIDDEN);
+        return new ResponseEntity(Map.of("message", exception.getMessage()), HttpStatus.FORBIDDEN);
     }
 
 

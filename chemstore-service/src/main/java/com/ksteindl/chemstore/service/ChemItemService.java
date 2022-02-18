@@ -8,6 +8,7 @@ import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
 import com.ksteindl.chemstore.domain.repositories.ChemItemRepository;
+import com.ksteindl.chemstore.exceptions.ForbiddenException;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.service.wrapper.PagedList;
@@ -118,7 +119,7 @@ public class ChemItemService {
         labService.validateLabForUser(chemItem.getLab(), user);
         if (chemItem.getOpeningDate() == null) {
             //TODO
-            throw new ValidationException("");
+            throw new ValidationException("Chem item must be opened, before consumtion");
         }
         LocalDate now = LocalDate.now();
         chemItem.setConsumedBy(appUser);
@@ -127,7 +128,6 @@ public class ChemItemService {
     }
 
     public PagedList<ChemItem> findByLab(String labKey, Principal user, boolean available, Integer page, Integer size) {
-        AppUser appUser = appUserService.getMyAppUser(user);
         Lab lab = labService.findLabForUser(labKey, user);
         Pageable paging = PageRequest.of(page, size, SORT_BY_ID_DESC);
         Page<ChemItem> chemItemPages =
@@ -137,6 +137,17 @@ public class ChemItemService {
         chemItemPages.getContent().forEach(chemItem -> logger.debug(chemItem.toString()));
         PagedList<ChemItem> pagedList = new PagedList<>(chemItemPages);
         return pagedList;
+    }
+    
+    public void hardDeleteChemItem(Long id, Principal principal) {
+        AppUser user = appUserService.getMyAppUser(principal);
+        ChemItem chemItem = findById(id);
+        boolean labManager = user.getManagedLabs().stream().anyMatch(lab -> lab.getKey().equals(chemItem.getLab().getKey()));
+        if (!labManager) {
+            //TODO
+            throw new ForbiddenException("Deletion only allowed for lab manager");
+        }
+        chemItemRepository.delete(chemItem);
     }
 
 
