@@ -1,0 +1,16 @@
+.action-button {
+    padding: 0.01rem 0.5rem;
+    height: 28px;
+}
+
+.delete {
+    width: 44px;
+}
+
+.chem-item {
+    padding: 2px;
+}
+
+.unavailable {
+    color: #999999
+}

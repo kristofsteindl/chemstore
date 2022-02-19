@@ -3,10 +3,12 @@ import Pagination from '../Pagination'
 import ChemItem from './ChemItem'
 import ChemItemHeader from './ChemItemHeader';
 import "./ChemItemDashboard.css"
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { check } from '../../utils/securityUtils';
 import axios from 'axios';
 import RedirectFormButton from '../RedirectFormButton';
+
+const PAGE_LIMIT = 20
 
 function ChemItemDashboard() {
     
@@ -36,9 +38,14 @@ function ChemItemDashboard() {
         check()
         onPageChanged({
             currentPage: 1,
-            pageLimit: 10,
+            pageLimit: PAGE_LIMIT,
             onlyAvailable: onlyAvailable
         })
+    }
+
+    const deleteChemItem = async id => {
+        await axios.delete(`/api/chem-item/${id}`)
+        setChemItems(originalList => originalList.filter(chemItem => chemItem.id != id))
     }
 
     const onPageChanged = data => {
@@ -69,7 +76,7 @@ function ChemItemDashboard() {
                         <div className="d-flex flex-row py-2 align-items-center">
                             <Pagination 
                                 totalRecords={totalItems}
-                                pageLimit={20} 
+                                pageLimit={PAGE_LIMIT} 
                                 pageNeighbours={1}
                                 onPageChanged={onPageChanged}
                                 onlyAvailable={onlyAvailable}
@@ -92,8 +99,10 @@ function ChemItemDashboard() {
                     <hr />
                     { chemItems.map(chemItem => 
                             <ChemItem
+                                isManager={isManager}
                                 key={chemItem.id}
                                 chemItem={chemItem}
+                                deleteChemItem={deleteChemItem}
                             
                             />
                         ) 
@@ -103,9 +112,8 @@ function ChemItemDashboard() {
         )
     }
 
-    const isAdmin = (selectedLab.key) && 
-    (user.labsAsAdmin.includes(selectedLab.value) || 
-    selectedLab.labManagers.map(manager => manager.username).includes(user.username))
+    const isManager =  (selectedLab.key) && selectedLab.labManagers.filter(manager => manager.username === user.username).length > 0
+    const isAdmin = (selectedLab.key) && (user.labsAsAdmin.includes(selectedLab.value) || isManager)
 
     return (
         <div className="projects">
@@ -131,11 +139,4 @@ function ChemItemDashboard() {
     
 }
 
-
-
-const mapStateToProps = state => ({
-    selectedLab: state.selectedLab,
-    user: state.selectedLab
-})
-
-export default connect(mapStateToProps) (ChemItemDashboard)
+export default ChemItemDashboard

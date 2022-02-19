@@ -18,7 +18,11 @@ public interface ChemItemRepository extends CrudRepository<ChemItem, Long> {
 
     Page<ChemItem> findByLab(Lab lab, Pageable pageable);
 
-    @Query("SELECT c FROM ChemItem c WHERE c.lab = ?1 and c.consumptionDate is null and (c.expirationDate >= CURRENT_DATE or c.expirationDate is null)")
+    @Query("SELECT c FROM ChemItem c WHERE " +
+            "c.lab = ?1 " +
+            "and c.consumptionDate is null " +
+            "and (c.expirationDateBeforeOpened >= CURRENT_DATE) " +
+            "and (c.expirationDate >= CURRENT_DATE or c.expirationDate is null)")
     Page<ChemItem> findAvailableByLab(Lab lab, Pageable pageable);
 
 }

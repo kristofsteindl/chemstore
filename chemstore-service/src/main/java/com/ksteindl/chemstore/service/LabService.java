@@ -90,12 +90,11 @@ public class LabService implements UniqueEntityService<LabInput> {
     }
 
     public void validateLabForUser(Lab lab, Principal userPrincipal) {
-        Lab unproxiedLab = HibernateProxyUtil.unproxy(lab);
         AppUser user = appUserService.getMyAppUser(userPrincipal);
         if (!user.getLabsAsUser().stream().anyMatch(labAsUser -> labAsUser.getKey().equals(lab.getKey())) &&
-                !unproxiedLab.getLabManagers().stream().anyMatch(manager -> manager.equals(user)) &&
-                !user.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.getKey().equals(unproxiedLab.getKey()))) {
-            throw new ForbiddenException(String.format(Lang.LAB_USER_FORBIDDEN, unproxiedLab.getName(), userPrincipal.getName()));
+                !lab.getLabManagers().stream().anyMatch(manager -> manager.getUsername().equals(user.getUsername())) &&
+                !user.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.getKey().equals(lab.getKey()))) {
+            throw new ForbiddenException(String.format(Lang.LAB_USER_FORBIDDEN, lab.getName(), userPrincipal.getName()));
         }
     }
 

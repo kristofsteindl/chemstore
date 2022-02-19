@@ -20,6 +20,14 @@ class Header extends Component {
         window.location.href = '/'
     }
 
+    componentDidMount() {
+        console.log("in Header componentDidMount " + this.props.labs.length)
+        if (this.props.labs.length === 1) {
+            console.log(this.props.labs[0])
+            this.onChange(this.props.labs[0])
+        }
+    }
+
     onChange(justSelected) {
         store.dispatch({
             type: SELECT_LAB,
@@ -69,7 +77,6 @@ class Header extends Component {
                     <li className="nav-item" key="react-select">
                         <Select 
                             name="form-field-name"
-                            value={this.selectedLab}
                             onChange={this.onChange}
                             options={this.props.labs} 
                             placeholder="Select lab"
