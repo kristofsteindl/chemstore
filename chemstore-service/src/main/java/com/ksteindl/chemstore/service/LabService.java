@@ -14,8 +14,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,11 +60,11 @@ public class LabService implements UniqueEntityService<LabInput> {
 
     public List<Lab> getLabsForUser(Principal principal) {
         AppUser user = appUserService.getMyAppUser(principal);
-        List<Lab> labsForUser = new ArrayList<>();
+        Set<Lab> labsForUser = new HashSet<>();
         labsForUser.addAll(user.getLabsAsUser());
         labsForUser.addAll(user.getLabsAsAdmin());
         labsForUser.addAll(labRepository.findByLabManagers(user));
-        return labsForUser;
+        return labsForUser.stream().sorted(Comparator.comparing(Lab::getName)).collect(Collectors.toList());
     }
 
     public Lab findLabByKey(String key) {

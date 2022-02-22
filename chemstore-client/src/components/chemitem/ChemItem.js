@@ -5,13 +5,10 @@ import React, { useState } from 'react'
 import { isAvailable, isExpired } from '../../utils/chem-item-utils'
 import VerifyPanel from '../UI/VerifyPanel';
 import "./ChemItem.css"
-import { useSelector } from 'react-redux';
 
 const ChemItem = props => {
     const [chemItem, setChemItem] = useState(props.chemItem)
     const [activeModal, setActiveModal] = useState("")
-
-    const user = useSelector((state) => state.security.user)
     
     const getExpDate = chemItem => {
         if (chemItem.expirationDate) {

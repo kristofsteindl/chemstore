@@ -71,7 +71,7 @@ export default class UpdateManufacturer extends Component {
                                        
                                     </div>
                                 </div>
-                                <button type="submit" className="btn btn-info btn-block mt-4">Add Manufacturer</button>
+                                <button type="submit" className="btn btn-info btn-block mt-4">Update Manufacturer</button>
                                 
                             </form>
                         </div>

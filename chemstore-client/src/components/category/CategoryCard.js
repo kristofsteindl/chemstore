@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
 import { getShelfLife } from '../../utils/durationUtils'
+import DuButtons from '../UI/DuButtons'
 
 export default class CategoryCard extends Component {
     constructor(props) {
@@ -21,28 +21,16 @@ export default class CategoryCard extends Component {
                         <div className="col-sm-4">
                             <h4>{category.name}</h4>
                         </div>
-                        <div className="col-sm-4">
+                        <div className="col-sm-5">
                             <span>{getShelfLife(category)}</span>
                         </div>
-                        <div className="col-sm-2">
-                            { this.props.isAdmin && (
-                                <Link to={`/update-category/${category.id}`}>
-                                    <li className="list-group-item update">
-                                        <i className="fa fa-edit pr-1">Update</i>
-                                    </li>
-                                </Link>) 
-                            }
-                        </div>
-                        <div className="col-sm-2">
-                            { this.props.isAdmin && (
-                                <span onClick={() => this.deleteCategory(category)}>
-                                    <li className="list-group-item delete">
-                                        <i className="fa fa-minus-circle pr-1">Delete</i>
-                                        {
-                                            (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
-                                        }
-                                    </li>
-                                </span>) 
+                        <div className="col-sm-3">
+                            { this.props.isAdmin && 
+                                <DuButtons 
+                                    updateFormTo={`/update-category/${category.id}`}
+                                    onDelete={() => this.deleteCategory(category)}
+                                /> 
+                               
                             }
                         </div>
                     </div>

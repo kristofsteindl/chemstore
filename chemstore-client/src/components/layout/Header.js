@@ -1,7 +1,6 @@
-import React, { Component, useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import PropTypes from "prop-types"
-import { connect, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { logout, } from '../../utils/securityUtils'
 import 'semantic-ui-css/semantic.min.css'
 import Select from 'react-select'
@@ -24,7 +23,7 @@ const Header = () => {
             const storedLabKey = localStorage.getItem(storedLabKeyKey)
             if (storedLabKey) {
                 labs.forEach(lab => console.log(lab.key))
-                const storedLab = labs.filter(lab => lab.key == storedLabKey)[0]
+                const storedLab = labs.filter(lab => lab.key === storedLabKey)[0]
                 handleLabSelection(storedLab)
             }
             else if (labs.length === 1) {

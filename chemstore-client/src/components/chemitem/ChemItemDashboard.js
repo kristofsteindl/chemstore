@@ -14,13 +14,22 @@ function ChemItemDashboard() {
     
     const [onlyAvailable, setOnlyAvailable] = useState(true)
     const [chemItems, setChemItems] = useState([])
-    const [currentPage, setCurrentPage] = useState(1)
+    const setCurrentPage = useState(1)[1]
     const [totalItems, setTotalItems] = useState(1)
-    const [totalPages, setTotalPages] = useState(0)
+    const setTotalPages = useState(0)[1]
     
     const toggleOnlyAvailable = () => {
         setOnlyAvailable(!onlyAvailable);
     };
+
+    const loadChemItems = () => {
+        check()
+        onPageChanged({
+            currentPage: 1,
+            pageLimit: PAGE_LIMIT,
+            onlyAvailable: onlyAvailable
+        })
+    }
 
     const selectedLab = useSelector((state) => state.selectedLab)
     const user = useSelector((state) => state.security.user)
@@ -34,18 +43,11 @@ function ChemItemDashboard() {
     }, [selectedLab, onlyAvailable])
 
     
-    const loadChemItems = () => {
-        check()
-        onPageChanged({
-            currentPage: 1,
-            pageLimit: PAGE_LIMIT,
-            onlyAvailable: onlyAvailable
-        })
-    }
+
 
     const deleteChemItem = async id => {
         await axios.delete(`/api/chem-item/${id}`)
-        setChemItems(originalList => originalList.filter(chemItem => chemItem.id != id))
+        setChemItems(originalList => originalList.filter(chemItem => chemItem.id !== id))
     }
 
     const onPageChanged = data => {

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
+import DuButtons from '../UI/DuButtons';
 
 class User extends Component {
     constructor(props) {
@@ -21,7 +21,7 @@ class User extends Component {
                                     </div>)
                                  }
                         </div>
-                        <div className="col-lg-6 col-md-4 col-8">
+                        <div className="col-lg-7">
                             <h3>{user.fullName}</h3>
                             <i>User in:  </i><strong>{user.labsAsUser.map(lab => lab.name).join(", ")}</strong><br />
                             { user.labsAsAdmin.length > 0 && (
@@ -34,30 +34,15 @@ class User extends Component {
                                     <i>Managed labs:   </i><strong>{user.managedLabs.map(lab => lab.name).join(",")}</strong><br />
                                 </div>)
                             }
-                            
 
                         </div>
-                        <div className="col-md-4 d-none d-lg-block">
-                            <ul className="list-group">
-                                { this.props.isAccountManager && 
-                                    ( <Link to={`/update-user/${user.id}`}>
-                                        <li className="list-group-item update">
-                                            <i className="fa fa-edit pr-1">Update User</i>
-                                        </li>
-                                    </Link>)
-                                }
-                                { this.props.isAccountManager && 
-                                    ( <span onClick={() => this.deleteUser(user)}>
-                                        <li className="list-group-item delete">
-                                            <i className="fa fa-minus-circle pr-1">Delete User</i>
-                                            {
-                                                (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
-                                            }
-                                        </li>
-                                    </span> )
-                                }
-
-                            </ul>
+                        <div className="col-md-3">
+                            { this.props.isAccountManager && 
+                                <DuButtons 
+                                    updateFormTo={`/update-user/${user.id}`}
+                                    onDelete={() => this.deleteUser(user)}
+                                /> 
+                            }                     
                         </div>
                     </div>
                 </div>

@@ -139,7 +139,7 @@ class UpdateLab extends Component {
 
                             
                                 
-                                <button type="submit" className="btn btn-info btn-block mt-4">Add Lab</button>
+                                <button type="submit" className="btn btn-info btn-block mt-4">Update Lab</button>
                                 
                             </form>
                         </div>

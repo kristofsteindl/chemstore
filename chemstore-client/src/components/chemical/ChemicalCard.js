@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
+import DuButtons from '../UI/DuButtons'
 
 export default class ChemicalCard extends Component {
     constructor(props) {
@@ -20,30 +20,17 @@ export default class ChemicalCard extends Component {
                         <div className="col-2">
                             <span className="mx-auto">{chemical.shortName}</span>
                         </div>
-                        <div className="col-sm-6">
+                        <div className="col-sm-7">
                             <h4>{chemical.exactName}</h4>
                             { this.drawCategory(chemical)}
                         </div>
-                        <div className="col-sm-2">
+                        <div className="col-sm-3">
                             { this.props.isAdmin && 
-                                (<Link to={`update-chemical/${chemical.id}`}>
-                                    <li className="list-group-item update">
-                                    
-                                        <i className="fa fa-edit pr-1">Update</i>
-                                    </li>
-                                </Link>)
-                            }
-                        </div>
-                        <div className="col-sm-2">
-                            { this.props.isAdmin && 
-                                (<span onClick={() => this.deleteChemical(chemical)}>
-                                    <li className="list-group-item delete">
-                                        <i className="fa fa-minus-circle pr-1">Delete</i>
-                                        {
-                                            (this.props.errors.message && <h5 >{this.props.errors.message}</h5>)
-                                        }
-                                    </li>
-                                </span>)
+                                <DuButtons 
+                                    updateFormTo={`update-chemical/${chemical.id}`}
+                                    onDelete={() => this.deleteChemical(chemical)}
+                                /> 
+                               
                             }
                         </div>
                     </div>

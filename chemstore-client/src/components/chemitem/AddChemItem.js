@@ -6,8 +6,6 @@ import { check, checkIfAdmin } from '../../utils/securityUtils'
 import axios from 'axios'
 import Select from 'react-dropdown-select'
 
-const labKey = "first-lab"
-
 class AddChemItem extends Component {
     constructor(){
         super()
@@ -93,7 +91,6 @@ class AddChemItem extends Component {
 
 
     render() {
-        const {errors} = this.state
         
         return (
             <div className="container">
@@ -173,7 +170,6 @@ class AddChemItem extends Component {
                                         options={this.state.units}
                                         labelField="unit"
                                         placeholder="unit"
-                                        labelField="unit"
                                         valueField="unit"
                                         searchable="true"
                                         clearable="true"
