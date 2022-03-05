@@ -6,6 +6,7 @@ import 'semantic-ui-css/semantic.min.css'
 import Select from 'react-select'
 import store from '../../store'
 import { SELECT_LAB } from '../../actions/types'
+import { ButtonGroup, Dropdown, DropdownButton } from 'react-bootstrap'
 
 
 const Header = () => {
@@ -22,12 +23,10 @@ const Header = () => {
             const storedLabKeyKey = `${user.username.split('@')[0]}.selectedLab`
             const storedLabKey = localStorage.getItem(storedLabKeyKey)
             if (storedLabKey) {
-                labs.forEach(lab => console.log(lab.key))
                 const storedLab = labs.filter(lab => lab.key === storedLabKey)[0]
                 handleLabSelection(storedLab)
             }
             else if (labs.length === 1) {
-                console.log(labs[0])
                 handleLabSelection(labs[0])
             } 
         }
@@ -47,7 +46,13 @@ const Header = () => {
         });
     }
 
+    const userManual = (
+        <li className="nav-item">
+            <Link to='/user-manual' className="nav-link" >
+                <i className="fas fa-question-circle"></i>
+            </Link>
 
+        </li>)
     
     const userISAuthenticated = (                    
         <div className="collapse navbar-collapse" id="mobile-nav">
@@ -95,17 +100,24 @@ const Header = () => {
 
                     />
                 </li>
+                <li className="nav-item">
+                <ButtonGroup style={{"paddingLeft": "10px", "paddingRight": "10px"}}>
+                    <DropdownButton as={ButtonGroup} title={<i style={{"color": "#dddddd"}} className="fas fa-user">{user.fullName}</i>} id="bg-nested-dropdown">
+                        <Dropdown.Item eventKey="1" tag={Link} to='/change-password' style={{ textDecoration: 'none' }}>
+                           
+                                Change Password
+                            
+                        </Dropdown.Item>
+                        <Dropdown.Item eventKey="2" tag={Link} to="/" onClick={handleLogout} style={{ textDecoration: 'none' }}>
+                            
+                                Logout
+                            
+                        </Dropdown.Item>
+                    </DropdownButton>
+                </ButtonGroup>
 
-                <li className="nav-item">
-                    <Link className="nav-link" to='/change-password'>
-                        Change Password
-                    </Link>
                 </li>
-                <li className="nav-item">
-                    <Link className="nav-link" to="/" onClick={handleLogout}>
-                        Logout
-                    </Link>
-                </li>
+                {userManual}
             </ul>
         </div>
     )
@@ -117,6 +129,7 @@ const Header = () => {
                         Login
                     </Link>
                 </li>
+                {userManual}
             </ul>
         </div>
     )

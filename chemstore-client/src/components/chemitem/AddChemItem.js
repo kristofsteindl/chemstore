@@ -48,7 +48,7 @@ class AddChemItem extends Component {
             labKey: this.props.selectedLab.key,
             chemicalShortName: this.state.chemicalShortName,
             manufacturerId: this.state.manufacturerId,
-            unit: this.state.unit,
+            unit: this.state.unit.unit,
             amount: this.state.amount,
             quantity: this.state.quantity,
             batchNumber: this.state.batchNumber,
@@ -88,10 +88,16 @@ class AddChemItem extends Component {
         }
     }
 
+    handleUnitChange(items) {
+        if (items) {
+            this.setState({unit: items[0].unit })
+        }
+    }
+
 
 
     render() {
-        
+        const options = this.state.units.map(unit => {return {...unit, value: unit.unit, label: unit.unit}})
         return (
             <div className="container">
                 <div className="row">
@@ -110,11 +116,11 @@ class AddChemItem extends Component {
                                         labelField="shortName"
                                         valueField="shortName"
                                         placeholder="chemical"
-                                        searchable="true"
                                         searchBy="shortName"
-                                        clearable="true"
+                                        searchable={false}
+                                        clearable={false}
                                         style={{height: "42px", fontSize: "16px"}}
-                                        onChange={(items) => this.setState({chemicalShortName: items[0].shortName })}
+                                        onChange={(items) => items[0] && this.setState({chemicalShortName: items[0].shortName })}
                                     />
                                 </div>
                             </div>
@@ -125,14 +131,14 @@ class AddChemItem extends Component {
                                 <div className="col-sm-8">
                                     <Select
                                         options={this.state.manufacturers}
+                                        searchable={false}
+                                        clearable={false}
                                         labelField="name"
                                         valueField="name"
                                         placeholder="manufacturer"
-                                        searchable="true"
                                         searchBy="name"
-                                        clearable="true"
                                         style={{height: "42px", fontSize: "16px"}}
-                                        onChange={(items) => this.setState({manufacturerId: items[0].id })}
+                                        onChange={(items) => items[0] && this.setState({manufacturerId: items[0].id })}
                                     />
                                 </div>
                             </div>
@@ -171,10 +177,10 @@ class AddChemItem extends Component {
                                         labelField="unit"
                                         placeholder="unit"
                                         valueField="unit"
-                                        searchable="true"
-                                        clearable="true"
+                                        searchable={false}
+                                        clearable={false}
                                         style={{height: "42px", fontSize: "16px"}}
-                                        onChange={(items) => this.setState({unit: items[0].unit })}
+                                        onChange={items => items[0] && this.setState({unit: items[0].unit })}
                                     />
                                 </div>
                             </div>

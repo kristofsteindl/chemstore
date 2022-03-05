@@ -26,6 +26,7 @@ import CategoryDashboard from './components/category/CategoryDashboard';
 import AddCategory from './components/category/AddCategory';
 import UpdateCategory from './components/category/UpdateCategory';
 import ChemItemDashboard from './components/chemitem/ChemItemDashboard';
+import UserManual from './components/layout/UserManual';
 
 
 refreshState()
@@ -38,8 +39,12 @@ function App() {
           <Header />
           <Route exact path="/" component={Landing} />
           <Route exact path="/login" component={Login} />
+
+          <Route exact path="/user-manual" component={UserManual} />
           
           <Switch>
+            
+
             <SecuredRoute exact path="/change-password" component={ChangePassword} />
 
             <SecuredRoute exact path="/users" component={UserDashboard} />

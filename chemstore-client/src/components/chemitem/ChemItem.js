@@ -5,6 +5,7 @@ import React, { useState } from 'react'
 import { isAvailable, isExpired } from '../../utils/chem-item-utils'
 import VerifyPanel from '../UI/VerifyPanel';
 import "./ChemItem.css"
+import { Button } from "@mui/material"
 
 const ChemItem = props => {
     const [chemItem, setChemItem] = useState(props.chemItem)
@@ -35,13 +36,13 @@ const ChemItem = props => {
     const getOpenContent = chemItem => {
         if (chemItem.openingDate) {
             return (<div>{chemItem.openingDate}</div>)
+        } else if (isExpired(chemItem)) {
+            return (<div></div>)
         } else {
             return (
-                <span onClick={() => setActiveModal("OPEN")}>
-                    <li className="list-group-item update action-button">              
-                        <i className="fa fa-edit pr-1">Open</i>
-                    </li>
-                </span>
+                <Button onClick={() => setActiveModal("OPEN")} className="btn action-button" variant="outlined" size="medium">
+                    <i className="fa fa-edit">Open</i>
+                </Button>
             )
         }
     }
@@ -51,11 +52,9 @@ const ChemItem = props => {
             return (<div></div>)
         } else if (chemItem.openingDate && !chemItem.consumptionDate) {
             return (
-                <span onClick={() => setActiveModal("CONSUME")}>
-                    <li className="list-group-item update action-button">              
-                        <i className="fa fa-minus-circle pr-1">Consume</i>
-                    </li>
-                </span>)
+                <Button className="btn action-button" color="error" variant="outlined" size="medium" onClick={() => setActiveModal("CONSUME")}  >
+                    <i className="fa fa-minus-circle">Consume</i>
+                </Button>)
         } else {
             return (<div>{chemItem.consumptionDate}</div>)
         }

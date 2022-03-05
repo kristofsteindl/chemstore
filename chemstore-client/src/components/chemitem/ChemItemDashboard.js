@@ -14,7 +14,7 @@ function ChemItemDashboard() {
     
     const [onlyAvailable, setOnlyAvailable] = useState(true)
     const [chemItems, setChemItems] = useState([])
-    const setCurrentPage = useState(1)[1]
+    const [currentPage, setCurrentPage] = useState(1)
     const [totalItems, setTotalItems] = useState(1)
     const setTotalPages = useState(0)[1]
     
@@ -25,7 +25,7 @@ function ChemItemDashboard() {
     const loadChemItems = () => {
         check()
         onPageChanged({
-            currentPage: 1,
+            currentPage: currentPage,
             pageLimit: PAGE_LIMIT,
             onlyAvailable: onlyAvailable
         })

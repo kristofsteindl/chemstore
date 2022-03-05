@@ -1,6 +1,7 @@
 .action-button {
     padding: 0.01rem 0.5rem;
     height: 28px;
+    width: 90px;
 }
 
 .delete {
