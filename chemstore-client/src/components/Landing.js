@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import PropTypes from "prop-types"
 import { fetchLabs } from '../utils/securityUtils'
+import { Button } from 'react-bootstrap'
+import "./Landing.css"
 
 class Landing extends Component {
     componentDidMount() {
@@ -28,8 +30,14 @@ class Landing extends Component {
                                     <b>Log in</b>, to manage chamicals and register eluents in your lab
                                 </p>
                                 <hr />
-                                <Link to="/login" className="btn btn-lg btn-primary me-2">
+                                <Link to="/login" className="lgbtn btn btn-primary mt-2">
                                     Login
+                                </Link>
+                                <Link to="/user-manual">
+                                    <Button variant="outline-primary" className="lgbtn btn-block mt-2">
+                                        <i className="fas fa-question-circle"></i>
+                                        Help
+                                    </Button>
                                 </Link>
                             </div>
                         </div>

@@ -13,15 +13,15 @@ class User extends Component {
             <div className="container">
                 <div className="card card-body bg-light mb-3">
                     <div className="row">
-                        <div className="col-2">
-                            <span className="mx-auto">{user.username.split('@')[0]}</span>          
+                        <div className="col-3">
+                            <span className="mx-auto">{user.username}</span>          
                                  { user.roles.length > 0 && (<div>
                                         <br />
                                         <span className="mx-auto">({user.roles.map(role => role.name).join(",")})</span>
                                     </div>)
                                  }
                         </div>
-                        <div className="col-lg-7">
+                        <div className="col-lg-6">
                             <h3>{user.fullName}</h3>
                             <i>User in:  </i><strong>{user.labsAsUser.map(lab => lab.name).join(", ")}</strong><br />
                             { user.labsAsAdmin.length > 0 && (

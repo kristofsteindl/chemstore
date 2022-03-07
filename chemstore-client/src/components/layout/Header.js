@@ -103,15 +103,11 @@ const Header = () => {
                 <li className="nav-item">
                 <ButtonGroup style={{"paddingLeft": "10px", "paddingRight": "10px"}}>
                     <DropdownButton as={ButtonGroup} title={<i style={{"color": "#dddddd"}} className="fas fa-user">{user.fullName}</i>} id="bg-nested-dropdown">
-                        <Dropdown.Item eventKey="1" tag={Link} to='/change-password' style={{ textDecoration: 'none' }}>
-                           
-                                Change Password
-                            
+                        <Dropdown.Item eventKey="1" href='/change-password' style={{ textDecoration: 'none' }}>
+                            Change Password
                         </Dropdown.Item>
                         <Dropdown.Item eventKey="2" tag={Link} to="/" onClick={handleLogout} style={{ textDecoration: 'none' }}>
-                            
-                                Logout
-                            
+                            Logout
                         </Dropdown.Item>
                     </DropdownButton>
                 </ButtonGroup>
