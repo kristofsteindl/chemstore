@@ -5,6 +5,7 @@ import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
+import com.ksteindl.chemstore.domain.entities.Project;
 import com.ksteindl.chemstore.domain.input.PasswordInput;
 import com.ksteindl.chemstore.security.role.Role;
 import com.ksteindl.chemstore.security.role.RoleService;
@@ -13,6 +14,7 @@ import com.ksteindl.chemstore.service.ChemicalCategoryService;
 import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.LabService;
 import com.ksteindl.chemstore.service.ManufacturerService;
+import com.ksteindl.chemstore.service.ProjectService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,8 @@ public class LoggedInController {
     private ChemicalService chemicalService;
     @Autowired
     private ManufacturerService manufacturerService;
+    @Autowired
+    private ProjectService projectService;
     @Autowired
     private RoleService roleService;
     @Autowired
@@ -99,9 +103,9 @@ public class LoggedInController {
             @RequestParam(value="onlyActive", required = false, defaultValue = "true") boolean onlyActive,
             @PathVariable String labKey,
             Principal principal) {
-        logger.info("GET 'logged-in/chem-category was called with labKey {}", labKey);
+        logger.info("GET '/api/logged-in/chem-category was called with labKey {}", labKey);
         List<ChemicalCategory> categories = chemicalCategoryService.findByLabForUser(labKey, onlyActive, principal);
-        logger.info("GET 'logged-in/chem-category' was succesful with {} item", categories.size());
+        logger.info("GET '/api/logged-in/chem-category' was succesful with {} item", categories.size());
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
@@ -111,6 +115,18 @@ public class LoggedInController {
         List<Manufacturer> manufacturers = manufacturerService.getManufacturers();
         logger.info("GET '/api/logged-in/manufacturer' was succesful with {} item", manufacturers.size());
         return manufacturers;
+    }
+
+    @GetMapping("/project/{labKey}")
+    public ResponseEntity<List<Project>> getProjects(
+            @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive,
+            @PathVariable String labKey,
+            Principal user
+            ) {
+        logger.info("GET '/api/logged-in/project/{labKey}' was called, with onlyActive {} with labKey {} by user {}", onlyActive, labKey, user.getName());
+        List<Project> projects = projectService.getProjects(labKey, user, onlyActive);
+        logger.info("GET '/api/logged-in/project/{labKey}' was succesful with {} item", projects.size());
+        return new ResponseEntity<>(projects, HttpStatus.OK);
     }
 
     @GetMapping("/chemical/{labKey}")

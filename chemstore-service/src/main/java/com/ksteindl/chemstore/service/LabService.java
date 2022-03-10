@@ -79,6 +79,12 @@ public class LabService implements UniqueEntityService<LabInput> {
         labRepository.save(lab);
     }
 
+    public Lab findLabForManager(String labKey, Principal admin) {
+        Lab lab = findLabByKey(labKey);
+        validateLabForManager(lab, admin);
+        return lab;
+    }
+
     public Lab findLabForAdmin(String labKey, Principal admin) {
         Lab lab = findLabByKey(labKey);
         validateLabForAdmin(lab, admin);
@@ -97,6 +103,15 @@ public class LabService implements UniqueEntityService<LabInput> {
                 !lab.getLabManagers().stream().anyMatch(manager -> manager.getUsername().equals(user.getUsername())) &&
                 !user.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.getKey().equals(lab.getKey()))) {
             throw new ForbiddenException(String.format(Lang.LAB_USER_FORBIDDEN, lab.getName(), userPrincipal.getName()));
+        }
+    }
+
+    public void validateLabForManager(Lab lab, Principal managerPrincipal) {
+        AppUser user = appUserService.getMyAppUser(managerPrincipal);
+        boolean userIsManagerOfLab = user.getManagedLabs().stream()
+                .anyMatch(managedLab -> managedLab.getKey().equals(lab.getKey()));
+        if (!userIsManagerOfLab) {
+            throw new ForbiddenException(String.format(Lang.LAB_MANAGER_FORBIDDEN, lab.getName(), managerPrincipal.getName())); 
         }
     }
 

@@ -11,12 +11,17 @@ public class Lang {
     public static final String CHEMICAL_CATEGORY_LAB_NOT_THE_SAME = "The lab of %s category (%s) is not the same as the lab of chemical (%s)";
     public static final String LAB_ADMIN_FORBIDDEN = "Lab %s is forbidden for %s as admin. You have to be either the manager or the admin of the lab";
     public static final String LAB_USER_FORBIDDEN = "Lab %s is forbidden for %s as user. You have to be either the manager or the admin of the lab, or has to assigned as a user";
+    public static final String LAB_MANAGER_FORBIDDEN = "Lab %s is forbidden for %s as manager.";
 
     public static final String LAB_OF_CHEMICAL_CANNOT_CHANGED = "The lab of the chemical cannot be changed (current: %s)!";
 
     public static final String MANUFACTURER_ENTITY_NAME = "manufacturer";
     public static final String MANUFACTURER_WITH_SAME_NAME_FOUND_TEMPLATE = "Manufacturer with name '%s' is already exists";
     public static final String MANUFACTURER_ALREADY_DELETED = "Manufacturer %s has been already deleted";
+
+    public static final String PROJECT_ENTITY_NAME = "project";
+    public static final String PROJECT_WITH_SAME_NAME_FOUND_TEMPLATE = "Project with name '%s' already exists in lab '%s'";
+    public static final String PROJECT_ALREADY_DELETED = "Project %s has been already deleted";
 
     public static final String APP_USER_ENTITY_NAME = "app-user";
     public static final String APP_USER_USERNAME_ATTRIBUTE_NAME = "username";
