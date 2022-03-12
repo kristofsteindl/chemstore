@@ -38,8 +38,6 @@ public class ChemItemServiceTest extends BaseControllerTest {
     private ChemItemService chemItemService;
     @Autowired
     private ManufacturerService manufacturerService;
-    @Autowired
-    private ChemicalService chemicalService;
 
     @Test
     @Rollback

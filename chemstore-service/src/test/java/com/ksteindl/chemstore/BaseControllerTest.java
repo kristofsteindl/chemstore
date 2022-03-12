@@ -29,6 +29,7 @@ public class BaseControllerTest {
     protected static String TOKEN_FOR_BETA_LAB_ADMIN;
     protected static String TOKEN_FOR_ALPHA_LAB_MANAGER;
     protected static String TOKEN_FOR_BETA_LAB_MANAGER;
+    protected static String TOKEN_FOR_ALPHA_BETA_LAB_MANAGER;
     protected static String TOKEN_FOR_ALPHA_LAB_USER;
     protected static String TOKEN_FOR_BETA_LAB_USER;
     protected static String TOKEN_FOR_PW_CHANGED_USER;
@@ -52,6 +53,7 @@ public class BaseControllerTest {
             TOKEN_FOR_ACCOUNT_MANAGER = getToken(mvc, AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
             TOKEN_FOR_ALPHA_LAB_ADMIN = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
             TOKEN_FOR_ALPHA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_MANAGER_USERNAME);
+            TOKEN_FOR_ALPHA_BETA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.ALPHA_BETA_LAB_MANAGER_USERNAME);
             TOKEN_FOR_ALPHA_LAB_USER = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME);
             TOKEN_FOR_BETA_LAB_ADMIN= getToken(mvc, AccountManagerTestUtils.BETA_LAB_ADMIN_USERNAME);
             TOKEN_FOR_BETA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME);

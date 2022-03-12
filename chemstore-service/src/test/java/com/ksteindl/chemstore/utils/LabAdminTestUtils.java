@@ -3,6 +3,7 @@ package com.ksteindl.chemstore.utils;
 import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
+import com.ksteindl.chemstore.domain.input.ProjectInput;
 
 public class LabAdminTestUtils {
 
@@ -175,6 +176,23 @@ public class LabAdminTestUtils {
         chemicalInput.setShortName(FA_SHORT_NAME);
         chemicalInput.setLabKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         return chemicalInput;
+    }
+
+    public static final String ROSU_NAME = "Rosuvastatin";
+    public static final String AMLO_NAME = "Amlodipine";
+    
+    public static ProjectInput getRosuForAlphaInput() {
+        ProjectInput projectInput = new ProjectInput();
+        projectInput.setName(ROSU_NAME);
+        projectInput.setLabKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        return projectInput;
+    }
+
+    public static ProjectInput getAmloForAlphaInput() {
+        ProjectInput projectInput = new ProjectInput();
+        projectInput.setName(AMLO_NAME);
+        projectInput.setLabKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+        return projectInput;
     }
 
 

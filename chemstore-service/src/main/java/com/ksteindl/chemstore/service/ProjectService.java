@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ProjectService implements UniqueEntityService<ProjectInput> {
+public class ProjectService {
 
     private static final Logger logger = LogManager.getLogger(ProjectService.class);
     private final static Sort SORT_BY_NAME = Sort.by(Sort.Direction.ASC, "name");
@@ -38,11 +38,9 @@ public class ProjectService implements UniqueEntityService<ProjectInput> {
     }
 
     public Project updateProject(ProjectInput projectInput, Long id, Principal managerPrincipal) {
-        Project project = projectRepository
-                .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Lang.PROJECT_ENTITY_NAME, id));
+        Project project = findById(id);
         labService.validateLabForManager(project.getLab(), managerPrincipal);
-        throwExceptionIfNotUnique(projectInput, id);
+        throwExceptionIfNotUnique(projectInput, project);
         project.setName(projectInput.getName());
         return projectRepository.save(project);
     }
@@ -77,15 +75,24 @@ public class ProjectService implements UniqueEntityService<ProjectInput> {
         return project;
     }
 
-    @Override
-    public void throwExceptionIfNotUnique(ProjectInput input, Long id) {
+    public void throwExceptionIfNotUnique(ProjectInput input) {
         String name = input.getName();
         Lab lab = labService.findLabByKey(input.getLabKey());
         Optional<Project> optional = projectRepository.findByNameAndLab(name, lab);
         optional.ifPresent(project -> {
-            if (!project.getId().equals(id)) {
-                throw new ValidationException(String.format(Lang.PROJECT_WITH_SAME_NAME_FOUND_TEMPLATE, input.getName(), lab.getKey()));
-            }
+            throw new ValidationException(String.format(Lang.PROJECT_WITH_SAME_NAME_FOUND_TEMPLATE, input.getName(), lab.getKey()));
         });
+    }
+    
+    public void throwExceptionIfNotUnique(ProjectInput newInput, Project oldProject) {
+        Lab lab = oldProject.getLab();
+        String name = newInput.getName();
+        projectRepository
+                .findByNameAndLab(name, lab)
+                .filter(foundProject -> !foundProject.getId().equals(oldProject.getId()))
+                .ifPresent(sameNameProject -> {
+                    throw new ValidationException(
+                        String.format(Lang.PROJECT_WITH_SAME_NAME_FOUND_TEMPLATE, name, lab.getKey()));
+                });
     }
 }

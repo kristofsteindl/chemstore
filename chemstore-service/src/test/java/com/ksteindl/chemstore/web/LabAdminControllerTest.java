@@ -332,6 +332,7 @@ class LabAdminControllerTest extends BaseControllerTest{
         logger.info(result.getResponse().getContentAsString());
     }
 
+    //UPDATE
     @Test
     @Rollback
     @Transactional
