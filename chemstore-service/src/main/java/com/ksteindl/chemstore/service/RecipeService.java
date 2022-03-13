@@ -52,11 +52,9 @@ public class RecipeService {
     private Recipe createOrUpdateRecipe(Recipe recipe, RecipeInput recipeInput, Principal managerPrincipal) {
         Project project = projectService.findById(recipeInput.getProjectId());
         labService.validateLabForManager(project.getLab(), managerPrincipal);
-        String name = recipeInput.getName();
-        throwExceptionIfNotUnique(name, project, recipe.getId());
+        throwExceptionIfNotUnique(recipeInput.getName(), project, recipe.getId());
         recipe.setProject(project);
-        recipe.setName(name);
-        recipe.setShelfLife(recipeInput.getShelfLife());
+        validateAndSetAttributes(recipe, recipeInput);
         ingredientService.setIngredients(recipe, recipeInput);
         return recipeRepository.save(recipe);
     }
@@ -87,6 +85,18 @@ public class RecipeService {
             throw new ResourceNotFoundException(String.format(Lang.RECIPE_ALREADY_DELETED, recipe.getName()));
         }
         return recipe;
+    }
+    
+    private void validateAndSetAttributes(Recipe recipe, RecipeInput recipeInput) {
+        String unit = recipeInput.getUnit();
+        if (!ChemItemService.DEFAULT_UNITS.contains(unit)) {
+            throw new ValidationException(String.format(Lang.INVALID_UNIT, unit, ChemItemService.DEFAULT_UNITS));
+        }
+        recipe.setAmount(recipeInput.getAmount());
+        recipe.setUnit(unit);
+        recipe.setShelfLifeInDays(recipeInput.getShelfLifeInDays());
+        recipe.setName(recipeInput.getName());
+        
     }
 
     private Recipe getEmptyRecipe() {

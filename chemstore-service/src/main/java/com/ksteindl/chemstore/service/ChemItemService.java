@@ -189,7 +189,7 @@ public class ChemItemService {
             logger.info("units loaded succesfully from: " + UNIT_FILE_NAME);
         }
         catch (IOException exception) {
-            logger.error("IOException is thrown when trying to read units from " + UNIT_FILE_NAME, exception);
+            logger.warn("IOException is thrown when trying to read units from " + UNIT_FILE_NAME, exception);
             units = DEFAULT_UNITS;
         }
         logger.info("units are: " + units);

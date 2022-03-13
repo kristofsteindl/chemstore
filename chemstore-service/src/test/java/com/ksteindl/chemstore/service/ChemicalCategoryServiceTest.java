@@ -359,7 +359,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
         Assertions.assertEquals(input.getName(), fetched.getName());
         Assertions.assertEquals(Duration.between(
                         LocalDateTime.now(), LocalDateTime.now().plusYears(LabAdminTestUtils.ORGANIC_FOR_ALPHA_YEARS)).toHours(),
-                fetched.getShelfLife().toHours());
+                fetched.getShelfLife().toHours(), 24);
     }
 
     @Test
@@ -417,7 +417,7 @@ public class ChemicalCategoryServiceTest extends BaseControllerTest{
         Assertions.assertEquals(input.getName(), fetched.getName());
         Assertions.assertEquals(Duration.between(
                         LocalDateTime.now(), LocalDateTime.now().plusYears(LabAdminTestUtils.ORGANIC_FOR_ALPHA_YEARS)).toHours(),
-                fetched.getShelfLife().toHours());
+                fetched.getShelfLife().toHours(), 24);
     }
 
     @Test

@@ -26,7 +26,11 @@ public class Recipe {
 
     private String name;
     
-    private Integer shelfLife;
+    private Integer shelfLifeInDays;
+    
+    private Double amount;
+    
+    private String unit;
     
     private Boolean deleted = false;
 
