@@ -48,13 +48,13 @@ public class LabManagerController {
 
     @GetMapping("/user")
     public Map<String, List<AppUser>> getUersFromManagedLabs(Principal principal) {
-        logger.info("'/lab-manager/user' was called by {}", principal.getName());
+        logger.info("'api/lab-manager/user' was called by {}", principal.getName());
         return appUserService.getUsersFromManagedLabs(principal);
     }
 
     @GetMapping("/user/{labKey}")
     public List<AppUser> getUersFromManagedLab(@PathVariable String labKey, Principal principal) {
-        logger.info("'/lab-manager/user/{labKey}' was called by {}", principal.getName());
+        logger.info("'api/lab-manager/user/{labKey}' was called by {}", principal.getName());
         return appUserService.getUsersFromManagedLab(principal, labKey);
     }
     
@@ -64,10 +64,10 @@ public class LabManagerController {
             @Valid @RequestBody ProjectInput projectInput,
             Principal principal,
             BindingResult result) {
-        logger.info("POST '/project' was called with {} by {}", projectInput, principal.getName());
+        logger.info("POST '/api/lab-manager/project' was called with {} by {}", projectInput, principal.getName());
         mapValidationErrorService.throwExceptionIfNotValid(result);
         Project project = projectService.createProject(projectInput, principal);
-        logger.info("POST '/project' was succesful with returned result{}", project);
+        logger.info("POST '/api/lab-manager/project' was succesful with returned result{}", project);
         return new ResponseEntity<>(project, HttpStatus.CREATED);
     }
 
@@ -77,11 +77,21 @@ public class LabManagerController {
             Principal principal,
             BindingResult result,
             @PathVariable  Long id) {
-        logger.info("PUT '/project/{id}' was called with id {} and input {}", id, projectInput);
+        logger.info("PUT '/api/lab-manager/project/{id}' was called with id {} and input {}", id, projectInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
         Project project = projectService.updateProject(projectInput, id, principal);
-        logger.info("PUT '/project/{id}' was succesful with returned result{}", project);
+        logger.info("PUT '/api/lab-manager/project/{id}' was succesful with returned result{}", project);
         return new ResponseEntity<>(project, HttpStatus.CREATED);
+    }
+    
+    @DeleteMapping("/project/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteManufacture(
+            @PathVariable Long id,
+            Principal principal) {
+        logger.info("DELETE '/api/lab-manager/project/{id}' was called with id {} by {}", id, principal.getName());
+        projectService.deleteProject(id, principal);
+        logger.info("DELETE '/api/lab-manager/project/{id}' was successful");
     }
 
 //    @GetMapping("/project/{id}")
@@ -92,16 +102,6 @@ public class LabManagerController {
 //        logger.info("GET '/project/{id}' was succesful with returned result{}", project);
 //        return new ResponseEntity<>(project, HttpStatus.OK);
 //    }
-
-    @DeleteMapping("/project/{id}")
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteManufacture(
-            @PathVariable Long id,
-            Principal principal) {
-        logger.info("DELETE '/project/{id}' was called with id {} by {}", id, principal.getName());
-        projectService.deleteProject(id, principal);
-        logger.info("DELETE '/project/{id}' was successfull");
-    }
     
     //RECIPE
     @PostMapping("/recipe")
@@ -112,7 +112,7 @@ public class LabManagerController {
         logger.info("POST 'api/lab-manager/recipe' was called with {} by {}", recipeInput, principal.getName());
         mapValidationErrorService.throwExceptionIfNotValid(result);
         Recipe recipe = recipeService.createRecipe(recipeInput, principal);
-        logger.info("POST 'api/lab-manager/recipe' was succesful with returned result{}", recipe);
+        logger.info("POST 'api/lab-manager/recipe' was successful with returned result{}", recipe);
         return new ResponseEntity<>(recipe, HttpStatus.CREATED);
     }
 
@@ -122,11 +122,22 @@ public class LabManagerController {
             Principal principal,
             BindingResult result,
             @PathVariable  Long id) {
-        logger.info("PUT '/recipe/{id}' was called with id {} and input {} by {}", id, recipeInput, principal.getName());
+        logger.info("PUT '/api/lab-manager/recipe/{id}' was called with id {} and input {} by {}", id, recipeInput, principal.getName());
         mapValidationErrorService.throwExceptionIfNotValid(result);
         Recipe recipe = recipeService.updateRecipe(recipeInput, id, principal);
-        logger.info("PUT '/recipe/{id}' was succesful with returned result {}", recipe);
+        logger.info("PUT '/api/lab-manager/recipe/{id}' was successful with returned result {}", recipe);
         return new ResponseEntity<>(recipe, HttpStatus.CREATED);
+    }
+    
+    @DeleteMapping("/recipe/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteRecipe(
+            @PathVariable Long id,
+            Principal principal) {
+        logger.info("DELETE '/api/lab-manager/recipe/{id} was called with id {} by {}'", id, principal.getName());
+        recipeService.deleteRecipe(id, principal);
+        logger.info("DELETE '/api/lab-manager/recipe/{id} was successful");
+
     }
 
 

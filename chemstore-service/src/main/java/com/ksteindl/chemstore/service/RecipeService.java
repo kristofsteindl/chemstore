@@ -60,13 +60,13 @@ public class RecipeService {
         return recipeRepository.save(recipe);
     }
     
-    private Recipe getEmptyRecipe() {
-        Recipe recipe = new Recipe();
-        recipe.setChemicalIngredients(new ArrayList<>());
-        recipe.setRecipeIngredients(new ArrayList<>());
-        return recipe;   
+    public void deleteRecipe(Long id, Principal managerPrincipal) {
+        Recipe recipe = findById(id);
+        Project oldProject = recipe.getProject();
+        labService.validateLabForManager(oldProject.getLab(), managerPrincipal);
+        recipe.setDeleted(true);
+        recipeRepository.save(recipe);
     }
-
 
     public Recipe findById(Long id) {
         return findById(id, true);
@@ -79,6 +79,14 @@ public class RecipeService {
         }
         return recipe;
     }
+
+    private Recipe getEmptyRecipe() {
+        Recipe recipe = new Recipe();
+        recipe.setChemicalIngredients(new ArrayList<>());
+        recipe.setRecipeIngredients(new ArrayList<>());
+        return recipe;
+    }
+
 
     private void throwExceptionIfNotUnique(String name, Project project, Long id) {
         Optional<Recipe> optional = recipeRepository.findByNameAndProject(name, project);
