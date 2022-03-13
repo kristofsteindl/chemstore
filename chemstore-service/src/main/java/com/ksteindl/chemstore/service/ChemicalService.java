@@ -7,7 +7,6 @@ import com.ksteindl.chemstore.domain.input.ChemicalInput;
 import com.ksteindl.chemstore.domain.repositories.ChemicalRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
-import com.ksteindl.chemstore.util.HibernateProxyUtil;
 import com.ksteindl.chemstore.util.Lang;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -82,24 +81,21 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
     }
     
 
-    public Chemical findById(Long id, Principal user) {
-        return findById(id, user, true);
+    public Chemical findById(Long id) {
+        return findById(id, true);
     }
 
-    public Chemical findById(Long id, Principal user, Boolean onlyActive) {
+    public Chemical findById(Long id, Boolean onlyActive) {
         Chemical chemical = chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
-        Lab lab = HibernateProxyUtil.unproxy(chemical.getLab());
-        labService.validateLabForUser(lab, user);
         if (onlyActive && chemical.getDeleted()) {
-            throw new ResourceNotFoundException(String.format(Lang.CHEMICAL_ALREADY_DELETED, chemical.getExactName(), lab.getName()));
+            throw new ResourceNotFoundException(String.format(Lang.CHEMICAL_ALREADY_DELETED, chemical.getExactName()));
         }
         return chemical;
     }
 
     public void deleteChemical(Long id, Principal admin) {
-        Chemical chemical = findById(id, admin);
-        Lab lab = HibernateProxyUtil.unproxy(chemical.getLab());
-        labService.validateLabForAdmin(lab, admin);
+        Chemical chemical = findById(id);
+        labService.validateLabForAdmin(chemical.getLab(), admin);
         chemical.setDeleted(true);
         chemicalRepository.save(chemical);
     }

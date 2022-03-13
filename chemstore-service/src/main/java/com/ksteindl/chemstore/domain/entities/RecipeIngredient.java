@@ -16,7 +16,7 @@ import javax.persistence.ManyToOne;
 @Entity
 @Getter
 @Setter
-public class RecipeIngredient {
+public class RecipeIngredient implements Ingredient{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class RecipeIngredient {
     @ManyToOne
     private Recipe containerRecipe;
     
-    private Integer amount;
+    private Double amount;
     
     private String unit;
 

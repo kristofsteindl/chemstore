@@ -2,7 +2,7 @@ package com.ksteindl.chemstore.domain.input;
 
 import lombok.Data;
 
-import javax.validation.constraints.Min;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -17,8 +17,8 @@ public class IngredientInput {
     private Long ingredientId;
 
     @NotNull(message = "amount is required")
-    @Min(value = 1L, message = "amount of the ingredient (amount) must be a positive integer number")
-    private Long amount;
+    @DecimalMin(value = "0.000001", message = "amount of the ingredient (amount) must be a greater or equal then 0.000001")
+    private Double amount;
 
     @NotBlank(message = "unit is required")
     private String unit;

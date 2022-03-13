@@ -2,9 +2,12 @@ package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Project;
+import com.ksteindl.chemstore.domain.entities.Recipe;
 import com.ksteindl.chemstore.domain.input.ProjectInput;
+import com.ksteindl.chemstore.domain.input.RecipeInput;
 import com.ksteindl.chemstore.service.AppUserService;
 import com.ksteindl.chemstore.service.ProjectService;
+import com.ksteindl.chemstore.service.RecipeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,8 @@ public class LabManagerController {
     private AppUserService appUserService;
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private RecipeService recipeService;
     @Autowired
     private MapValidationErrorService mapValidationErrorService;
 
@@ -96,6 +101,32 @@ public class LabManagerController {
         logger.info("DELETE '/project/{id}' was called with id {} by {}", id, principal.getName());
         projectService.deleteProject(id, principal);
         logger.info("DELETE '/project/{id}' was successfull");
+    }
+    
+    //RECIPE
+    @PostMapping("/recipe")
+    public ResponseEntity<Recipe> createRecipe(
+            @Valid @RequestBody RecipeInput recipeInput,
+            Principal principal,
+            BindingResult result) {
+        logger.info("POST 'api/lab-manager/recipe' was called with {} by {}", recipeInput, principal.getName());
+        mapValidationErrorService.throwExceptionIfNotValid(result);
+        Recipe recipe = recipeService.createRecipe(recipeInput, principal);
+        logger.info("POST 'api/lab-manager/recipe' was succesful with returned result{}", recipe);
+        return new ResponseEntity<>(recipe, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/recipe/{id}")
+    public ResponseEntity<Recipe> updateRecipe(
+            @Valid @RequestBody RecipeInput recipeInput,
+            Principal principal,
+            BindingResult result,
+            @PathVariable  Long id) {
+        logger.info("PUT '/recipe/{id}' was called with id {} and input {} by {}", id, recipeInput, principal.getName());
+        mapValidationErrorService.throwExceptionIfNotValid(result);
+        Recipe recipe = recipeService.updateRecipe(recipeInput, id, principal);
+        logger.info("PUT '/recipe/{id}' was succesful with returned result {}", recipe);
+        return new ResponseEntity<>(recipe, HttpStatus.CREATED);
     }
 
 

@@ -127,7 +127,7 @@ public class LabAdminController {
             @PathVariable Long id,
             Principal principal) {
         logger.info("GET '/chemical/{id}' was called with id {} by user ", id, principal.getName());
-        Chemical chemical = chemicalService.findById(id, principal);
+        Chemical chemical = chemicalService.findById(id);
         logger.info("GET '/chemical/{id}' was succesful with returned result {}", chemical);
         return new ResponseEntity<>(chemical, HttpStatus.OK);
     }

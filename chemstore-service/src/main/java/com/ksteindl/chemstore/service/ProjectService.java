@@ -75,7 +75,7 @@ public class ProjectService {
         return project;
     }
 
-    public void throwExceptionIfNotUnique(ProjectInput input) {
+    private void throwExceptionIfNotUnique(ProjectInput input) {
         String name = input.getName();
         Lab lab = labService.findLabByKey(input.getLabKey());
         Optional<Project> optional = projectRepository.findByNameAndLab(name, lab);
@@ -84,7 +84,7 @@ public class ProjectService {
         });
     }
     
-    public void throwExceptionIfNotUnique(ProjectInput newInput, Project oldProject) {
+    private void throwExceptionIfNotUnique(ProjectInput newInput, Project oldProject) {
         Lab lab = oldProject.getLab();
         String name = newInput.getName();
         projectRepository
