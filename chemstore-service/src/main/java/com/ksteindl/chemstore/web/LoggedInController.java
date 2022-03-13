@@ -6,6 +6,7 @@ import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.entities.Project;
+import com.ksteindl.chemstore.domain.entities.Recipe;
 import com.ksteindl.chemstore.domain.input.PasswordInput;
 import com.ksteindl.chemstore.security.role.Role;
 import com.ksteindl.chemstore.security.role.RoleService;
@@ -15,6 +16,7 @@ import com.ksteindl.chemstore.service.ChemicalService;
 import com.ksteindl.chemstore.service.LabService;
 import com.ksteindl.chemstore.service.ManufacturerService;
 import com.ksteindl.chemstore.service.ProjectService;
+import com.ksteindl.chemstore.service.RecipeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,8 @@ public class LoggedInController {
     private ManufacturerService manufacturerService;
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private RecipeService recipeService;
     @Autowired
     private RoleService roleService;
     @Autowired
@@ -127,6 +131,18 @@ public class LoggedInController {
         List<Project> projects = projectService.getProjects(labKey, user, onlyActive);
         logger.info("GET '/api/logged-in/project/{labKey}' was succesful with {} item", projects.size());
         return new ResponseEntity<>(projects, HttpStatus.OK);
+    }
+
+    @GetMapping("/recipe/{projectId}")
+    public ResponseEntity<List<Recipe>> getRecipess(
+            @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive,
+            @PathVariable Long projectId,
+            Principal user
+    ) {
+        logger.info("GET '/api/logged-in/recipe/{projectId}' was called, with onlyActive {} with labKey {} by user {}", onlyActive, projectId, user.getName());
+        List<Recipe> recipes = recipeService.getRecipes(projectId, user, onlyActive);
+        logger.info("GET '/api/logged-in/recipe/{projectId}' was succesful with {} item", recipes.size());
+        return new ResponseEntity<>(recipes, HttpStatus.OK);
     }
 
     @GetMapping("/chemical/{labKey}")

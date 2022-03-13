@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -66,6 +67,14 @@ public class RecipeService {
         labService.validateLabForManager(oldProject.getLab(), managerPrincipal);
         recipe.setDeleted(true);
         recipeRepository.save(recipe);
+    }
+    
+    public List<Recipe> getRecipes(Long projectId, Principal user, boolean onlyActive) {
+        Project project = projectService.findById(projectId, onlyActive);
+        labService.validateLabForUser(project.getLab(), user);
+        return onlyActive ? 
+                recipeRepository.findAllActive(project) :
+                recipeRepository.findAllByProject(project);
     }
 
     public Recipe findById(Long id) {

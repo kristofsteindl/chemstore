@@ -15,8 +15,8 @@ public interface RecipeRepository extends CrudRepository<Recipe, Long> {
     Optional<Recipe> findByNameAndProject(String name, Project project);
 
     @Query("SELECT r FROM Recipe r WHERE r.project = ?1 ORDER BY r.project.name")
-    List<Project> findAllByProject(Project project);
+    List<Recipe> findAllByProject(Project project);
 
     @Query("SELECT r FROM Recipe r WHERE r.project = ?1 and r.deleted = false ORDER BY r.project.name")
-    List<Project> findAllActive(Project project);
+    List<Recipe> findAllActive(Project project);
 }
