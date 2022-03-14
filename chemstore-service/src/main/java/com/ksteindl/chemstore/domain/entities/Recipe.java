@@ -38,10 +38,10 @@ public class Recipe {
     @JsonIgnore
     private Project project;
     
-    @OneToMany(mappedBy="containerRecipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy="containerRecipe", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<ChemicalIngredient> chemicalIngredients;
 
-    @OneToMany(mappedBy="containerRecipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy="containerRecipe", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<RecipeIngredient> recipeIngredients;
     
     @JsonProperty("labKey")

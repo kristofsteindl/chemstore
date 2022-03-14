@@ -87,7 +87,9 @@ public class IngredientService {
         Recipe recipe = findRecipeById(ingredientInput.getIngredientId());
         RecipeIngredient recipeIngredient = getLinkedRecipeIngredient(recipe, containerRecipe);
         setIngredients(recipeIngredient, ingredientInput);
-        recipeIngredientRepo.save(recipeIngredient);
+        if (containerRecipe.getId() != null) {
+            recipeIngredientRepo.save(recipeIngredient);
+        }
     }
 
     private RecipeIngredient getLinkedRecipeIngredient(Recipe ingredient, Recipe containerRecipe) {
@@ -111,7 +113,9 @@ public class IngredientService {
         Chemical chemical = chemicalService.findById(ingredientInput.getIngredientId());
         ChemicalIngredient chemicalIngredient = getLinkedChemicalIngredient(chemical, containerRecipe);
         setIngredients(chemicalIngredient, ingredientInput);
-        chemicalIngredientRepo.save(chemicalIngredient);
+        if (containerRecipe.getId() != null) {
+            chemicalIngredientRepo.save(chemicalIngredient);
+        }
     }
     
     private ChemicalIngredient getLinkedChemicalIngredient(Chemical ingredient, Recipe containerRecipe) {

@@ -27,6 +27,7 @@ public class RecipeIngredient implements Ingredient{
     private Recipe ingredient;
 
     @ManyToOne
+    @JsonIgnore
     private Recipe containerRecipe;
     
     private Double amount;
@@ -36,5 +37,10 @@ public class RecipeIngredient implements Ingredient{
     @JsonProperty("containerRecipe")
     public RecipeCard getContainerRecipeCard() {
         return new RecipeCard(containerRecipe);
+    }
+
+    @JsonProperty("ingredient")
+    public RecipeCard getIngredientCard() {
+        return new RecipeCard(ingredient);
     }
 }
