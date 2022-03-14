@@ -106,7 +106,7 @@ public class ProjectServiceTest extends BaseControllerTest{
     @Test
     @Rollback
     @Transactional
-    public void testCreateProject_whenShortNameAlreadyExists_gotValidationExteption() {
+    public void testCreateProject_whenNameAlreadyExists_gotValidationExteption() {
         ProjectInput input = LabAdminTestUtils.getRosuForAlphaInput();
         input.setName(LabAdminTestUtils.AMLO_NAME);
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {

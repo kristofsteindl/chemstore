@@ -37,7 +37,11 @@ public class IngredientService {
     private RecipeIngredientRepository recipeIngredientRepo;
 
     public void setIngredients(Recipe recipe, RecipeInput recipeInput) {
-        recipeInput.getIngredients().forEach(ingredientInput -> setIngredient(recipe, ingredientInput));
+        List<IngredientInput> ingredientInputs = recipeInput.getIngredients();
+        if (ingredientInputs.isEmpty()) {
+            throw new ValidationException(Lang.NO_INGREDIENT_INPUTS);
+        } 
+        ingredientInputs.forEach(ingredientInput -> setIngredient(recipe, ingredientInput));
         deleteIngredients(recipe, recipeInput);
     }
     

@@ -96,7 +96,6 @@ public class RecipeService {
         recipe.setUnit(unit);
         recipe.setShelfLifeInDays(recipeInput.getShelfLifeInDays());
         recipe.setName(recipeInput.getName());
-        
     }
 
     private Recipe getEmptyRecipe() {

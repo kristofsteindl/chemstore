@@ -2,8 +2,11 @@ package com.ksteindl.chemstore.utils;
 
 import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
 import com.ksteindl.chemstore.domain.input.ChemicalInput;
+import com.ksteindl.chemstore.domain.input.IngredientInput;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
 import com.ksteindl.chemstore.domain.input.ProjectInput;
+import com.ksteindl.chemstore.domain.input.RecipeInput;
+import com.ksteindl.chemstore.service.IngredientService;
 
 public class LabAdminTestUtils {
 
@@ -180,6 +183,7 @@ public class LabAdminTestUtils {
 
     public static final String ROSU_NAME = "Rosuvastatin";
     public static final String AMLO_NAME = "Amlodipine";
+    public static final String LISI_NAME = "Lisinopril";
     
     public static ProjectInput getRosuForAlphaInput() {
         ProjectInput projectInput = new ProjectInput();
@@ -193,6 +197,43 @@ public class LabAdminTestUtils {
         projectInput.setName(AMLO_NAME);
         projectInput.setLabKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
         return projectInput;
+    }
+
+    public static final String BUFFER_NAME = "buffer";
+    
+    public static final String DEGR_A_NAME = "Degradation eluent B";
+    public static final String ML = "ml";
+    public static final String G = "g";
+    public static final Double AMOUNT_1000 = 1000d;
+    public static final Integer SHELF_LIFE_9 = 9;
+    
+    
+    public static RecipeInput getDegrAForLisoInput() {
+        RecipeInput input = new RecipeInput();
+        input.setName(DEGR_A_NAME);
+        input.setUnit(ML);
+        input.setAmount(AMOUNT_1000);
+        input.setShelfLifeInDays(SHELF_LIFE_9);
+        
+        IngredientInput acn = new IngredientInput();
+        acn.setType(IngredientService.CHEMICAL);
+        acn.setAmount(500d);
+        acn.setUnit(ML);
+        input.getIngredients().add(acn);
+        
+        IngredientInput meOH = new IngredientInput();
+        meOH.setType(IngredientService.CHEMICAL);
+        meOH.setAmount(100d);
+        meOH.setUnit(G);
+        input.getIngredients().add(meOH);
+
+        IngredientInput buffer = new IngredientInput();
+        buffer.setType(IngredientService.RECIPE);
+        buffer.setAmount(400d);
+        buffer.setUnit(ML);
+        input.getIngredients().add(buffer);
+        
+        return input;
     }
 
 

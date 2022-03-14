@@ -6,6 +6,7 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -27,5 +28,5 @@ public class RecipeInput {
     @NotBlank(message = "unit is required")
     private String unit;
     
-    private List<IngredientInput> ingredients;
+    private List<IngredientInput> ingredients = new ArrayList<>();
 }

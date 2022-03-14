@@ -6,7 +6,12 @@ import com.ksteindl.chemstore.service.wrapper.ChemicalCategoryCard;
 import com.ksteindl.chemstore.service.wrapper.LabCard;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 @Entity
 @Data
@@ -40,4 +45,18 @@ public class Chemical {
         return new LabCard(this.lab);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Chemical chemical = (Chemical) o;
+
+        return id.equals(chemical.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

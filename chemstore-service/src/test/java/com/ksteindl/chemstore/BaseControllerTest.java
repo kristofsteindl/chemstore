@@ -2,10 +2,19 @@ package com.ksteindl.chemstore;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ksteindl.chemstore.domain.entities.Chemical;
+import com.ksteindl.chemstore.domain.entities.Lab;
+import com.ksteindl.chemstore.domain.entities.Project;
+import com.ksteindl.chemstore.domain.entities.Recipe;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
+import com.ksteindl.chemstore.domain.repositories.ChemicalRepository;
+import com.ksteindl.chemstore.domain.repositories.ProjectRepository;
+import com.ksteindl.chemstore.domain.repositories.RecipeRepository;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.ChemicalCategoryService;
+import com.ksteindl.chemstore.service.LabService;
 import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
+import com.ksteindl.chemstore.utils.LabAdminTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,6 +43,14 @@ public class BaseControllerTest {
     protected static String TOKEN_FOR_BETA_LAB_USER;
     protected static String TOKEN_FOR_PW_CHANGED_USER;
 
+
+    protected static Chemical alphaAcn;
+    protected static Chemical alphaMeOh;
+    protected static Recipe alphaLisoBuffer;
+    protected static Project alphaLisoProject;
+    protected static Project alphaDeletedProject;
+    protected static Lab alphaLab;
+
     private static boolean first = true;
 
 
@@ -48,7 +65,12 @@ public class BaseControllerTest {
     }
 
     @BeforeAll
-    static void initDb(@Autowired MockMvc mvc) throws Exception {
+    static void initDb(
+            @Autowired MockMvc mvc,
+            @Autowired ChemicalRepository chemicalRepository,
+            @Autowired RecipeRepository recipeRepository,
+            @Autowired ProjectRepository projectRepository,
+            @Autowired LabService labService) throws Exception {
         if (first) {
             TOKEN_FOR_ACCOUNT_MANAGER = getToken(mvc, AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME);
             TOKEN_FOR_ALPHA_LAB_ADMIN = getToken(mvc, AccountManagerTestUtils.ALPHA_LAB_ADMIN_USERNAME);
@@ -59,6 +81,21 @@ public class BaseControllerTest {
             TOKEN_FOR_BETA_LAB_MANAGER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_MANAGER_USERNAME);
             TOKEN_FOR_BETA_LAB_USER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_USER_USERNAME);
             TOKEN_FOR_PW_CHANGED_USER = getToken(mvc, AccountManagerTestUtils.PW_CHANGED_USER_USERNAME, AccountManagerTestUtils.PW_CHANGED_USER_PASSWORD);
+            alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+            for (Project project : projectRepository.findAll()) {
+                if (project.getLab().getId().equals(alphaLab.getId())) {
+                    if (project.getName().equals(LabAdminTestUtils.LISI_NAME)) {
+                        alphaLisoProject = project;
+                    }
+                    if (project.getDeleted()) {
+                        alphaDeletedProject = project;
+                    }
+                }
+            }
+            
+            alphaAcn = chemicalRepository.findByShortNameAndLab(LabAdminTestUtils.ACETONITRIL_SHORT_NAME, alphaLab).get();
+            alphaMeOh = chemicalRepository.findByShortNameAndLab(LabAdminTestUtils.METHANOL_SHORT_NAME, alphaLab).get();
+            alphaLisoBuffer = recipeRepository.findByNameAndProject(LabAdminTestUtils.BUFFER_NAME, alphaLisoProject).get();
             first = false;
         }
     }
