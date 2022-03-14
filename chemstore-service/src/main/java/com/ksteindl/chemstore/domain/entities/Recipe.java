@@ -18,7 +18,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class Recipe {
+public class Recipe implements HasLab {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,5 +67,10 @@ public class Recipe {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    @Override
+    public Lab getLab() {
+        return project.getLab();
     }
 }

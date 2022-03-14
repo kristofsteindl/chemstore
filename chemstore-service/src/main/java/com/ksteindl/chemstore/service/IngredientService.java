@@ -2,6 +2,7 @@ package com.ksteindl.chemstore.service;
 
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.ChemicalIngredient;
+import com.ksteindl.chemstore.domain.entities.HasLab;
 import com.ksteindl.chemstore.domain.entities.Ingredient;
 import com.ksteindl.chemstore.domain.entities.Recipe;
 import com.ksteindl.chemstore.domain.entities.RecipeIngredient;
@@ -89,6 +90,7 @@ public class IngredientService {
 
     private void createOrUpdateRecipeIngredient(Recipe containerRecipe, IngredientInput ingredientInput) {
         Recipe recipe = findRecipeById(ingredientInput.getIngredientId());
+        assertHaveSameLab(recipe, containerRecipe, Lang.INGREDIENT_LAB_AND_PROJECT_LAB_DIFFERS);
         RecipeIngredient recipeIngredient = getLinkedRecipeIngredient(recipe, containerRecipe);
         setIngredients(recipeIngredient, ingredientInput);
         if (containerRecipe.getId() != null) {
@@ -115,6 +117,7 @@ public class IngredientService {
 
     private void createOrUpdateChemicalIngredient(Recipe containerRecipe, IngredientInput ingredientInput) {
         Chemical chemical = chemicalService.findById(ingredientInput.getIngredientId());
+        assertHaveSameLab(chemical, containerRecipe, Lang.INGREDIENT_LAB_AND_PROJECT_LAB_DIFFERS);
         ChemicalIngredient chemicalIngredient = getLinkedChemicalIngredient(chemical, containerRecipe);
         setIngredients(chemicalIngredient, ingredientInput);
         if (containerRecipe.getId() != null) {
@@ -142,6 +145,15 @@ public class IngredientService {
     private void setIngredients(Ingredient ingredient, IngredientInput input) {
         ingredient.setUnit(input.getUnit());
         ingredient.setAmount(input.getAmount());
+    }
+    
+    private void assertHaveSameLab(HasLab hasLab1, HasLab hasLab2, String msgTemlpate) {
+        if (!hasLab1.getLab().equals(hasLab2.getLab())) {
+            throw new ValidationException(
+                    String.format(msgTemlpate,
+                            hasLab1.getLab().getKey(),
+                            hasLab2.getLab().getKey()));
+        }
     }
     
     public Recipe findRecipeById(Long id) {

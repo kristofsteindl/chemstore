@@ -6,13 +6,18 @@ import com.ksteindl.chemstore.service.wrapper.LabCard;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.time.Duration;
 
 @Entity
 @Getter
 @Setter
-public class ChemicalCategory {
+public class ChemicalCategory implements HasLab{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

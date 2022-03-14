@@ -30,6 +30,8 @@ public class Lang {
     public static final String RECIPE_UPDATE_PROJECT_LAB_NOT_THE_SAME = 
             "New Lab (of the project) cannot be changed during recipe update. From project: %s, lab: %s, to project: %s, lab: %s";
     public static final String NO_INGREDIENT_INPUTS = "There is no ingredient input in recipe. At least one is required";
+    public static final String INGREDIENT_LAB_AND_PROJECT_LAB_DIFFERS = "The lab of the ingredient ('{}') and the lab of the project ('{}') must be the same";
+    
     
     public static final String APP_USER_ENTITY_NAME = "app-user";
     public static final String APP_USER_USERNAME_ATTRIBUTE_NAME = "username";

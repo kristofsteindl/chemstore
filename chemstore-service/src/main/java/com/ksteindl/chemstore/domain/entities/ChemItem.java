@@ -7,14 +7,19 @@ import com.ksteindl.chemstore.service.wrapper.LabCard;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.io.Serializable;
 import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
-public class ChemItem implements Serializable, Cloneable {
+public class ChemItem implements HasLab, Serializable, Cloneable {
 
     // Maybe @JoinColumn(name = ...) is missing from every @ManyToOne attribute?
 

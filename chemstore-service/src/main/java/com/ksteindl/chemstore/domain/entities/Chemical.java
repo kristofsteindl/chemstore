@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 
 @Entity
 @Data
-public class Chemical {
+public class Chemical implements HasLab {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

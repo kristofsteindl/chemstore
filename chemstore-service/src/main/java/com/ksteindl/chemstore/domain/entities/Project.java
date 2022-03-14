@@ -16,7 +16,7 @@ import javax.persistence.ManyToOne;
 @Entity
 @Getter
 @Setter
-public class Project {
+public class Project implements HasLab {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
