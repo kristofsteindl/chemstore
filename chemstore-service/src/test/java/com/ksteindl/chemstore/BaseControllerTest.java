@@ -44,7 +44,7 @@ public class BaseControllerTest {
     protected static String TOKEN_FOR_PW_CHANGED_USER;
 
 
-    protected static Chemical   alphaAcn;
+    protected static Chemical alphaAcn;
     protected static Chemical alphaMeOH;
     protected static Chemical alphaEtOH;
     

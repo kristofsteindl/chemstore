@@ -54,6 +54,16 @@ public class Recipe implements HasLab {
     private String getProjectName() {
         return project.getName();
     }
+    
+    public void addChemicalIngredient(ChemicalIngredient chemicalIngredient) {
+        chemicalIngredients.add(chemicalIngredient);
+        chemicalIngredient.setContainerRecipe(this);
+    }
+
+    public void addRecipeIngredient(RecipeIngredient recipeIngredient) {
+        recipeIngredients.add(recipeIngredient);
+        recipeIngredient.setContainerRecipe(this);
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -71,6 +81,7 @@ public class Recipe implements HasLab {
     }
 
     @Override
+    @JsonIgnore
     public Lab getLab() {
         return project.getLab();
     }

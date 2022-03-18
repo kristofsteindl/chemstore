@@ -11,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
@@ -26,7 +27,8 @@ public class RecipeIngredient implements Ingredient{
     @JsonIgnore
     private Recipe ingredient;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "container_recipe_id")
     @JsonIgnore
     private Recipe containerRecipe;
     

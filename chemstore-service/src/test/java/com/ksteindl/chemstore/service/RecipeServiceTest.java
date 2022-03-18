@@ -566,7 +566,7 @@ public class RecipeServiceTest extends BaseControllerTest{
         RecipeInput input = getUpdatedContentEluentBLisoInput();
         input.setProjectId(betaLisoProject.getId());
         Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
-                .filter(recipe -> recipe.getName().equals(AccountManagerTestUtils.ALPHA_BETA_LAB_MANAGER_USERNAME))
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
                 .findAny().get();
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
             recipeService.updateRecipe(input, eluB.getId(), alphaManager);

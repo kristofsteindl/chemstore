@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,102 +40,113 @@ public class IngredientService {
     @Autowired
     private UnitService unitService;
 
-    public void setIngredientAttributes(Recipe recipe, RecipeInput recipeInput) {
+    public void createIngredientAttributes(Recipe recipe, RecipeInput recipeInput) {
         List<IngredientInput> ingredientInputs = recipeInput.getIngredients();
         if (ingredientInputs.isEmpty()) {
             throw new ValidationException(Lang.NO_INGREDIENT_INPUTS);
-        } 
-        ingredientInputs.forEach(ingredientInput -> setIngredient(recipe, ingredientInput));
+        }
+        ingredientInputs.forEach(ingredientInput -> createIngredient(recipe, ingredientInput));
+    }
+
+    public void updateIngredientAttributes(Recipe recipe, RecipeInput recipeInput) {
+        List<IngredientInput> ingredientInputs = recipeInput.getIngredients();
+        if (ingredientInputs.isEmpty()) {
+            throw new ValidationException(Lang.NO_INGREDIENT_INPUTS);
+        }
+        ingredientInputs.forEach(ingredientInput -> updateIngredient(recipe, ingredientInput));
         deleteIngredients(recipe, recipeInput);
     }
     
-    private void deleteIngredients(Recipe recipe, RecipeInput recipeInput) {
-        deleteChemicalIngredients(recipe, recipeInput);
-        deleteRecipeIngredients(recipe, recipeInput);
-    }
-    
-    private void deleteChemicalIngredients(Recipe recipe, RecipeInput recipeInput) {
-        Set<Long> chemicalIngrSet =  recipeInput.getIngredients().stream()
-                .filter(ingredientInput -> ingredientInput.getType().equals(CHEMICAL))
-                .map(ingredientInput -> ingredientInput.getIngredientId())
-                .collect(Collectors.toSet());
-        List<ChemicalIngredient> ingList = new ArrayList<>(recipe.getChemicalIngredients());
-        ingList.forEach(chemicalIngredient -> {
-            if (!chemicalIngrSet.contains(chemicalIngredient.getIngredient().getId())) {
-                recipe.getChemicalIngredients().remove(chemicalIngredient);
-            }
-        });
-    }
-
-    private void deleteRecipeIngredients(Recipe recipe, RecipeInput recipeInput) {
-        Set<Long> recipeIngrSet =  recipeInput.getIngredients().stream()
-                .filter(ingredientInput -> ingredientInput.getType().equals(RECIPE))
-                .map(ingredientInput -> ingredientInput.getIngredientId())
-                .collect(Collectors.toSet());
-        List<RecipeIngredient> ingList = new ArrayList<>(recipe.getRecipeIngredients());
-        ingList.forEach(recipeIngredient -> {
-            if (!recipeIngrSet.contains(recipeIngredient.getIngredient().getId())) {
-                recipe.getRecipeIngredients().remove(recipeIngredient);
-            }
-        });
-    }
-    
-    private void setIngredient(Recipe recipe, IngredientInput ingredientInput) {
+    // CREATE
+    private void createIngredient(Recipe recipe, IngredientInput ingredientInput) {
         String type = ingredientInput.getType();
         if (type.equals(CHEMICAL)) {
-            createOrUpdateChemicalIngredient(recipe, ingredientInput);
+            createChemicalIngredient(recipe, ingredientInput);
         } else if (type.equals(RECIPE)) {
-            createOrUpdateRecipeIngredient(recipe, ingredientInput);
+            createRecipeIngredient(recipe, ingredientInput);
         } else {
             throw new ValidationException(String.format(Lang.RECIPE_WRONG_INGREDIENT_TYPE, type));
         }
     }
 
-    private void createOrUpdateRecipeIngredient(Recipe containerRecipe, IngredientInput ingredientInput) {
+    // CREATE CHEMICAL INGREDIENT
+    private void createChemicalIngredient(Recipe containerRecipe, IngredientInput ingredientInput) {
+        Chemical chemical = chemicalService.findById(ingredientInput.getIngredientId());
+        assertHaveSameLab(chemical, containerRecipe, Lang.INGREDIENT_LAB_AND_PROJECT_LAB_DIFFERS);
+        ChemicalIngredient chemicalIngredient = new ChemicalIngredient();
+        chemicalIngredient.setIngredient(chemical);
+        containerRecipe.addChemicalIngredient(chemicalIngredient);
+        setIngredientAttributes(chemicalIngredient, ingredientInput);
+    }
+
+    // CREATE RECIPE INGREDIENT
+    private void createRecipeIngredient(Recipe containerRecipe, IngredientInput ingredientInput) {
         Recipe recipe = findRecipeById(ingredientInput.getIngredientId());
         assertHaveSameLab(recipe, containerRecipe, Lang.INGREDIENT_LAB_AND_PROJECT_LAB_DIFFERS);
-        RecipeIngredient recipeIngredient = getLinkedRecipeIngredient(recipe, containerRecipe);
+        RecipeIngredient recipeIngredient = new RecipeIngredient();
+        recipeIngredient.setIngredient(recipe);
+        containerRecipe.addRecipeIngredient(recipeIngredient);
+        setIngredientAttributes(recipeIngredient, ingredientInput);
+    }
+    
+    //UPDATE
+    private void updateIngredient(Recipe recipe, IngredientInput ingredientInput) {
+        String type = ingredientInput.getType();
+        if (type.equals(CHEMICAL)) {
+            updateChemicalIngredient(recipe, ingredientInput);
+        } else if (type.equals(RECIPE)) {
+            updateRecipeIngredient(recipe, ingredientInput);
+        } else {
+            throw new ValidationException(String.format(Lang.RECIPE_WRONG_INGREDIENT_TYPE, type));
+        }
+    }
+
+    //UPDATE CHEMICAL INGREDIENT
+    private void updateChemicalIngredient(Recipe containerRecipe, IngredientInput ingredientInput) {
+        Chemical chemical = chemicalService.findById(ingredientInput.getIngredientId());
+        assertHaveSameLab(chemical, containerRecipe, Lang.INGREDIENT_LAB_AND_PROJECT_LAB_DIFFERS);
+        Optional<ChemicalIngredient> optChemIngr = containerRecipe.getChemicalIngredients().stream()
+                .filter(chemicalIngredient -> chemicalIngredient.getIngredient().equals(chemical))
+                .findAny();
+        ChemicalIngredient chemicalIngredient;
+        if (optChemIngr.isPresent()) {
+            chemicalIngredient = optChemIngr.get();
+        } else {
+            chemicalIngredient = new ChemicalIngredient();
+            chemicalIngredient.setIngredient(chemical);
+            containerRecipe.addChemicalIngredient(chemicalIngredient);
+            chemicalIngredientRepo.save(chemicalIngredient);
+        }
+        setIngredientAttributes(chemicalIngredient, ingredientInput);
+    }
+
+    //UPDATE RECIPE INGREDIENT
+    private void updateRecipeIngredient(Recipe containerRecipe, IngredientInput ingredientInput) {
+        Recipe recipeOfIngredient = findRecipeById(ingredientInput.getIngredientId());
+        assertHaveSameLab(recipeOfIngredient, containerRecipe, Lang.INGREDIENT_LAB_AND_PROJECT_LAB_DIFFERS);
+        Optional<RecipeIngredient> optRecipeIngr = containerRecipe.getRecipeIngredients().stream()
+                .filter(recipeIngredient -> recipeIngredient.getIngredient().equals(recipeOfIngredient))
+                .findAny();
+        RecipeIngredient recipeIngredient;
+        if (optRecipeIngr.isPresent()) {
+            recipeIngredient = optRecipeIngr.get();
+        } else {
+            recipeIngredient = new RecipeIngredient();
+            recipeIngredient.setIngredient(recipeOfIngredient);
+            containerRecipe.addRecipeIngredient(recipeIngredient);
+            recipeIngredientRepo.save(recipeIngredient);
+        }
         setIngredientAttributes(recipeIngredient, ingredientInput);
     }
 
-    private RecipeIngredient getLinkedRecipeIngredient(Recipe ingredient, Recipe containerRecipe) {
-        if (containerRecipe.getId() == null) {
-            return createAndLinkNewRecipeIngredient(ingredient, containerRecipe);
-        }
-        return recipeIngredientRepo
-                .findByIngredientAndContainerRecipe(ingredient, containerRecipe)
-                .orElseGet(() -> createAndLinkNewRecipeIngredient(ingredient, containerRecipe));
-    }
-    
     private RecipeIngredient createAndLinkNewRecipeIngredient(Recipe ingredient, Recipe containerRecipe) {
         RecipeIngredient recipeIngredient = new RecipeIngredient();
         recipeIngredient.setIngredient(ingredient);
         containerRecipe.getRecipeIngredients().add(recipeIngredient);
         return  recipeIngredient;
     }
+    
 
-    private void createOrUpdateChemicalIngredient(Recipe containerRecipe, IngredientInput ingredientInput) {
-        Chemical chemical = chemicalService.findById(ingredientInput.getIngredientId());
-        assertHaveSameLab(chemical, containerRecipe, Lang.INGREDIENT_LAB_AND_PROJECT_LAB_DIFFERS);
-        ChemicalIngredient chemicalIngredient = getLinkedChemicalIngredient(chemical, containerRecipe);
-        setIngredientAttributes(chemicalIngredient, ingredientInput);
-    }
-    
-    private ChemicalIngredient getLinkedChemicalIngredient(Chemical ingredient, Recipe containerRecipe) {
-        if (containerRecipe.getId() == null) {
-            return createAndLinkNewChemicalIngredient(ingredient, containerRecipe);
-        }
-        return chemicalIngredientRepo
-                .findByIngredientAndContainerRecipe(ingredient, containerRecipe)
-                .orElseGet(() -> createAndLinkNewChemicalIngredient(ingredient, containerRecipe));
-    }
-    
-    private ChemicalIngredient createAndLinkNewChemicalIngredient(Chemical ingredient, Recipe containerRecipe) {
-        ChemicalIngredient chemicalIngredient = new ChemicalIngredient();
-        chemicalIngredient.setIngredient(ingredient);
-        containerRecipe.getChemicalIngredients().add(chemicalIngredient);
-        return chemicalIngredient;
-    }
 
     private void setIngredientAttributes(Ingredient ingredient, IngredientInput input) {
         String unit = input.getUnit();
@@ -151,8 +163,35 @@ public class IngredientService {
                             hasLab2.getLab().getKey()));
         }
     }
+
+    private void deleteIngredients(Recipe recipe, RecipeInput recipeInput) {
+        deleteChemicalIngredients(recipe, recipeInput);
+        deleteRecipeIngredients(recipe, recipeInput);
+    }
+
+    private void deleteChemicalIngredients(Recipe recipe, RecipeInput recipeInput) {
+        Set<Long> chemicalIngrSet =  recipeInput.getIngredients().stream()
+                .filter(ingredientInput -> ingredientInput.getType().equals(CHEMICAL))
+                .map(ingredientInput -> ingredientInput.getIngredientId())
+                .collect(Collectors.toSet());
+        List<ChemicalIngredient> ingList = new ArrayList<>(recipe.getChemicalIngredients());
+        ingList.stream()
+                .filter(chemicalIngredient -> !chemicalIngrSet.contains(chemicalIngredient.getIngredient().getId()))
+                .forEach(chemicalIngredient -> recipe.getChemicalIngredients().remove(chemicalIngredient));
+    }
+
+    private void deleteRecipeIngredients(Recipe recipe, RecipeInput recipeInput) {
+        Set<Long> recipeIngrSet =  recipeInput.getIngredients().stream()
+                .filter(ingredientInput -> ingredientInput.getType().equals(RECIPE))
+                .map(ingredientInput -> ingredientInput.getIngredientId())
+                .collect(Collectors.toSet());
+        List<RecipeIngredient> ingList = new ArrayList<>(recipe.getRecipeIngredients());
+        ingList.stream()
+                .filter(recipeIngredient -> !recipeIngrSet.contains(recipeIngredient.getIngredient().getId()))
+                .forEach(recipeIngredient -> recipe.getRecipeIngredients().remove(recipeIngredient));
+    }
     
-    public Recipe findRecipeById(Long id) {
+    private Recipe findRecipeById(Long id) {
         Recipe recipe = recipeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.RECIPE_ENTITY_NAME, id));
         if (recipe.getDeleted()) {
             throw new ResourceNotFoundException(String.format(Lang.RECIPE_ALREADY_DELETED, recipe.getName()));

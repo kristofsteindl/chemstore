@@ -203,7 +203,7 @@ public class LabAdminTestUtils {
     public static final String CONTENT_ELUENT_A_NAME = "content eluent A";
     public static final String CONTENT_ELUENT_B_NAME = "content eluent B";
     
-    public static final String DEGR_A_NAME = "Degradation eluent B";
+    public static final String DEGR_B_NAME = "Degradation eluent B";
     public static final String ML = "ml";
     public static final String G = "g";
     public static final Double AMOUNT_1000 = 1000d;
@@ -213,7 +213,7 @@ public class LabAdminTestUtils {
     
     public static RecipeInput getDegrAForLisoInput() {
         RecipeInput input = new RecipeInput();
-        input.setName(DEGR_A_NAME);
+        input.setName(DEGR_B_NAME);
         input.setUnit(ML);
         input.setAmount(AMOUNT_1000);
         input.setShelfLifeInDays(SHELF_LIFE_9);

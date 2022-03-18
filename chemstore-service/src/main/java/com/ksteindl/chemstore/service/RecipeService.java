@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 @Service
 public class RecipeService {
@@ -31,8 +32,7 @@ public class RecipeService {
     
     public Recipe createRecipe(RecipeInput recipeInput, Principal managerPrincipal) {
         Recipe recipe = new Recipe();
-        recipeRepository.save(recipe);
-        return createOrUpdateRecipe(recipe, recipeInput, managerPrincipal);
+        return createOrUpdateRecipe(recipe, recipeInput, managerPrincipal, ingredientService::createIngredientAttributes);
     }
 
     public Recipe updateRecipe(RecipeInput recipeInput, Long id, Principal managerPrincipal) {
@@ -48,16 +48,16 @@ public class RecipeService {
                     newProject.getName(),
                     newProject.getLab().getKey()));
         }
-        return createOrUpdateRecipe(recipe, recipeInput, managerPrincipal);
+        return createOrUpdateRecipe(recipe, recipeInput, managerPrincipal, ingredientService::updateIngredientAttributes);
     }
     
-    private Recipe createOrUpdateRecipe(Recipe recipe, RecipeInput recipeInput, Principal managerPrincipal) {
+    private Recipe createOrUpdateRecipe(Recipe recipe, RecipeInput recipeInput, Principal managerPrincipal, BiConsumer<Recipe, RecipeInput> consumer) {
         Project project = projectService.findById(recipeInput.getProjectId());
         labService.validateLabForManager(project.getLab(), managerPrincipal);
         throwExceptionIfNotUnique(recipeInput.getName(), project, recipe.getId());
         recipe.setProject(project);
         validateAndSetAttributes(recipe, recipeInput);
-        ingredientService.setIngredientAttributes(recipe, recipeInput);
+        consumer.accept(recipe, recipeInput);
         return recipeRepository.save(recipe);
     }
     
