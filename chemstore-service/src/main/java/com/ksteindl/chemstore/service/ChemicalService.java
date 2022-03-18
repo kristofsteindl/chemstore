@@ -9,7 +9,6 @@ import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.util.Lang;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -17,8 +16,6 @@ import java.util.List;
 
 @Service
 public class ChemicalService implements UniqueEntityService<ChemicalInput> {
-
-    private final static Sort SORT_BY_SHORT_NAME = Sort.by(Sort.Direction.ASC, "shortName");
 
     @Autowired
     private ChemicalRepository chemicalRepository;
@@ -77,7 +74,7 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
 
     public List<Chemical> getChemicalsForUser(String labKey, Principal user) {
         Lab lab = labService.findLabForUser(labKey, user);
-        return chemicalRepository.findAllActive(lab, SORT_BY_SHORT_NAME);
+        return chemicalRepository.findAllActive(lab);
     }
     
 

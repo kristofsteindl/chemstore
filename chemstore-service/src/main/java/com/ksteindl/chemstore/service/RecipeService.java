@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,10 +25,13 @@ public class RecipeService {
     private ProjectService projectService;
     @Autowired
     private IngredientService ingredientService;
+    @Autowired
+    private UnitService unitService;
     
     
     public Recipe createRecipe(RecipeInput recipeInput, Principal managerPrincipal) {
-        Recipe recipe = getEmptyRecipe();
+        Recipe recipe = new Recipe();
+        recipeRepository.save(recipe);
         return createOrUpdateRecipe(recipe, recipeInput, managerPrincipal);
     }
 
@@ -55,7 +57,7 @@ public class RecipeService {
         throwExceptionIfNotUnique(recipeInput.getName(), project, recipe.getId());
         recipe.setProject(project);
         validateAndSetAttributes(recipe, recipeInput);
-        ingredientService.setIngredients(recipe, recipeInput);
+        ingredientService.setIngredientAttributes(recipe, recipeInput);
         return recipeRepository.save(recipe);
     }
     
@@ -89,22 +91,12 @@ public class RecipeService {
     
     private void validateAndSetAttributes(Recipe recipe, RecipeInput recipeInput) {
         String unit = recipeInput.getUnit();
-        if (!ChemItemService.DEFAULT_UNITS.contains(unit)) {
-            throw new ValidationException(String.format(Lang.INVALID_UNIT, unit, ChemItemService.DEFAULT_UNITS));
-        }
+        unitService.validate(recipeInput.getUnit());
         recipe.setAmount(recipeInput.getAmount());
         recipe.setUnit(unit);
         recipe.setShelfLifeInDays(recipeInput.getShelfLifeInDays());
         recipe.setName(recipeInput.getName());
     }
-
-    private Recipe getEmptyRecipe() {
-        Recipe recipe = new Recipe();
-        recipe.setChemicalIngredients(new ArrayList<>());
-        recipe.setRecipeIngredients(new ArrayList<>());
-        return recipe;
-    }
-
 
     private void throwExceptionIfNotUnique(String name, Project project, Long id) {
         Optional<Recipe> optional = recipeRepository.findByNameAndProject(name, project);

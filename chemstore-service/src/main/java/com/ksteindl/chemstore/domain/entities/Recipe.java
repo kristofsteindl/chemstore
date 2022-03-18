@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,10 +40,10 @@ public class Recipe implements HasLab {
     private Project project;
     
     @OneToMany(mappedBy="containerRecipe", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<ChemicalIngredient> chemicalIngredients;
+    private List<ChemicalIngredient> chemicalIngredients = new ArrayList<>();
 
     @OneToMany(mappedBy="containerRecipe", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<RecipeIngredient> recipeIngredients;
+    private List<RecipeIngredient> recipeIngredients = new ArrayList<>();
     
     @JsonProperty("labKey")
     private String getLabKey() {

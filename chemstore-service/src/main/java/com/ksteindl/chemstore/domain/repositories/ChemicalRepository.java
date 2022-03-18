@@ -3,7 +3,6 @@ package com.ksteindl.chemstore.domain.repositories;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -21,7 +20,7 @@ public interface ChemicalRepository extends CrudRepository<Chemical, Long> {
 
     List<Chemical> findByCategory(ChemicalCategory category);
 
-    @Query("SELECT c FROM Chemical c WHERE c.lab = ?1 and c.deleted = false")
-    List<Chemical> findAllActive(Lab lab, Sort sort);
+    @Query("SELECT c FROM Chemical c WHERE c.lab = ?1 and c.deleted = false ORDER BY c.shortName desc ")
+    List<Chemical> findAllActive(Lab lab);
 
 }

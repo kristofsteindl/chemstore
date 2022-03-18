@@ -200,12 +200,15 @@ public class LabAdminTestUtils {
     }
 
     public static final String BUFFER_NAME = "buffer";
+    public static final String CONTENT_ELUENT_A_NAME = "content eluent A";
+    public static final String CONTENT_ELUENT_B_NAME = "content eluent B";
     
     public static final String DEGR_A_NAME = "Degradation eluent B";
     public static final String ML = "ml";
     public static final String G = "g";
     public static final Double AMOUNT_1000 = 1000d;
     public static final Integer SHELF_LIFE_9 = 9;
+    public static final Integer SHELF_LIFE_10 = 10;
     
     
     public static RecipeInput getDegrAForLisoInput() {
@@ -233,6 +236,67 @@ public class LabAdminTestUtils {
         buffer.setUnit(ML);
         input.getIngredients().add(buffer);
         
+        return input;
+    }
+
+    public static RecipeInput getContentEluentBLisoInput() {
+        RecipeInput input = new RecipeInput();
+        input.setName(CONTENT_ELUENT_B_NAME);
+        input.setUnit(ML);
+        input.setAmount(AMOUNT_1000);
+        input.setShelfLifeInDays(SHELF_LIFE_10);
+
+        IngredientInput ing1 = new IngredientInput();
+        ing1.setType(IngredientService.CHEMICAL);
+        ing1.setAmount(500d);
+        ing1.setUnit(ML);
+        input.getIngredients().add(ing1);
+
+        IngredientInput ing2 = new IngredientInput();
+        ing2.setType(IngredientService.CHEMICAL);
+        ing2.setAmount(200d);
+        ing2.setUnit(ML);
+        input.getIngredients().add(ing2);
+
+        IngredientInput ing3 = new IngredientInput();
+        ing3.setType(IngredientService.RECIPE);
+        ing3.setAmount(300d);
+        ing3.setUnit(ML);
+        input.getIngredients().add(ing3);
+
+        return input;
+    }
+    
+    public static final String UPDATED_CONTENT_ELUENT_B_NAME = "updated content eluent B";
+    public static final String L = "l";
+    public static final Double AMOUNT_1 = 1d;
+    public static final Integer SHELF_LIFE_11 = 11;
+
+    public static RecipeInput getUpdatedContentEluentBLisoInput() {
+        RecipeInput input = new RecipeInput();
+        input.setName(UPDATED_CONTENT_ELUENT_B_NAME);
+        input.setUnit(L);
+        input.setAmount(AMOUNT_1);
+        input.setShelfLifeInDays(SHELF_LIFE_11);
+
+        IngredientInput ing1 = new IngredientInput();
+        ing1.setType(IngredientService.CHEMICAL);
+        ing1.setAmount(0.333d);
+        ing1.setUnit(L);
+        input.getIngredients().add(ing1);
+
+        IngredientInput ing2 = new IngredientInput();
+        ing2.setType(IngredientService.CHEMICAL);
+        ing2.setAmount(333d);
+        ing2.setUnit(ML);
+        input.getIngredients().add(ing2);
+
+        IngredientInput ing3 = new IngredientInput();
+        ing3.setType(IngredientService.RECIPE);
+        ing3.setAmount(0.334d);
+        ing3.setUnit(L);
+        input.getIngredients().add(ing3);
+
         return input;
     }
 

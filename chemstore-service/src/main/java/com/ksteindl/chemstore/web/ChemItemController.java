@@ -3,6 +3,7 @@ package com.ksteindl.chemstore.web;
 import com.ksteindl.chemstore.domain.entities.ChemItem;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
 import com.ksteindl.chemstore.service.ChemItemService;
+import com.ksteindl.chemstore.service.UnitService;
 import com.ksteindl.chemstore.service.wrapper.PagedList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +38,8 @@ public class ChemItemController {
     private MapValidationErrorService mapValidationErrorService;
     @Autowired
     private ChemItemService chemItemService;
+    @Autowired
+    private UnitService unitService;
 
     @PostMapping
     public ResponseEntity<List<ChemItem>> createChemItems(
@@ -87,7 +90,7 @@ public class ChemItemController {
     @GetMapping("/unit")
     public List<String> getUnits() {
         logger.info("GET '/api/chem-item/unit' was called");
-        List<String> units = chemItemService.getUnits();
+        List<String> units = unitService.getUnits();
         logger.info("GET '/api/chem-item/unit' was succesful with {} item", units.size());
         return units;
     }

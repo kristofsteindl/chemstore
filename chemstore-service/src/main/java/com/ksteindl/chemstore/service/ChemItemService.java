@@ -22,11 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,18 +30,9 @@ import java.util.List;
 @Service
 public class ChemItemService {
 
-    //This can be moved somewhere else, eg ./etc/chemstore or ./home/user/chemstore
-    public static final String UNIT_FILE_NAME = "unit.txt";
-
     private static final Logger logger = LoggerFactory.getLogger(ChemItemService.class);
-
     private final static Sort SORT_BY_ID_DESC = Sort.by(Sort.Direction.DESC, "id");
-
-    public List<String> units;
-    public static final List<String> DEFAULT_UNITS = List.of(
-            "ug", "mg", "g", "kg",
-            "ul", "ml", "l");
-
+    
     @Autowired
     private AppUserService appUserService;
     @Autowired
@@ -57,6 +43,8 @@ public class ChemItemService {
     private ManufacturerService manufacturerService;
     @Autowired
     private ChemItemRepository chemItemRepository;
+    @Autowired
+    private UnitService unitService;
 
 
     public List<ChemItem> createChemItems(ChemItemInput chemItemInput, Principal user) {
@@ -66,7 +54,8 @@ public class ChemItemService {
         Chemical chemical = chemicalService.getByShortName(chemItemInput.getChemicalShortName(), lab);
         Manufacturer manufacturer = manufacturerService.findById(chemItemInput.getManufacturerId());
         LocalDate expirationDateBeforeOpened = validateExpirationDateBeforeOpenedAndGet(chemItemInput.getExpirationDateBeforeOpened());
-        String unit = getUnitAndValidate(chemItemInput.getUnit());
+        String unit = chemItemInput.getUnit();
+        unitService.validate(unit);
 
         ChemItem chemItemTemplate = new ChemItem();
 
@@ -154,13 +143,7 @@ public class ChemItemService {
     public ChemItem findById(Long id) {
         return chemItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEM_ITEM_ENTITY_NAME, id));
     }
-
-    private String getUnitAndValidate(String unit) {
-        if (!units.contains(unit)) {
-            throw new ValidationException(String.format(Lang.INVALID_UNIT, unit, units));
-        }
-        return unit;
-    }
+    
 
     private List<ChemItem> createBatchedChemItems(ChemItem chemItemTemplate, Integer amount) {
         Integer nextSeqNumber = getNextSeqNumber(chemItemTemplate);
@@ -177,23 +160,6 @@ public class ChemItemService {
         return chemItems;
     }
     
-    public List<String> getUnits() {
-        return units;
-    }
-
-
-    @PostConstruct
-    private void loadUnits() {
-        try {
-            units = Files.readAllLines(Paths.get(UNIT_FILE_NAME), StandardCharsets.UTF_8);
-            logger.info("units loaded succesfully from: " + UNIT_FILE_NAME);
-        }
-        catch (IOException exception) {
-            logger.warn("IOException is thrown when trying to read units from " + UNIT_FILE_NAME, exception);
-            units = DEFAULT_UNITS;
-        }
-        logger.info("units are: " + units);
-    }
 
     private Integer getNextSeqNumber(ChemItem chemItemTemplate) {
         Lab lab = chemItemTemplate.getLab();

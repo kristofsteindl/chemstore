@@ -1,0 +1,56 @@
+package com.ksteindl.chemstore.service;
+
+import com.ksteindl.chemstore.exceptions.ValidationException;
+import com.ksteindl.chemstore.util.Lang;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
+@Service
+public class UnitService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UnitService.class);
+
+    //This can be moved somewhere else, eg ./etc/chemstore or ./home/user/chemstore
+    public static final String UNIT_FILE_NAME = "unit.txt";
+
+    public List<String> units;
+    public static final List<String> DEFAULT_UNITS = List.of(
+            "ug", "mg", "g", "kg",
+            "ul", "ml", "l");
+
+
+    @PostConstruct
+    private void loadUnits() {
+        try {
+            units = Files.readAllLines(Paths.get(UNIT_FILE_NAME), StandardCharsets.UTF_8);
+            logger.info("units loaded succesfully from: " + UNIT_FILE_NAME);
+        }
+        catch (IOException exception) {
+            logger.warn("IOException is thrown when trying to read units from " + UNIT_FILE_NAME, exception);
+            units = DEFAULT_UNITS;
+        }
+        logger.info("units are: " + units);
+    }
+
+    public List<String> getUnits() {
+        return units;
+    }
+
+    public void validate(String unit) {
+        validate(unit, Lang.INVALID_UNIT);
+    }
+
+    public void validate(String unit, String msgTemplate) {
+        if (!units.contains(unit)) {
+            throw new ValidationException(String.format(msgTemplate, unit, units));
+        }
+    }
+}

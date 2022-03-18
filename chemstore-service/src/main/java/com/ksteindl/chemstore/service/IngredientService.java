@@ -36,8 +36,10 @@ public class IngredientService {
     private ChemicalIngredientRepository chemicalIngredientRepo;
     @Autowired
     private RecipeIngredientRepository recipeIngredientRepo;
+    @Autowired
+    private UnitService unitService;
 
-    public void setIngredients(Recipe recipe, RecipeInput recipeInput) {
+    public void setIngredientAttributes(Recipe recipe, RecipeInput recipeInput) {
         List<IngredientInput> ingredientInputs = recipeInput.getIngredients();
         if (ingredientInputs.isEmpty()) {
             throw new ValidationException(Lang.NO_INGREDIENT_INPUTS);
@@ -92,10 +94,7 @@ public class IngredientService {
         Recipe recipe = findRecipeById(ingredientInput.getIngredientId());
         assertHaveSameLab(recipe, containerRecipe, Lang.INGREDIENT_LAB_AND_PROJECT_LAB_DIFFERS);
         RecipeIngredient recipeIngredient = getLinkedRecipeIngredient(recipe, containerRecipe);
-        setIngredients(recipeIngredient, ingredientInput);
-        if (containerRecipe.getId() != null) {
-            recipeIngredientRepo.save(recipeIngredient);
-        }
+        setIngredientAttributes(recipeIngredient, ingredientInput);
     }
 
     private RecipeIngredient getLinkedRecipeIngredient(Recipe ingredient, Recipe containerRecipe) {
@@ -110,7 +109,6 @@ public class IngredientService {
     private RecipeIngredient createAndLinkNewRecipeIngredient(Recipe ingredient, Recipe containerRecipe) {
         RecipeIngredient recipeIngredient = new RecipeIngredient();
         recipeIngredient.setIngredient(ingredient);
-        recipeIngredient.setContainerRecipe(containerRecipe);
         containerRecipe.getRecipeIngredients().add(recipeIngredient);
         return  recipeIngredient;
     }
@@ -119,10 +117,7 @@ public class IngredientService {
         Chemical chemical = chemicalService.findById(ingredientInput.getIngredientId());
         assertHaveSameLab(chemical, containerRecipe, Lang.INGREDIENT_LAB_AND_PROJECT_LAB_DIFFERS);
         ChemicalIngredient chemicalIngredient = getLinkedChemicalIngredient(chemical, containerRecipe);
-        setIngredients(chemicalIngredient, ingredientInput);
-        if (containerRecipe.getId() != null) {
-            chemicalIngredientRepo.save(chemicalIngredient);
-        }
+        setIngredientAttributes(chemicalIngredient, ingredientInput);
     }
     
     private ChemicalIngredient getLinkedChemicalIngredient(Chemical ingredient, Recipe containerRecipe) {
@@ -137,18 +132,19 @@ public class IngredientService {
     private ChemicalIngredient createAndLinkNewChemicalIngredient(Chemical ingredient, Recipe containerRecipe) {
         ChemicalIngredient chemicalIngredient = new ChemicalIngredient();
         chemicalIngredient.setIngredient(ingredient);
-        chemicalIngredient.setContainerRecipe(containerRecipe);
         containerRecipe.getChemicalIngredients().add(chemicalIngredient);
         return chemicalIngredient;
     }
 
-    private void setIngredients(Ingredient ingredient, IngredientInput input) {
+    private void setIngredientAttributes(Ingredient ingredient, IngredientInput input) {
+        String unit = input.getUnit();
+        unitService.validate(unit);
         ingredient.setUnit(input.getUnit());
         ingredient.setAmount(input.getAmount());
     }
     
     private void assertHaveSameLab(HasLab hasLab1, HasLab hasLab2, String msgTemlpate) {
-        if (!hasLab1.getLab().equals(hasLab2.getLab())) {
+        if (!hasLab1.getLab().getKey().equals(hasLab2.getLab().getKey())) {
             throw new ValidationException(
                     String.format(msgTemlpate,
                             hasLab1.getLab().getKey(),

@@ -10,7 +10,7 @@ import javax.validation.constraints.Pattern;
 @Data
 public class IngredientInput {
 
-    @Pattern(regexp = "^CHEMICAL$|^RECIPE$", message = "type of the ingedient must be either CHEMICAL or RECIPE")
+    @Pattern(regexp = "^CHEMICAL$|^RECIPE$", message = "type of the ingredient must be either CHEMICAL or RECIPE")
     private String type;
 
     @NotNull(message = "Ingredient id is required (ingredientId)")

@@ -44,12 +44,19 @@ public class BaseControllerTest {
     protected static String TOKEN_FOR_PW_CHANGED_USER;
 
 
-    protected static Chemical alphaAcn;
-    protected static Chemical alphaMeOh;
+    protected static Chemical   alphaAcn;
+    protected static Chemical alphaMeOH;
+    protected static Chemical alphaEtOH;
+    
     protected static Recipe alphaLisoBuffer;
+    protected static Recipe alphaLisoContAElu;
+    
     protected static Project alphaLisoProject;
     protected static Project alphaDeletedProject;
+    protected static Project betaLisoProject;
+    
     protected static Lab alphaLab;
+    protected static Lab betaLab;
 
     private static boolean first = true;
 
@@ -82,6 +89,7 @@ public class BaseControllerTest {
             TOKEN_FOR_BETA_LAB_USER = getToken(mvc, AccountManagerTestUtils.BETA_LAB_USER_USERNAME);
             TOKEN_FOR_PW_CHANGED_USER = getToken(mvc, AccountManagerTestUtils.PW_CHANGED_USER_USERNAME, AccountManagerTestUtils.PW_CHANGED_USER_PASSWORD);
             alphaLab = labService.findLabByKey(AccountManagerTestUtils.ALPHA_LAB_KEY);
+            betaLab = labService.findLabByKey(AccountManagerTestUtils.BETA_LAB_KEY);
             for (Project project : projectRepository.findAll()) {
                 if (project.getLab().getId().equals(alphaLab.getId())) {
                     if (project.getName().equals(LabAdminTestUtils.LISI_NAME)) {
@@ -90,12 +98,18 @@ public class BaseControllerTest {
                     if (project.getDeleted()) {
                         alphaDeletedProject = project;
                     }
+                } else if (project.getLab().getId().equals(betaLab.getId())) {
+                    if (!project.getDeleted()) {
+                        betaLisoProject = project;
+                    }
                 }
             }
             
             alphaAcn = chemicalRepository.findByShortNameAndLab(LabAdminTestUtils.ACETONITRIL_SHORT_NAME, alphaLab).get();
-            alphaMeOh = chemicalRepository.findByShortNameAndLab(LabAdminTestUtils.METHANOL_SHORT_NAME, alphaLab).get();
+            alphaMeOH = chemicalRepository.findByShortNameAndLab(LabAdminTestUtils.METHANOL_SHORT_NAME, alphaLab).get();
+            alphaEtOH = chemicalRepository.findByShortNameAndLab(LabAdminTestUtils.ETHANOL_SHORT_NAME, alphaLab).get();
             alphaLisoBuffer = recipeRepository.findByNameAndProject(LabAdminTestUtils.BUFFER_NAME, alphaLisoProject).get();
+            alphaLisoContAElu = recipeRepository.findByNameAndProject(LabAdminTestUtils.CONTENT_ELUENT_A_NAME, alphaLisoProject).get();
             first = false;
         }
     }

@@ -1,8 +1,8 @@
 package com.ksteindl.chemstore.utils;
 
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
-import com.ksteindl.chemstore.service.ChemItemService;
 import com.ksteindl.chemstore.service.ManufacturerService;
+import com.ksteindl.chemstore.service.UnitService;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,14 +19,14 @@ public class ChemItemTestUtils {
     public static ChemItemInput getTestChemItemInput(ManufacturerService manufacturerService) {
         // smelly unit reading here
         String unit;
-        if (new File(ChemItemService.UNIT_FILE_NAME).exists()) {
+        if (new File(UnitService.UNIT_FILE_NAME).exists()) {
             try {
-                unit = Files.readAllLines(Paths.get(ChemItemService.UNIT_FILE_NAME), StandardCharsets.UTF_8).get(0);
+                unit = Files.readAllLines(Paths.get(UnitService.UNIT_FILE_NAME), StandardCharsets.UTF_8).get(0);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            unit = ChemItemService.DEFAULT_UNITS.get(0);
+            unit = UnitService.DEFAULT_UNITS.get(0);
         }
         return ChemItemInput.builder()
                 .setLabKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
