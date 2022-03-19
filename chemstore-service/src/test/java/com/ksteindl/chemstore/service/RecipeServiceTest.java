@@ -444,6 +444,23 @@ public class RecipeServiceTest extends BaseControllerTest{
     @Test
     @Rollback
     @Transactional
+    public void testUpdateRecipe_whenAllValid_chemicalIngredientIdDoesNotChange() {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Long oldMeOHIngId = eluB.getChemicalIngredients().stream().filter(ingr -> ingr.getIngredient().equals(alphaMeOH)).findAny().get().getId();
+        
+        Recipe fetched = recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+
+        Long newMeOHIngId = fetched.getChemicalIngredients().stream().filter(ingr -> ingr.getIngredient().equals(alphaMeOH)).findAny().get().getId();
+
+        Assertions.assertEquals(oldMeOHIngId, newMeOHIngId);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
     public void testUpdateRecipe_whenAllValid_recipeIngredientsAreExpected() {
         RecipeInput input = getUpdatedContentEluentBLisoInput();
         Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
@@ -453,7 +470,6 @@ public class RecipeServiceTest extends BaseControllerTest{
 
         List<RecipeIngredient> recipeIngredients = fetched.getRecipeIngredients();
         
-
         Assertions.assertEquals(1, recipeIngredients.size());
         RecipeIngredient contAEluIngredient = recipeIngredients.get(0);
 
@@ -461,6 +477,24 @@ public class RecipeServiceTest extends BaseControllerTest{
         Assertions.assertEquals(recipeInput.getUnit(), contAEluIngredient.getUnit());
         Assertions.assertEquals(recipeInput.getAmount(), contAEluIngredient.getAmount());
         Assertions.assertEquals(alphaLisoContAElu, contAEluIngredient.getIngredient());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateRecipe_whenAllValid_recipeIngredientIdDoesNotChange() {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.getIngredients().get(2).setIngredientId(alphaLisoBuffer.getId());
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Long oldBufferIngId = eluB.getRecipeIngredients().get(0).getId();
+
+        Recipe fetched = recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+
+        Long newBufferIngId = fetched.getRecipeIngredients().get(0).getId();
+
+        Assertions.assertEquals(oldBufferIngId, newBufferIngId);
     }
 
     @Test
@@ -575,170 +609,198 @@ public class RecipeServiceTest extends BaseControllerTest{
         logger.info("with class: " + exception.getClass());
         logger.info("with message: " + exception.getMessage());
     }
-    
 
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateRecipe_whenUnitDoesNotMatch_gotValidationException() {
-//        RecipeInput input = getDegrAForLisoInput();
-//        input.setUnit("dummy unit");
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            recipeService.createRecipe(input, alphaManager);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateRecipe_whenEmptyIngredientInputs_gotValidationException() {
-//        RecipeInput input = getDegrAForLisoInput();
-//        input.setIngredients(new ArrayList<>());
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            recipeService.createRecipe(input, alphaManager);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateRecipe_whenIngredientHasUnknowntType_gotValidationException() {
-//        RecipeInput input = getDegrAForLisoInput();
-//        input.getIngredients().get(0).setType("UNKNOWN");
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            recipeService.createRecipe(input, alphaManager);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateRecipe_whenChemicalIngredientIdDoesNotExist_gotResourceNotFoundException() {
-//        RecipeInput input = getDegrAForLisoInput();
-//        input.getIngredients().get(0).setIngredientId((long) Integer.MAX_VALUE);
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            recipeService.createRecipe(input, alphaManager);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateRecipe_whenChemicalIngredientDeleted_gotResourceNotFoundException() {
-//        RecipeInput input = getDegrAForLisoInput();
-//        Chemical deletedChem = null;
-//        for (Chemical chemical : chemicalRepository.findAll()) {
-//            if (chemical.getLab().equals(alphaLab) && chemical.getDeleted()) {
-//                deletedChem = chemical;
-//            }
-//        };
-//        input.getIngredients().get(0).setIngredientId(deletedChem.getId());
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            recipeService.createRecipe(input, alphaManager);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateRecipe_whenChemicalIngredientIsForOtherLab_gotValidationException() {
-//        RecipeInput input = getDegrAForLisoInput();
-//        Chemical betaChem = chemicalService.
-//                getChemicalsForUser(AccountManagerTestUtils.BETA_LAB_KEY, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL).get(0);
-//        input.getIngredients().get(0).setIngredientId(betaChem.getId());
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            recipeService.createRecipe(input, alphaManager);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateRecipe_whenUnitIsInvalidInIngredient_gotValidationException() {
-//        RecipeInput input = getDegrAForLisoInput();
-//        input.getIngredients().get(0).setUnit("dummy unit");
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            recipeService.createRecipe(input, alphaManager);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateRecipe_whenRecipeIdDoesNotExist_gotResourceNotFoundException() {
-//        RecipeInput input = getDegrAForLisoInput();
-//        input.getIngredients().get(2).setIngredientId((long) Integer.MAX_VALUE);
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            recipeService.createRecipe(input, alphaManager);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateRecipe_whenRecipeIngredientIsDeleted_gotResourceNotFoundException(@Autowired RecipeRepository recipeRepository) {
-//        RecipeInput input = getDegrAForLisoInput();
-//        Recipe deletedRecipe = null;
-//        for (Recipe recipe : recipeRepository.findAll()) {
-//            if (recipe.getLab().equals(alphaLab) && recipe.getDeleted()) {
-//                deletedRecipe = recipe;
-//            }
-//        };
-//        input.getIngredients().get(2).setIngredientId(deletedRecipe.getId());
-//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-//            recipeService.createRecipe(input, alphaManager);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
-//
-//    @Test
-//    @Rollback
-//    @Transactional
-//    public void testCreateRecipe_whenRecipeIngredientIsForOtherLab_gotValidationException(@Autowired RecipeRepository recipeRepository) {
-//        RecipeInput input = getDegrAForLisoInput();
-//        Recipe betaRecipe = null;
-//        for (Recipe recipe : recipeRepository.findAll()) {
-//            if (!recipe.getLab().equals(alphaLab) &&!recipe.getDeleted()) {
-//                betaRecipe = recipe;
-//            }
-//        }
-//        input.getIngredients().get(0).setIngredientId(betaRecipe.getId());
-//        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-//            recipeService.createRecipe(input, alphaManager);
-//        });
-//        logger.info("Expected Exception is thrown:");
-//        logger.info("with class: " + exception.getClass());
-//        logger.info("with message: " + exception.getMessage());
-//    }
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateRecipe_whenUnitDoesNotMatch_gotValidationException() {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.setUnit("dummy unit");
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateRecipe_whenEmptyIngredientInputs_gotValidationException() {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.setIngredients(new ArrayList<>());
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateRecipe_whenIngredientHasUnknownType_gotValidationException() {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.getIngredients().get(0).setType("DUMMY");
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateRecipe_whenUnitIsInvalidInIngredient_gotValidationException() {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.getIngredients().get(0).setUnit("dummy unit");
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateRecipe_whenChemicalIngredientIdDoesNotExist_gotResourceNotFoundException() {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.getIngredients().get(0).setIngredientId((long) Integer.MAX_VALUE);
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateRecipe_whenChemicalIngredientDeleted_gotResourceNotFoundException() {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        Chemical deletedChem = null;
+        for (Chemical chemical : chemicalRepository.findAll()) {
+            if (chemical.getLab().equals(alphaLab) && chemical.getDeleted()) {
+                deletedChem = chemical;
+            }
+        };
+        input.getIngredients().get(0).setIngredientId(deletedChem.getId());
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateRecipe_whenChemicalIngredientIsForOtherLab_gotValidationException() {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        Chemical betaChem = chemicalService.
+                getChemicalsForUser(AccountManagerTestUtils.BETA_LAB_KEY, AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL).get(0);
+        input.getIngredients().get(0).setIngredientId(betaChem.getId());
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateRecipe_whenRecipeIngredientIdDoesNotExist_gotResourceNotFoundException() {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.getIngredients().get(2).setIngredientId((long) Integer.MAX_VALUE);
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateRecipe_whenRecipeIngredientIsDeletedt_gotResourceNotFoundException(@Autowired RecipeRepository recipeRepository) {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        Recipe deletedRecipe = null;
+        for (Recipe recipe : recipeRepository.findAll()) {
+            if (recipe.getLab().equals(alphaLab) && recipe.getDeleted()) {
+                deletedRecipe = recipe;
+            }
+        };
+        input.getIngredients().get(2).setIngredientId(deletedRecipe.getId());
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testUpdateRecipe__whenRecipeIngredientIsForOtherLab_gotValidationException(@Autowired RecipeRepository recipeRepository) {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        Recipe betaRecipe = null;
+        for (Recipe recipe : recipeRepository.findAll()) {
+            if (!recipe.getLab().equals(alphaLab) &&!recipe.getDeleted()) {
+                betaRecipe = recipe;
+            }
+        }
+        input.getIngredients().get(2).setIngredientId(betaRecipe.getId());
+        Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
+                .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
+                .findAny().get();
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            recipeService.updateRecipe(input, eluB.getId(), alphaManager);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+    
     
     private RecipeInput getDegrAForLisoInput() {
         RecipeInput input = LabAdminTestUtils.getDegrAForLisoInput();
