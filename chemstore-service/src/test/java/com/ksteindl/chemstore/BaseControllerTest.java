@@ -50,6 +50,7 @@ public class BaseControllerTest {
     
     protected static Recipe alphaLisoBuffer;
     protected static Recipe alphaLisoContAElu;
+    protected static Recipe alphaLisoEluB;
     
     protected static Project alphaLisoProject;
     protected static Project alphaDeletedProject;
@@ -110,6 +111,7 @@ public class BaseControllerTest {
             alphaEtOH = chemicalRepository.findByShortNameAndLab(LabAdminTestUtils.ETHANOL_SHORT_NAME, alphaLab).get();
             alphaLisoBuffer = recipeRepository.findByNameAndProject(LabAdminTestUtils.BUFFER_NAME, alphaLisoProject).get();
             alphaLisoContAElu = recipeRepository.findByNameAndProject(LabAdminTestUtils.CONTENT_ELUENT_A_NAME, alphaLisoProject).get();
+            alphaLisoEluB = recipeRepository.findByNameAndProject(LabAdminTestUtils.CONTENT_ELUENT_B_NAME, alphaLisoProject).get();
             first = false;
         }
     }

@@ -40,7 +40,6 @@ public class RecipeServiceTest extends BaseControllerTest{
     private static final Logger logger = LogManager.getLogger(RecipeServiceTest.class);
     
     private Principal alphaManager = AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL;
-    private Principal alphaLabUser = AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL;
     
     private String alphaLabKey = AccountManagerTestUtils.ALPHA_LAB_KEY;
     
@@ -800,6 +799,163 @@ public class RecipeServiceTest extends BaseControllerTest{
         logger.info("with class: " + exception.getClass());
         logger.info("with message: " + exception.getMessage());
     }
+
+    
+    // READ
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetRecipes_gotNoException() {
+        recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetRecipes_returnedListSizeIsGreaterThenOne() {
+        List<Recipe> recipes = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true);
+        Assertions.assertTrue(recipes.size() > 1);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetRecipes_eachProjectIsForAlpha() {
+        List<Recipe> recipes = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true);
+        Assertions.assertTrue(recipes.size() > 1);
+        Assertions.assertFalse(recipes.stream().anyMatch(recipe -> !recipe.getLab().getKey().equals(alphaLabKey)));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetRecipes_neitherProjectIsNotDeleted() {
+        List<Recipe> recipes = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true);
+        Assertions.assertFalse(recipes.stream().anyMatch(recipe -> recipe.getDeleted()));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetRecipes_whenLabKeyIsInvalid_gotResourceNotFoundException() {
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            recipeService.getRecipes((long) Integer.MAX_VALUE, alphaManager, true);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetRecipes_whenBetaLabUser_gotForbiddenFoundException() {
+        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
+            recipeService.getRecipes(alphaLisoProject.getId(), AccountManagerTestUtils.BETA_LAB_USER_PRINCIPAL, true);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+    
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetRecipesWithDeleted_gotNoException() {
+        recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, false);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetRecipesWithDeleted_eachProjectIsForAlpha() {
+        List<Recipe> recipes = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, false);
+        Assertions.assertFalse(recipes.stream().anyMatch(recipe -> !recipe.getLab().getKey().equals(alphaLabKey)));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetRecipesWithDeleted_thereIsBothDeletedAndNotDeleted() {
+        List<Recipe> recipes = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, false);
+        Assertions.assertTrue(recipes.stream().anyMatch(recipe -> recipe.getDeleted()));
+        Assertions.assertTrue(recipes.stream().anyMatch(recipe -> !recipe.getDeleted()));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetRecipesWithDeleted_whenProjectIdIsInvalid_gotResourceNotFoundException() {
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            recipeService.getRecipes((long) Integer.MAX_VALUE, alphaManager, false);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testGetRecipesWithDeleted_whenBetaLabUser_gotForbiddenFoundException() {
+        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
+            recipeService.getRecipes(alphaLisoProject.getId(), AccountManagerTestUtils.BETA_LAB_USER_PRINCIPAL, false);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testFindRecipeById_gotNoException() {
+        recipeService.findById(alphaLisoEluB.getId());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testFindRecipeById_gotExpectedRecipe() {
+        Recipe foundRecipe = recipeService.findById(alphaLisoEluB.getId());
+        Assertions.assertEquals(LabAdminTestUtils.LISI_NAME, foundRecipe.getProject().getName());
+        Assertions.assertEquals(alphaLabKey, foundRecipe.getProject().getLab().getKey());
+
+        Assertions.assertTrue(foundRecipe.getRecipeIngredients().size() > 0);
+        Assertions.assertTrue(foundRecipe.getChemicalIngredients().size() > 0);
+
+        Assertions.assertFalse(foundRecipe.getDeleted());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testFindRecipeById_whenIdDoesNotExist_gotResourceNotFoundException() {
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            recipeService.findById((long) Integer.MAX_VALUE);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testFindRecipeById_whenAlreadyDeleted_gotResourceNotFoundException() {
+        Recipe target = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, false).stream()
+                .filter(found -> found.getDeleted())
+                .findAny().get();
+        
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            recipeService.findById(target.getId());
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+    
     
     
     private RecipeInput getDegrAForLisoInput() {
@@ -811,6 +967,177 @@ public class RecipeServiceTest extends BaseControllerTest{
         ingredientInputs.get(2).setIngredientId(alphaLisoBuffer.getId());
         return input;
     }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testFindRecipeByIdOnlyActiveFalse_gotNoException() {
+        Recipe target = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, false).stream()
+                .filter(found -> found.getDeleted())
+                .findAny().get();
+        recipeService.findById(target.getId(), false);
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testFindRecipeByIdOnlyActiveFalse_gotExpectedRecipe() {
+        Recipe target = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, false).stream()
+                .filter(found -> found.getDeleted())
+                .findAny().get();
+        Recipe foundRecipe = recipeService.findById(target.getId(), false);
+        Assertions.assertEquals(LabAdminTestUtils.LISI_NAME, foundRecipe.getProject().getName());
+        Assertions.assertEquals(alphaLabKey, foundRecipe.getProject().getLab().getKey());
+
+        Assertions.assertTrue(foundRecipe.getRecipeIngredients().size() > 0);
+        Assertions.assertTrue(foundRecipe.getChemicalIngredients().size() > 0);
+
+        Assertions.assertTrue(foundRecipe.getDeleted());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testFindRecipeByIdOnlyActiveFalse_whenIdDoesNotExist_gotResourceNotFoundException() {
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            recipeService.findById((long) Integer.MAX_VALUE, false);
+            
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testFindRecipeByIdOnlyActiveTrue_gotExpectedRecipe() {
+        Recipe foundRecipe = recipeService.findById(alphaLisoEluB.getId(), true);
+        Assertions.assertEquals(LabAdminTestUtils.LISI_NAME, foundRecipe.getProject().getName());
+        Assertions.assertEquals(alphaLabKey, foundRecipe.getProject().getLab().getKey());
+
+        Assertions.assertTrue(foundRecipe.getRecipeIngredients().size() > 0);
+        Assertions.assertTrue(foundRecipe.getChemicalIngredients().size() > 0);
+
+        Assertions.assertFalse(foundRecipe.getDeleted());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void testFindRecipeByIdOnlyActiveTrue_whenDeletedRecipeId_gotResourceNotFoundException() {
+        Recipe target = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, false).stream()
+                .filter(found -> found.getDeleted())
+                .findAny().get();
+
+        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            recipeService.findById(target.getId(), true);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    // DELETE
+//    @Test
+//    @Rollback
+//    @Transactional
+//    public void testDeleteProject_whenAllValid_gotNoException() {
+//        Principal manager = AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL;
+//        Project project = projectService.getProjects(AccountManagerTestUtils.ALPHA_LAB_KEY, manager).stream()
+//                .filter(gotProject ->
+//                        gotProject.getLab().getKey().equals(AccountManagerTestUtils.ALPHA_LAB_KEY) &&
+//                                gotProject.getName().equals(LabAdminTestUtils.AMLO_NAME))
+//                .findAny()
+//                .get();
+//        projectService.deleteProject(project.getId(), manager);
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    public void testDeleteProject_whenAllValid_gotFetchedDeleted() {
+//        Principal manager = AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL;
+//        Project project = projectService.getProjects(AccountManagerTestUtils.ALPHA_LAB_KEY, manager).stream()
+//                .filter(gotProject ->
+//                        gotProject.getLab().getKey().equals(AccountManagerTestUtils.ALPHA_LAB_KEY) &&
+//                                gotProject.getName().equals(LabAdminTestUtils.AMLO_NAME))
+//                .findAny()
+//                .get();
+//        projectService.deleteProject(project.getId(), manager);
+//        Project deleted = projectRepository.findById(project.getId()).get();
+//        Assertions.assertTrue(deleted.getDeleted());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    public void testDeleteProject_whenAlphaLabAdmin_gotForbiddenException() {
+//        Principal manager = AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL;
+//        Project project = projectService.getProjects(AccountManagerTestUtils.ALPHA_LAB_KEY, manager).stream()
+//                .filter(gotProject ->
+//                        gotProject.getLab().getKey().equals(AccountManagerTestUtils.ALPHA_LAB_KEY) &&
+//                                gotProject.getName().equals(LabAdminTestUtils.AMLO_NAME))
+//                .findAny()
+//                .get();
+//        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
+//            projectService.deleteProject(project.getId(), AccountManagerTestUtils.ALPHA_LAB_ADMIN_PRINCIPAL);
+//        });
+//        logger.info("Expected Exception is thrown:");
+//        logger.info("with class: " + exception.getClass());
+//        logger.info("with message: " + exception.getMessage());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    public void testDeleteProject_whenBetaLabManager_gotForbiddenEception() {
+//        Principal manager = AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL;
+//        Project project = projectService.getProjects(AccountManagerTestUtils.ALPHA_LAB_KEY, manager).stream()
+//                .filter(gotProject ->
+//                        gotProject.getLab().getKey().equals(AccountManagerTestUtils.ALPHA_LAB_KEY) &&
+//                                gotProject.getName().equals(LabAdminTestUtils.AMLO_NAME))
+//                .findAny()
+//                .get();
+//        Exception exception = Assertions.assertThrows(ForbiddenException.class, () -> {
+//            projectService.deleteProject(project.getId(), AccountManagerTestUtils.BETA_LAB_MANAGER_PRINCIPAL);
+//        });
+//        logger.info("Expected Exception is thrown:");
+//        logger.info("with class: " + exception.getClass());
+//        logger.info("with message: " + exception.getMessage());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    public void testDeleteProject_whenIdDoesNotExist_gotResourceNotFoundException() {
+//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+//            projectService.deleteProject((long) Integer.MAX_VALUE, AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
+//        });
+//        logger.info("Expected Exception is thrown:");
+//        logger.info("with class: " + exception.getClass());
+//        logger.info("with message: " + exception.getMessage());
+//    }
+//
+//    @Test
+//    @Rollback
+//    @Transactional
+//    public void testDeleteProject_whenAlreadyDeleted_gotResourceNotFoundException() {
+//        Principal manager = AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL;
+//        Project project = projectService.getProjects(AccountManagerTestUtils.ALPHA_LAB_KEY, manager, false).stream()
+//                .filter(gotProject ->
+//                        gotProject.getLab().getKey().equals(AccountManagerTestUtils.ALPHA_LAB_KEY) &&
+//                                gotProject.getDeleted())
+//                .findAny()
+//                .get();
+//        Exception exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+//            projectService.deleteProject(project.getId(), AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
+//        });
+//        logger.info("Expected Exception is thrown:");
+//        logger.info("with class: " + exception.getClass());
+//        logger.info("with message: " + exception.getMessage());
+//    }
+    
 
     private RecipeInput getContentEluentBLisoInput() {
         RecipeInput input = LabAdminTestUtils.getContentEluentBLisoInput();
