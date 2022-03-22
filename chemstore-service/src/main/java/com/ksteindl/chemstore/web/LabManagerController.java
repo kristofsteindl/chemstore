@@ -74,8 +74,8 @@ public class LabManagerController {
     @PutMapping("/project/{id}")
     public ResponseEntity<Project> updateProject(
             @Valid @RequestBody ProjectInput projectInput,
-            Principal principal,
             BindingResult result,
+            Principal principal,
             @PathVariable  Long id) {
         logger.info("PUT '/api/lab-manager/project/{id}' was called with id {} and input {}", id, projectInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
@@ -107,8 +107,9 @@ public class LabManagerController {
     @PostMapping("/recipe")
     public ResponseEntity<Recipe> createRecipe(
             @Valid @RequestBody RecipeInput recipeInput,
-            Principal principal,
-            BindingResult result) {
+            BindingResult result,
+            Principal principal
+            ) {
         logger.info("POST 'api/lab-manager/recipe' was called with {} by {}", recipeInput, principal.getName());
         mapValidationErrorService.throwExceptionIfNotValid(result);
         Recipe recipe = recipeService.createRecipe(recipeInput, principal);

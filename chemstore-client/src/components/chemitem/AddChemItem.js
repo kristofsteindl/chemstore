@@ -48,7 +48,7 @@ class AddChemItem extends Component {
             labKey: this.props.selectedLab.key,
             chemicalShortName: this.state.chemicalShortName,
             manufacturerId: this.state.manufacturerId,
-            unit: this.state.unit.unit,
+            unit: this.state.unit,
             amount: this.state.amount,
             quantity: this.state.quantity,
             batchNumber: this.state.batchNumber,
