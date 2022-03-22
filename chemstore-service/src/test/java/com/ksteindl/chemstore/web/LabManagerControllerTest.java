@@ -2,11 +2,13 @@ package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.BaseControllerTest;
 import com.ksteindl.chemstore.domain.entities.Project;
+import com.ksteindl.chemstore.domain.entities.Recipe;
 import com.ksteindl.chemstore.domain.input.IngredientInput;
 import com.ksteindl.chemstore.domain.input.ProjectInput;
 import com.ksteindl.chemstore.domain.input.RecipeInput;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.ProjectService;
+import com.ksteindl.chemstore.service.RecipeService;
 import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.utils.LabAdminTestUtils;
 import org.apache.logging.log4j.LogManager;
@@ -61,6 +63,8 @@ public class LabManagerControllerTest extends BaseControllerTest {
     private MockMvc mvc;
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private RecipeService recipeService;
 
 
     @Test
@@ -1023,8 +1027,413 @@ public class LabManagerControllerTest extends BaseControllerTest {
         logger.info("status code: " + result.getResponse().getStatus());
         logger.info(result.getResponse().getContentAsString());
     }
-    
 
+    @Test
+    @Rollback
+    @Transactional
+    void testCreateRecipe_whenIngredientIdIsNull_got400() throws Exception {
+        RecipeInput input = getDegrAForLisoInput();
+        input.getIngredients().get(0).setIngredientId(null);
+        MvcResult result = mvc.perform(post(URL_RECIPE)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+    
+    // UPDATE RECIPE
+
+
+
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenAllValid_got201() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenBetaLabManager_got403() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenAlphaLabAdmin_got403() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenAlphaLabUser_got403() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenAccountManager_got403() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenInputBlank_got4xx() throws Exception {
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString("")))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenNameNull_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.setName(null);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenProjectIdNull_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.setProjectId(null);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenShelfLifeMinus_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.setShelfLifeInDays(-40);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenAmountZero_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.setAmount(0.0);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenAmountMinus_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.setAmount(-23.1);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenAmountMissing_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.setAmount(null);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenUnitMissing_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.setUnit(null);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenIngredientsEmptyList_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.setIngredients(new ArrayList<>());
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenIngredientIsNotCorrectType_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.getIngredients().get(0).setType("DUMMY");
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenIngredientAmountIsMinus_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.getIngredients().get(0).setAmount(-11.3);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenIngredientAmountIsZero_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.getIngredients().get(0).setAmount(0.0);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenIngredientUnitIsBlank_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.getIngredients().get(0).setAmount(0.0);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenIngredientUnitIsNull_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.getIngredients().get(0).setUnit(null);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testUpdateRecipe_whenIngredientIdIsNull_got400() throws Exception {
+        RecipeInput input = getUpdatedContentEluentBLisoInput();
+        input.getIngredients().get(0).setIngredientId(null);
+        MvcResult result = mvc.perform(put(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(input)))
+                .andExpect(status().is(400))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    //DELETE RECIPE
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteRecipe_got204() throws Exception {
+        MvcResult result = mvc.perform(delete(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(204))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteRecipe_fetchedIsDeleted() throws Exception {
+        Assertions.assertFalse(alphaLisoEluB.getDeleted());
+        MvcResult result = mvc.perform(delete(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(204))
+                .andReturn();
+        Recipe deleted = recipeService.findById(alphaLisoEluB.getId(), false);
+        Assertions.assertTrue(deleted.getDeleted());
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteRecipe_whenIdDoesNotExist_got404() throws Exception {
+        MvcResult result = mvc.perform(delete(URL_RECIPE + Integer.MAX_VALUE)
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(404))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteRecipe_whenAlreadyDeleted_got404() throws Exception {
+        Recipe deleted = recipeService.getRecipes(alphaLisoProject.getId(), ALPHA_LAB_MANAGER_PRINCIPAL, false).stream()
+                .filter(recipe -> recipe.getDeleted())
+                .findAny().get();
+        MvcResult result = mvc.perform(delete(URL_RECIPE + deleted.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(404))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteRecipe_whenBetaManager_got403() throws Exception {
+        MvcResult result = mvc.perform(delete(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteRecipe_whenAccountManager_got403() throws Exception {
+        MvcResult result = mvc.perform(delete(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testDeleteRecipe_whenAlphaLabUser_got403() throws Exception {
+        MvcResult result = mvc.perform(delete(URL_RECIPE + alphaLisoEluB.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403))
+                .andReturn();
+        logger.info("status code: " + result.getResponse().getStatus());
+        logger.info(result.getResponse().getContentAsString());
+    }
+    
 
     private RecipeInput getDegrAForLisoInput() {
         RecipeInput input = LabAdminTestUtils.getDegrAForLisoInput();
@@ -1033,6 +1442,16 @@ public class LabManagerControllerTest extends BaseControllerTest {
         ingredientInputs.get(0).setIngredientId(alphaAcn.getId());
         ingredientInputs.get(1).setIngredientId(alphaMeOH.getId());
         ingredientInputs.get(2).setIngredientId(alphaLisoBuffer.getId());
+        return input;
+    }
+
+    private RecipeInput getUpdatedContentEluentBLisoInput() {
+        RecipeInput input = LabAdminTestUtils.getContentEluentBLisoInput();
+        input.setProjectId(alphaLisoProject.getId());
+        List<IngredientInput> ingredientInputs = input.getIngredients();
+        ingredientInputs.get(0).setIngredientId(alphaAcn.getId());
+        ingredientInputs.get(1).setIngredientId(alphaMeOH.getId());
+        ingredientInputs.get(2).setIngredientId(alphaLisoContAElu.getId());
         return input;
     }
     

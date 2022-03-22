@@ -2,6 +2,7 @@ package com.ksteindl.chemstore.domain.input;
 
 import lombok.Data;
 
+import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -30,5 +31,6 @@ public class RecipeInput {
     private String unit;
 
     @Size(min=1)
+    @Valid
     private List<IngredientInput> ingredients = new ArrayList<>();
 }
