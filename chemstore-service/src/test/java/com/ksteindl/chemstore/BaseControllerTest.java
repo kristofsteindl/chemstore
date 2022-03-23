@@ -13,6 +13,7 @@ import com.ksteindl.chemstore.domain.repositories.RecipeRepository;
 import com.ksteindl.chemstore.security.JwtProvider;
 import com.ksteindl.chemstore.service.ChemicalCategoryService;
 import com.ksteindl.chemstore.service.LabService;
+import com.ksteindl.chemstore.service.RecipeService;
 import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.utils.LabAdminTestUtils;
 import org.apache.logging.log4j.LogManager;
@@ -64,6 +65,8 @@ public class BaseControllerTest {
 
     @Autowired
     protected ChemicalCategoryService chemicalCategoryService;
+    @Autowired
+    protected RecipeService recipeService;
     @Autowired
     protected JwtProvider jwtProvider;
 

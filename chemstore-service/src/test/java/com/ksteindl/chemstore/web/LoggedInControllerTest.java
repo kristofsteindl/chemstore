@@ -7,6 +7,7 @@ import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.utils.LabAdminTestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hamcrest.Matchers;
 import org.hamcrest.core.IsNot;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,7 @@ import javax.transaction.Transactional;
 import java.util.Map;
 
 import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.ALPHA_LAB_KEY;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -49,6 +51,7 @@ public class LoggedInControllerTest extends BaseControllerTest {
     private final static String URL_CHEMICAL_ALAB = URL_CHEMICAL + "/alab";
     private final static String URL_ME = URL + "/user/me";
     private final static String CATEGORY_URL = URL + "/chem-category";
+    private final static String RECIPE_URL = URL + "/recipe";
 
     @Autowired
     JwtProvider jwtProvider;
@@ -660,6 +663,196 @@ public class LoggedInControllerTest extends BaseControllerTest {
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(404));
     }
+    
+    // RECIPE
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_got200() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(200));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_gotValidArray() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_gotRecipeAttributesTypeAsExpected() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").isNumber())
+                .andExpect(jsonPath("$[0].labKey", is(ALPHA_LAB_KEY)))
+                .andExpect(jsonPath("$[0].projectName", is(LabAdminTestUtils.LISI_NAME)))
+                .andExpect(jsonPath("$[0].name").isString())
+                .andExpect(jsonPath("$[0].shelfLifeInDays").isNumber())
+                .andExpect(jsonPath("$[0].amount").isNumber())
+                .andExpect(jsonPath("$[0].unit").isString());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_noDeleted() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].deleted").isBoolean())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_hasReciCorrectSize() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(recipeService.getRecipes(alphaLisoProject.getId(), AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL, true).size())));
+
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_hasCorrectSize() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(recipeService.getRecipes(alphaLisoProject.getId(), AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL, true).size())));
+
+    }
+
+    // ChemicalIngredients
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_hasChemicalIngredientsArray() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].chemicalIngredients").isArray());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_hasChemicalIngredientsArrayIsNotEmpty() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[*].chemicalIngredients", hasSize(greaterThan(0))));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_hasChemicalIngredientELementHasExpectedAttributes() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[*].chemicalIngredients[0].id", hasItem(Matchers.isA(Number.class))))
+                .andExpect(jsonPath("$[*].chemicalIngredients[0].amount", hasItem(Matchers.isA(Number.class))))
+                .andExpect(jsonPath("$[*].chemicalIngredients[0].unit", hasItem(Matchers.isA(String.class))))
+                .andExpect(jsonPath("$[*].chemicalIngredients[0].ingredient.id", hasItem(Matchers.isA(Number.class))))
+                .andExpect(jsonPath("$[*].chemicalIngredients[0].ingredient.shortName", hasItem(Matchers.isA(String.class))))
+        ;
+    }
+    
+    // RecipeIngredients
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_hasRecipeIngredientsArray() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].recipeIngredients").isArray());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_hasRecipeIngredientsArrayIsNotEmpty() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[*].recipeIngredients", hasSize(greaterThan(0))));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_hasRecipeIngredientELementHasExpectedAttributes() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[*].recipeIngredients[0].id", hasItem(Matchers.isA(Number.class))))
+                .andExpect(jsonPath("$[*].recipeIngredients[0].amount", hasItem(Matchers.isA(Number.class))))
+                .andExpect(jsonPath("$[*].recipeIngredients[0].unit", hasItem(Matchers.isA(String.class))))
+                .andExpect(jsonPath("$[*].recipeIngredients[0].ingredient.id", hasItem(Matchers.isA(Number.class))))
+                .andExpect(jsonPath("$[*].recipeIngredients[0].ingredient.name", hasItem(Matchers.isA(String.class))))
+        ;
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_whenBetaLabUser_got403() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_BETA_LAB_USER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_whenAccountManager_got403() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_whenIsDoesNotExist_got404() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + Integer.MAX_VALUE)
+                        .header("Authorization", TOKEN_FOR_ACCOUNT_MANAGER).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_withOnlyActiveTrue_noDeleted() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
+                        .param("onlyActive", "true"))                
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[0].deleted").isBoolean())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", IsNot.not(hasItem(true))));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void testGetRecipesForAlphaLisoProject_withOnlyActiveFalse_thereIsDeleted() throws Exception {
+        mvc.perform(get(RECIPE_URL + "/" + alphaLisoProject.getId())
+                        .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)
+                        .param("onlyActive", "false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$[0].deleted").isBoolean())
+                .andExpect(jsonPath("$[*].deleted", hasItem(false)))
+                .andExpect(jsonPath("$[*].deleted", hasItem(true)));
+    }
+    
 
 
 

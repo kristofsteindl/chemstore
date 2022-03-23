@@ -135,7 +135,7 @@ public class LoggedInController {
 
     @GetMapping("/recipe/{projectId}")
     public ResponseEntity<List<Recipe>> getRecipess(
-            @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive,
+            @RequestParam(value="onlyActive", required = false, defaultValue = "true") boolean onlyActive,
             @PathVariable Long projectId,
             Principal user
     ) {
