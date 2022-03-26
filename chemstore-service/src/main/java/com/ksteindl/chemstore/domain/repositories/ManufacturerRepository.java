@@ -1,6 +1,5 @@
 package com.ksteindl.chemstore.domain.repositories;
 
-import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;

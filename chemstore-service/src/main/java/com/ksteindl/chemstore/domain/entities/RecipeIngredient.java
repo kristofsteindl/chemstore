@@ -36,11 +36,6 @@ public class RecipeIngredient implements Ingredient{
     
     private String unit;
 
-    @JsonProperty("containerRecipe")
-    public RecipeCard getContainerRecipeCard() {
-        return new RecipeCard(containerRecipe);
-    }
-
     @JsonProperty("ingredient")
     public RecipeCard getIngredientCard() {
         return new RecipeCard(ingredient);

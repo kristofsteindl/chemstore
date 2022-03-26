@@ -53,7 +53,7 @@ public class LabAdminController {
         logger.info("POST '/manufacturer' was called with {}", manufacturerInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
         Manufacturer manufacturer = manufacturerService.createManufacturer(manufacturerInput);
-        logger.info("POST '/manufacturer' was succesful with returned result{}", manufacturer);
+        logger.info("POST '/manufacturer' was succesful with returned result \n{}", manufacturer);
         return new ResponseEntity<>(manufacturer, HttpStatus.CREATED);
     }
 
@@ -65,7 +65,7 @@ public class LabAdminController {
         logger.info("PUT '/manufacturer/{id}' was called with id {} and input {}", id, manufacturerInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
         Manufacturer manufacturer = manufacturerService.updateManufacturer(manufacturerInput, id);
-        logger.info("PUT '/manufacturer/{id}' was succesful with returned result{}", manufacturer);
+        logger.info("PUT '/manufacturer/{id}' was succesful with returned result \n{}", manufacturer);
         return new ResponseEntity<>(manufacturer, HttpStatus.CREATED);
     }
 
@@ -74,7 +74,7 @@ public class LabAdminController {
             @PathVariable  Long id) {
         logger.info("GET '/manufacturer/{id}' was called with id {}", id);
         Manufacturer manufacturer = manufacturerService.findById(id);
-        logger.info("GET '/manufacturer/{id}' was succesful with returned result{}", manufacturer);
+        logger.info("GET '/manufacturer/{id}' was succesful with returned result \n{}", manufacturer);
         return new ResponseEntity<>(manufacturer, HttpStatus.OK);
     }
 

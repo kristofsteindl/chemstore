@@ -66,6 +66,8 @@ public class Lang {
     public static final String CHEM_ITEM_ARRIVAL_DATE_IS_FUTURE = "Arrival date of the chemical item (%s) (arrivalDate) cannot be in the future";
     public static final String CHEM_ITEM_EXP_DATE_IS_IN_PAST = "Expiration Date of item (expirationDateBeforeOpened) (%s) cannot be in the past";
 
+    public static final String MIXTURE_ENTITY_NAME = "mixture";
+    public static final String MIXTURE_CREATION_DATE_IS_FUTURE = "Creation date of the mixture (creationDate) cannot be in the future";
 
     public static final String CHEMICAL_CATEGORY_ENTITY_NAME = "ChemicalCategory";
     public static final String CHEMICAL_CATEGORY_IS_DELETED = "Chemical category '%s' in '%s' is deleted";
