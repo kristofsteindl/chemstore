@@ -6,7 +6,6 @@ import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.ChemicalIngredient;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.Mixture;
-import com.ksteindl.chemstore.domain.entities.Project;
 import com.ksteindl.chemstore.domain.entities.Recipe;
 import com.ksteindl.chemstore.domain.entities.RecipeIngredient;
 import com.ksteindl.chemstore.domain.input.MixtureInput;
@@ -40,8 +39,7 @@ public class MixtureService {
     public Mixture createMixtureAsUser(MixtureInput input, Principal userPrincipal) {
         Mixture mixture = new Mixture();
         Recipe recipe = recipeService.findById(input.getRecipeId());
-        Project project = recipe.getProject();
-        Lab lab = project.getLab();
+        Lab lab = recipe.getProject().getLab();
         labService.validateLabForUser(lab, userPrincipal);
         LocalDate creationDate = validateAndGetCreationDate(input.getCreationDate());
         AppUser appUser = appUserService.getMyAppUser(userPrincipal);
@@ -71,39 +69,48 @@ public class MixtureService {
         List<ChemItem> chemItems =  input.getChemItemIds().stream()
                 .map(chemItemId -> chemItemService.findById(chemItemId))
                 .collect(Collectors.toList());
-        validateChemItemDate(chemItems, input.getCreationDate());
         Map<Chemical, ChemItem> chemItemMap = chemItems.stream().collect(Collectors.toMap(ChemItem::getChemical, chemiItem -> chemiItem));
         for (ChemicalIngredient ingredient : recipe.getChemicalIngredients()) {
-            ChemItem fromRecipe = chemItemMap.get(ingredient.getIngredient());
-            if (fromRecipe == null) {
-                throw new ValidationException("Chemical %s is not provided for mixture input");
+            Chemical chemical = ingredient.getIngredient();
+            ChemItem chemItem = chemItemMap.get(chemical);
+            if (chemItem == null) {
+                throw new ValidationException(String.format(Lang.MIXTURE_MISSING_CHEM_ITEM, chemical.getShortName()));
             }
-            mixture.addChemItem(fromRecipe);
+            validateChemItemLab(chemItem, recipe);
+            validateChemItemDate(chemItem, input.getCreationDate());
+            mixture.addChemItem(chemItem);
         }
     }
-
-    private void validateChemItemDate(List<ChemItem> chemItems, LocalDate createdDate) {
-        chemItems.forEach(chemItem -> validateChemItemDate(chemItem, createdDate));
+    
+    private void validateChemItemLab(ChemItem chemItem, Recipe recipe) {
+        if (!chemItem.getLab().getKey().equals(recipe.getLab().getKey())) {
+            throw new ValidationException(String.format(Lang.MIXTURE_CHEM_ITEM_IS_IN_DIFFERENT_LAB,
+                    chemItem.getSeqNumber(), chemItem.getLab().getKey(), recipe.getLab().getKey()));
+        }
     }
     
     private void validateChemItemDate(ChemItem chemItem, LocalDate createdDate) {
-        LocalDate arrivalDate = chemItem.getArrivalDate();
-        if (arrivalDate.isAfter(createdDate)) {
-            throw new ValidationException("Chemical (chemItem) is arrived after mixture creation date");
-        }
         LocalDate openingDate = chemItem.getOpeningDate();
         if (openingDate == null) {
-            throw new ValidationException("Chemical (chemItem) is not opened yet, mixture is cannot be created out of it");
+            throw new ValidationException(
+                    Lang.MIXTURE_CREATION_DATE,
+                    String.format(Lang.MIXTURE_CI_OPENING_DATE_NULL, chemItem.getChemical().getShortName()));
         } else if (openingDate.isAfter(createdDate)) {
-            throw new ValidationException("Chemical (chemItem) is opened after, mixture creation date");
+            throw new ValidationException(
+                    Lang.MIXTURE_CREATION_DATE,
+                    String.format(Lang.MIXTURE_CI_OPENED_AFTER, chemItem.getChemical().getShortName(), createdDate, chemItem.getOpeningDate()));
         }
         LocalDate consumtionDate = chemItem.getConsumptionDate();
         if (consumtionDate != null && !consumtionDate.isAfter(createdDate)) {
-            throw new ValidationException("Chemical (chemItem) is consumed before, mixture creation date");
+            throw new ValidationException(
+                    Lang.MIXTURE_CREATION_DATE,
+                    String.format(Lang.MIXTURE_CI_ALREADY_CONSUMED, chemItem.getChemical().getShortName(), chemItem.getConsumptionDate(), createdDate));
         }
         LocalDate expirationDate = chemItem.getExpirationDate();
         if (expirationDate != null && !expirationDate.isAfter(createdDate)) {
-            throw new ValidationException("Chemical (chemItem) is expired, before mixture was created");
+            throw new ValidationException(
+                    Lang.MIXTURE_CREATION_DATE,
+                    String.format(Lang.MIXTURE_CI_ALREADY_EXPIRED, chemItem.getChemical().getShortName(), chemItem.getConsumptionDate(), createdDate));
         }
     }
 
@@ -111,29 +118,29 @@ public class MixtureService {
         List<Mixture> mixtureItems =  input.getMixtureItemIds().stream()
                 .map(mixtureItemId -> findById(mixtureItemId))
                 .collect(Collectors.toList());
-        validateMixItemDate(mixtureItems, input.getCreationDate());
         Map<Recipe, Mixture> mixureItemMap = mixtureItems.stream().collect(Collectors.toMap(Mixture::getRecipe, recipeItem -> recipeItem));
         for (RecipeIngredient ingredient : recipe.getRecipeIngredients()) {
-            Mixture fromRecipe = mixureItemMap.get(ingredient.getIngredient());
-            if (fromRecipe == null) {
-                throw new ValidationException("Chemical %s is not provided for mixture input");
+            Mixture mixtureItem = mixureItemMap.get(ingredient.getIngredient());
+            if (mixtureItem == null) {
+                throw new ValidationException(String.format(Lang.MIXTURE_MISSING_MIXTURE_ITEM, ingredient.getIngredient().getName() ,recipe.getName()));
             }
-            mixture.addMixtureItem(fromRecipe);
+            validateMixtureItemDate(mixtureItem, input.getCreationDate());
+            mixture.addMixtureItem(mixtureItem);
         }
-    }
-
-    private void validateMixItemDate(List<Mixture> mixtureItems, LocalDate createdDate) {
-        mixtureItems.forEach(mixtureItem -> validateMixtureItemDate(mixtureItem, createdDate));
     }
 
     private void validateMixtureItemDate(Mixture mixtureItem, LocalDate createdDate) {
         LocalDate mixtureItemCreationDate = mixtureItem.getCreationDate();
         if (mixtureItemCreationDate.isAfter(createdDate)) {
-            throw new ValidationException("Mixture (mixtureItem) created after, than the mixture creation date");
+            throw new ValidationException(Lang.MIXTURE_CREATION_DATE,
+                    String.format(Lang.MIXTURE_MIXTURE_ITEM_CREATION_DATE,
+                    mixtureItem.getRecipe().getName(), createdDate, mixtureItemCreationDate));
         }
         LocalDate expirationDate = mixtureItem.getExpirationDate();
         if (!expirationDate.isAfter(createdDate)) {
-            throw new ValidationException("Mixture %s is expired, before mixture was created");
+            throw new ValidationException(Lang.MIXTURE_CREATION_DATE,
+                    String.format(Lang.MIXTURE_MIXTURE_ITEM_ALREADY_EXPIRED,
+                    mixtureItem.getRecipe().getName(), expirationDate, createdDate));
         }
     }
     
@@ -145,7 +152,6 @@ public class MixtureService {
                     String.format(Lang.MIXTURE_CREATION_DATE_IS_FUTURE, creationDate));
         }
         return creationDate;
-        
     }
 
 }

@@ -18,7 +18,7 @@ public class MixtureItemForMixture {
     public MixtureItemForMixture(Mixture mixtureItem, Mixture containerMixture) {
         this.mixtureItem = mixtureItem;
         this.recipeIngredient = containerMixture.getRecipe().getRecipeIngredients().stream()
-                .filter(ri -> ri.getIngredient().equals(mixtureItem.getRecipe()))
+                .filter(ri -> ri.getIngredient().getId().equals(mixtureItem.getRecipe().getId()))
                 .findAny().get();
         this.amount = recipeIngredient.getAmount() * containerMixture.getAmount() / containerMixture.getRecipe().getAmount();
         this.unit = recipeIngredient.getUnit();

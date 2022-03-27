@@ -67,8 +67,19 @@ public class Lang {
     public static final String CHEM_ITEM_EXP_DATE_IS_IN_PAST = "Expiration Date of item (expirationDateBeforeOpened) (%s) cannot be in the past";
 
     public static final String MIXTURE_ENTITY_NAME = "mixture";
-    public static final String MIXTURE_CREATION_DATE_IS_FUTURE = "Creation date of the mixture (creationDate) cannot be in the future";
-
+    public static final String MIXTURE_CREATION_DATE = "creationDate";
+    public static final String MIXTURE_CREATION_DATE_IS_FUTURE = "Creation date of the mixture (creationDate) cannot be in the future (%s)";
+    public static final String MIXTURE_CHEM_ITEM_IS_IN_DIFFERENT_LAB = "Chemical (chemItem) %s belongs to different lab (%s) than lab of recipe (%s)";
+    public static final String MIXTURE_MISSING_CHEM_ITEM = "Chemical %s is not provided for mixture input";
+    public static final String MIXTURE_CI_OPENING_DATE_NULL = "Chemical (chemItem, %s) is not opened yet, mixture is cannot be created";
+    public static final String MIXTURE_CI_OPENED_AFTER = "Chemical (chemItem, %s) has been opened after mixture creation date (%s < %s)";
+    public static final String MIXTURE_CI_ALREADY_CONSUMED = "Chemical (chemItem, %s) is/has been consumed by the time of the mixture creation (%s < %s)";
+    public static final String MIXTURE_CI_ALREADY_EXPIRED ="Chemical (chemItem, %s) is/has been expired by the time of the mixture creation";
+    public static final String MIXTURE_MISSING_MIXTURE_ITEM = "Mixture %s is not provided as ingredient for %s creation";
+    public static final String MIXTURE_MIXTURE_ITEM_CREATION_DATE = "Mixture (mixtureItem, %s) created after, than the mixture to be created (%s < %s)";
+    public static final String MIXTURE_MIXTURE_ITEM_ALREADY_EXPIRED = "Mixture (mixtureItem, %s) is/has been expired by the time of the mixture creation (%s < %s)";
+    
+    
     public static final String CHEMICAL_CATEGORY_ENTITY_NAME = "ChemicalCategory";
     public static final String CHEMICAL_CATEGORY_IS_DELETED = "Chemical category '%s' in '%s' is deleted";
     public static final String CHEMICAL_CATEGORY_ALREADY_EXISTS = "Chemical category '%s' in '%s' already exists";
