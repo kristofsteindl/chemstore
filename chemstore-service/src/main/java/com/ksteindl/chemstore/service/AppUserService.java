@@ -25,7 +25,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -105,8 +109,18 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         return getAppUsers().stream().map(appUser -> new AppUserCard(appUser)).collect(Collectors.toList());
     }
 
+    /*
+    * @Deprecated use getAppUser(String username) instead
+    * */
+    @Deprecated
     public AppUser getMyAppUser(Principal principal) {
         String username = principal.getName();
+        return appUserRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username));
+    }
+
+    public AppUser getAppUser(String username) {
         return appUserRepository
                 .findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username));

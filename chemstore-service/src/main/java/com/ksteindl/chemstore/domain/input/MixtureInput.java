@@ -11,8 +11,7 @@ import java.util.List;
 
 @Data
 public class MixtureInput {
-
-    @NotNull(message = "recipe (recipeId) is required")
+    
     private Long recipeId;
     
     private String username;

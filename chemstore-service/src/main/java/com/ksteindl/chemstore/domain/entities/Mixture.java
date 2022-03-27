@@ -9,7 +9,6 @@ import com.ksteindl.chemstore.service.wrapper.RecipeCard;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Entity
-public class Mixture {
+public class Mixture implements HasLab {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,11 +44,11 @@ public class Mixture {
     @JsonIgnore
     private Recipe recipe;
     
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JsonIgnore
     private List<ChemItem> chemItems = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JsonIgnore
     private List<Mixture> mixtureItems = new ArrayList<>();
 
@@ -73,6 +72,19 @@ public class Mixture {
     public List<MixtureItemForMixture> getMixtureItemsForMixtures() {
         return mixtureItems.stream().map(mixture -> new MixtureItemForMixture(mixture, this))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @JsonIgnore
+    public Lab getLab() {
+        return recipe.getLab();
+    }
+    
+    public String getIdentifier() {
+        return new StringBuilder(recipe.getName())
+                .append("-")
+                .append(id)
+                .toString();
     }
 
     public void addChemItem(ChemItem chemItem) {

@@ -97,12 +97,20 @@ public class LabService implements UniqueEntityService<LabInput> {
         return lab;
     }
 
+    /*
+    * @Deprecated use validateLabForUser(Lab lab, String username) instead
+    * */
+    @Deprecated
     public void validateLabForUser(Lab lab, Principal userPrincipal) {
-        AppUser user = appUserService.getMyAppUser(userPrincipal);
+        validateLabForUser(lab, userPrincipal.getName());
+    }
+
+    public void validateLabForUser(Lab lab, String username) {
+        AppUser user = appUserService.getAppUser(username);
         if (!user.getLabsAsUser().stream().anyMatch(labAsUser -> labAsUser.getKey().equals(lab.getKey())) &&
                 !lab.getLabManagers().stream().anyMatch(manager -> manager.getUsername().equals(user.getUsername())) &&
                 !user.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.getKey().equals(lab.getKey()))) {
-            throw new ForbiddenException(String.format(Lang.LAB_USER_FORBIDDEN, lab.getName(), userPrincipal.getName()));
+            throw new ForbiddenException(String.format(Lang.LAB_USER_FORBIDDEN, lab.getName(), username));
         }
     }
 

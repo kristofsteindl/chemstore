@@ -37,25 +37,27 @@ public class MixtureService {
     private ChemItemService chemItemService;
 
     public Mixture createMixtureAsUser(MixtureInput input, Principal userPrincipal) {
-        Mixture mixture = new Mixture();
-        Recipe recipe = recipeService.findById(input.getRecipeId());
-        Lab lab = recipe.getProject().getLab();
-        labService.validateLabForUser(lab, userPrincipal);
-        LocalDate creationDate = validateAndGetCreationDate(input.getCreationDate());
-        AppUser appUser = appUserService.getMyAppUser(userPrincipal);
-        
-        fillChemItems(input, mixture, recipe);
-        fillMixtureItems(input, mixture, recipe);
-
-        mixture.setRecipe(recipe);
-        mixture.setCreator(appUser);
-        mixture.setCreationDate(creationDate);
-        mixture.setExpirationDate(creationDate.plusDays(recipe.getShelfLifeInDays()));
-        mixture.setAmount(input.getAmount());
-        
-        return mixtureRepository.save(mixture);
+        AppUser appUser = appUserService.getAppUser(userPrincipal.getName());
+        return createMixture(input, appUser);
     }
-    
+
+    public Mixture updateMixture(MixtureInput input, Long id, Principal labManagerPrincipal) {
+        Mixture mixture = findById(id);
+        Recipe recipe = mixture.getRecipe();
+        Lab lab = recipe.getProject().getLab();
+        labService.validateLabForManager(lab, labManagerPrincipal);
+
+        AppUser creator = appUserService.findByUsername(input.getUsername()).orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, input.getUsername()));
+        labService.validateLabForUser(lab, creator.getUsername());
+
+        validateMixtureUsageConsistency(mixture);
+
+        mixture.getChemItemsForMixtures().clear();
+        mixture.getChemItems().clear();
+
+        return updateAndSaveMixture(input, mixture);
+    }
+
     public List<Mixture> getMixturesForLab(String labKey, Principal user) {
         Lab lab = labService.findLabForUser(labKey, user);
         return mixtureRepository.findByLab(lab);
@@ -64,6 +66,42 @@ public class MixtureService {
     public Mixture findById(Long id) {
         return mixtureRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.MIXTURE_ENTITY_NAME, id));
     }
+
+    public void deleteMixture(Long id, Principal labManagerPrincipal) {
+        Mixture mixture = findById(id);
+        labService.validateLabForManager(mixture.getLab(), labManagerPrincipal);
+        checkIfNoMixtureIsCreatedFrom(mixture);
+        mixtureRepository.delete(mixture);
+    }
+
+    private Mixture createMixture(MixtureInput input, AppUser creator) {
+        Mixture mixture = new Mixture();
+        
+        Recipe recipe = recipeService.findById(input.getRecipeId());
+        mixture.setRecipe(recipe);
+
+        Lab lab = recipe.getProject().getLab();
+        labService.validateLabForUser(lab, creator.getUsername());
+        mixture.setCreator(creator);
+        return updateAndSaveMixture(input, mixture);
+    }
+    
+    private Mixture updateAndSaveMixture(MixtureInput input, Mixture mixture) {
+        Recipe recipe = mixture.getRecipe();
+        LocalDate creationDate = validateAndGetCreationDate(input.getCreationDate());
+
+        fillChemItems(input, mixture, recipe);
+        fillMixtureItems(input, mixture, recipe);
+
+        mixture.setCreationDate(creationDate);
+        mixture.setExpirationDate(creationDate.plusDays(recipe.getShelfLifeInDays()));
+        mixture.setAmount(input.getAmount());
+        validateMixtureUsageConsistency(mixture);
+
+        return mixtureRepository.save(mixture);
+    }
+    
+
     
     private void fillChemItems(MixtureInput input, Mixture mixture, Recipe recipe) {
         List<ChemItem> chemItems =  input.getChemItemIds().stream()
@@ -141,6 +179,39 @@ public class MixtureService {
             throw new ValidationException(Lang.MIXTURE_CREATION_DATE,
                     String.format(Lang.MIXTURE_MIXTURE_ITEM_ALREADY_EXPIRED,
                     mixtureItem.getRecipe().getName(), expirationDate, createdDate));
+        }
+    }
+    
+    private void validateMixtureUsageConsistency(Mixture toBeUpdated) {
+        if (toBeUpdated.getId() != null) {
+            mixtureRepository.findMixturesMadeOf(toBeUpdated).forEach(mixtureMadeOf -> {
+                if (toBeUpdated.getCreationDate().isAfter(mixtureMadeOf.getCreationDate())) {
+                    throw new ValidationException(Lang.MIXTURE_CREATION_DATE,
+                            String.format(Lang.MIXTURE_UPDATED_CREATION_DATE_TOO_LATE,
+                                    toBeUpdated.getRecipe().getName(), toBeUpdated.getId(),
+                                    toBeUpdated.getCreationDate(),
+                                    mixtureMadeOf.getRecipe().getName(), mixtureMadeOf.getId(),
+                                    mixtureMadeOf.getCreationDate()));
+                }
+                if (toBeUpdated.getExpirationDate().isBefore(mixtureMadeOf.getCreationDate())) {
+                    throw new ValidationException(Lang.MIXTURE_CREATION_DATE,
+                            String.format(Lang.MIXTURE_UPDATED_CREATION_DATE_TOO_SOON,
+                                    toBeUpdated.getRecipe().getName(), toBeUpdated.getId(),
+                                    toBeUpdated.getCreationDate(),
+                                    toBeUpdated.getExpirationDate(),
+                                    mixtureMadeOf.getRecipe().getName(), mixtureMadeOf.getId(),
+                                    mixtureMadeOf.getCreationDate()));
+                }
+            });
+        }
+    }
+
+
+    private void checkIfNoMixtureIsCreatedFrom(Mixture mixture) {
+        List<Mixture> mixtures = mixtureRepository.findMixturesMadeOf(mixture);
+        if (!mixtures.isEmpty()) {
+            throw new ValidationException(String.format(Lang.MIXTURE_CANNOT_BE_DELETED,
+                    mixtures.stream().map(Mixture::getIdentifier).collect(Collectors.toList())));
         }
     }
     

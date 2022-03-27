@@ -78,8 +78,11 @@ public class Lang {
     public static final String MIXTURE_MISSING_MIXTURE_ITEM = "Mixture %s is not provided as ingredient for %s creation";
     public static final String MIXTURE_MIXTURE_ITEM_CREATION_DATE = "Mixture (mixtureItem, %s) created after, than the mixture to be created (%s < %s)";
     public static final String MIXTURE_MIXTURE_ITEM_ALREADY_EXPIRED = "Mixture (mixtureItem, %s) is/has been expired by the time of the mixture creation (%s < %s)";
-    
-    
+
+    public static final String MIXTURE_UPDATED_CREATION_DATE_TOO_LATE = "Mixture-1 (%s-%s) creation date (%s) cannot be after mixture-2 (%s-%s) creation date (%s), if mixture-2 is made of mixture-1";
+    public static final String MIXTURE_UPDATED_CREATION_DATE_TOO_SOON = "Mixture-1 (%s-%s) creation date would be too soon (%s), so it would have been expired (%s) by mixture-2 (%s-%s) creation date (%s)";
+    public static final String MIXTURE_CANNOT_BE_DELETED = "Mixture %s cannot be deleted, because there is/are mixture(s) made out of that (%s)";
+
     public static final String CHEMICAL_CATEGORY_ENTITY_NAME = "ChemicalCategory";
     public static final String CHEMICAL_CATEGORY_IS_DELETED = "Chemical category '%s' in '%s' is deleted";
     public static final String CHEMICAL_CATEGORY_ALREADY_EXISTS = "Chemical category '%s' in '%s' already exists";
