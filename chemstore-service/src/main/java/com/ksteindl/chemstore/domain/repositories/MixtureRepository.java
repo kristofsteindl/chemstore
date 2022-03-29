@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MixtureRepository extends CrudRepository<Mixture, Long> {
+public interface MixtureRepository extends CrudRepository<Mixture, Long>, MixtureRepositoryCustom {
 
     @Query("SELECT m FROM Mixture m WHERE m.recipe.project.lab = ?1")
     List<Mixture> findByLab(Lab lab);

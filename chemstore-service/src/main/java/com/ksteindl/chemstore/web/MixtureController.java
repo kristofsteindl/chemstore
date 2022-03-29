@@ -2,7 +2,9 @@ package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.domain.entities.Mixture;
 import com.ksteindl.chemstore.domain.input.MixtureInput;
+import com.ksteindl.chemstore.domain.input.MixtureQuery;
 import com.ksteindl.chemstore.service.MixtureService;
+import com.ksteindl.chemstore.service.wrapper.PagedList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +19,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/mixture")
@@ -62,12 +64,22 @@ public class MixtureController {
     }
 
     @GetMapping("/{labKey}")
-    public ResponseEntity<List<Mixture>> getMixturesForLab(
+    public ResponseEntity<PagedList<Mixture>> getMixturesForLab(
             @PathVariable String labKey,
+            @RequestParam(value= "available", defaultValue = "true") Boolean available,
+            @RequestParam(value="page", defaultValue = "0") Integer page,
+            @RequestParam(value= "size", defaultValue = "10") Integer size,
             Principal user) {
         logger.info("GET '/mixture/{labKey}' was called with {} by {}", labKey, user);
-        List<Mixture> mixtures = mixtureService.getMixturesForLab(labKey, user);
-        logger.info("GET '/mixture' was succesful with {} size mixture list", mixtures.size());
+        MixtureQuery mixtureQuery = MixtureQuery.builder()
+                .labKey(labKey)
+                .principal(user)
+                .page(page)
+                .available(available)
+                .size(size)
+                .build();
+        PagedList<Mixture> mixtures = mixtureService.getMixturesForLab(mixtureQuery);
+        logger.info("GET '/mixture' was succesful with {} size mixture list", mixtures);
         return ResponseEntity.status(HttpStatus.OK).body(mixtures);
     }
 

@@ -13,12 +13,23 @@ public class PagedList<T extends Serializable> {
     private Integer currentPage;
     private Long totalItems;
     private Integer totalPages;
+    
+    public static <T extends Serializable> PagedListBuilder builder(List<T> content) {
+        return new PagedListBuilder<T>(content);
+    }
 
-    public PagedList( Page<T> pagedList) {
+    public PagedList(Page<T> pagedList) {
         this.content = pagedList.getContent();
         this.currentPage = pagedList.getNumber();
         this.totalItems = pagedList.getTotalElements();
         this.totalPages = pagedList.getTotalPages();
+    }
+
+    PagedList(List<T> content, Integer currentPage, Long totalItems, Integer totalPages) {
+        this.content = content;
+        this.currentPage = currentPage;
+        this.totalItems = totalItems;
+        this.totalPages = totalPages;
     }
 
     @Override
@@ -30,4 +41,5 @@ public class PagedList<T extends Serializable> {
                 ", totalPages=" + totalPages +
                 '}';
     }
+    
 }

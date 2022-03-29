@@ -9,11 +9,14 @@ import com.ksteindl.chemstore.domain.entities.Mixture;
 import com.ksteindl.chemstore.domain.entities.Recipe;
 import com.ksteindl.chemstore.domain.entities.RecipeIngredient;
 import com.ksteindl.chemstore.domain.input.MixtureInput;
+import com.ksteindl.chemstore.domain.input.MixtureQuery;
 import com.ksteindl.chemstore.domain.repositories.MixtureRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
+import com.ksteindl.chemstore.service.wrapper.PagedList;
 import com.ksteindl.chemstore.util.Lang;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -58,9 +61,10 @@ public class MixtureService {
         return updateAndSaveMixture(input, mixture);
     }
 
-    public List<Mixture> getMixturesForLab(String labKey, Principal user) {
-        Lab lab = labService.findLabForUser(labKey, user);
-        return mixtureRepository.findByLab(lab);
+    public PagedList<Mixture> getMixturesForLab(MixtureQuery mixtureQuery) {
+        labService.findLabForUser(mixtureQuery.getLabKey(), mixtureQuery.getPrincipal());
+        Pageable pageable = Pageable.ofSize(mixtureQuery.getSize()).withPage(mixtureQuery.getPage());
+        return mixtureRepository.findMixtures(mixtureQuery, pageable);
     }
 
     public Mixture findById(Long id) {

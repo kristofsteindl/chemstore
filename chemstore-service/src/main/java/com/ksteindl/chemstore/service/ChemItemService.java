@@ -108,7 +108,7 @@ public class ChemItemService {
         labService.validateLabForUser(chemItem.getLab(), user);
         if (chemItem.getOpeningDate() == null) {
             //TODO
-            throw new ValidationException("Chem item must be opened, before consumtion");
+            throw new ValidationException("Chem item must be opened, before consumption");
         }
         LocalDate now = LocalDate.now();
         chemItem.setConsumedBy(appUser);
@@ -123,8 +123,8 @@ public class ChemItemService {
                 available ?
                 chemItemRepository.findAvailableByLab(lab, paging) :
                 chemItemRepository.findByLab(lab, paging);
-        chemItemPages.getContent().forEach(chemItem -> logger.debug(chemItem.toString()));
-        PagedList<ChemItem> pagedList = new PagedList<>(chemItemPages);
+        chemItemPages.getContent().forEach(chemItem -> logger.trace(chemItem.toString()));
+        PagedList<ChemItem> pagedList = new PagedList(chemItemPages);
         return pagedList;
     }
     
