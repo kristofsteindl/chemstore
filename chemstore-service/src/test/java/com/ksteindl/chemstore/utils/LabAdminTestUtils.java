@@ -202,6 +202,7 @@ public class LabAdminTestUtils {
     public static final String BUFFER_NAME = "buffer";
     public static final String CONTENT_ELUENT_A_NAME = "content eluent A";
     public static final String CONTENT_ELUENT_B_NAME = "content eluent B";
+    public static final String DELETED_ALPHA_LISO_RECIPE = "Degradation eluent A";
     
     public static final String DEGR_B_NAME = "Degradation eluent B";
     public static final String ML = "ml";

@@ -25,17 +25,17 @@ public class MixtureRepositoryCustomImpl implements MixtureRepositoryCustom{
     @Override
     public PagedList<Mixture> findMixtures(MixtureQuery mixtureQuery, Pageable pageable) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Mixture> criteriaQuery = criteriaBuilder.createQuery(Mixture.class);
-        Root<Mixture> root = criteriaQuery.from(Mixture.class);
-        criteriaQuery.select(root);
 
-        Predicate[] predicates = assemblePredicate(mixtureQuery, criteriaBuilder, root);
-        criteriaQuery.where(predicates);
-        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("id")));
+        Long count = countHits(criteriaBuilder, mixtureQuery);
         
-        Long count = countHits(criteriaBuilder, predicates);
+        CriteriaQuery<Mixture> selectQuery = criteriaBuilder.createQuery(Mixture.class);
+        Root<Mixture> root = selectQuery.from(Mixture.class);
+        selectQuery.select(root);
         
-        TypedQuery<Mixture> pagedMixtureQuery = entityManager.createQuery(criteriaQuery);
+        selectQuery.where(assemblePredicate(mixtureQuery, criteriaBuilder, root));
+        selectQuery.orderBy(criteriaBuilder.desc(root.get("id")));
+        
+        TypedQuery<Mixture> pagedMixtureQuery = entityManager.createQuery(selectQuery);
         pagedMixtureQuery.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
         pagedMixtureQuery.setMaxResults(pageable.getPageSize());
         List<Mixture> content = pagedMixtureQuery.getResultList();
@@ -61,13 +61,14 @@ public class MixtureRepositoryCustomImpl implements MixtureRepositoryCustom{
             Predicate recipePredicate = criteriaBuilder.equal(root.get("recipe").get("id"), mixtureQuery.getRecipeId());
             predicates.add(recipePredicate);
         }
-        return predicates.toArray(new Predicate[0]);
+        return predicates.toArray(new Predicate[predicates.size()]);
     }
     
-    private Long countHits(CriteriaBuilder criteriaBuilder, Predicate[] predicates) {
+    private Long countHits(CriteriaBuilder criteriaBuilder, MixtureQuery mixtureQuery) {
         CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-        countQuery.select(criteriaBuilder.count(countQuery.from(Mixture.class)));
-        countQuery.where(predicates);
+        Root<Mixture> root = countQuery.from(Mixture.class);
+        countQuery.select(criteriaBuilder.count(root));
+        countQuery.where(assemblePredicate(mixtureQuery, criteriaBuilder, root));
         return entityManager.createQuery(countQuery).getSingleResult();
     }
 }

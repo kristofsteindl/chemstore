@@ -7,6 +7,7 @@ import lombok.Data;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -23,7 +24,7 @@ public class MixtureInput {
     @DecimalMin(value = "0.001", message = "amount of the mixture (amount) must be a greater or equal then 0.001")
     private Double amount;
     
-    private List<Long> chemItemIds;
+    private List<Long> chemItemIds = new ArrayList<>();
     
-    private List<Long> mixtureItemIds;
+    private List<Long> mixtureItemIds = new ArrayList<>();
 }

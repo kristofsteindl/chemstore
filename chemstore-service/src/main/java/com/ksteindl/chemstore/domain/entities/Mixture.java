@@ -88,6 +88,21 @@ public class Mixture implements HasLab, Serializable {
                 .toString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Mixture mixture = (Mixture) o;
+
+        return id != null ? id.equals(mixture.id) : mixture.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
     public void addChemItem(ChemItem chemItem) {
         chemItems.add(chemItem);
     }

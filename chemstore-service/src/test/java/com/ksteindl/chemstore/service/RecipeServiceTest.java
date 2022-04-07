@@ -448,13 +448,13 @@ public class RecipeServiceTest extends BaseControllerTest{
         Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
                 .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
                 .findAny().get();
-        Long oldMeOHIngId = eluB.getChemicalIngredients().stream().filter(ingr -> ingr.getIngredient().equals(alphaMeOH)).findAny().get().getId();
+        Long oldAcnIngId = eluB.getChemicalIngredients().stream().filter(ingr -> ingr.getIngredient().equals(alphaAcn)).findAny().get().getId();
         
         Recipe fetched = recipeService.updateRecipe(input, eluB.getId(), alphaManager);
 
-        Long newMeOHIngId = fetched.getChemicalIngredients().stream().filter(ingr -> ingr.getIngredient().equals(alphaMeOH)).findAny().get().getId();
+        Long newAcnIngId = fetched.getChemicalIngredients().stream().filter(ingr -> ingr.getIngredient().equals(alphaAcn)).findAny().get().getId();
 
-        Assertions.assertEquals(oldMeOHIngId, newMeOHIngId);
+        Assertions.assertEquals(oldAcnIngId, newAcnIngId);
     }
 
     @Test

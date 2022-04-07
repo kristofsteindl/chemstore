@@ -129,4 +129,19 @@ public class ChemItem implements HasLab, Serializable, Cloneable {
                 ", consumedBy=" +  (consumedBy == null ? "null" : consumedBy.getUsername()) +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ChemItem chemItem = (ChemItem) o;
+
+        return id != null ? id.equals(chemItem.id) : chemItem.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

@@ -52,6 +52,7 @@ public class BaseControllerTest {
     protected static Recipe alphaLisoBuffer;
     protected static Recipe alphaLisoContAElu;
     protected static Recipe alphaLisoEluB;
+    protected static Recipe alphaLisoDeletedRecipe;
     
     protected static Project alphaLisoProject;
     protected static Project alphaDeletedProject;
@@ -115,6 +116,7 @@ public class BaseControllerTest {
             alphaLisoBuffer = recipeRepository.findByNameAndProject(LabAdminTestUtils.BUFFER_NAME, alphaLisoProject).get();
             alphaLisoContAElu = recipeRepository.findByNameAndProject(LabAdminTestUtils.CONTENT_ELUENT_A_NAME, alphaLisoProject).get();
             alphaLisoEluB = recipeRepository.findByNameAndProject(LabAdminTestUtils.CONTENT_ELUENT_B_NAME, alphaLisoProject).get();
+            alphaLisoDeletedRecipe = recipeRepository.findByNameAndProject(LabAdminTestUtils.DELETED_ALPHA_LISO_RECIPE, alphaLisoProject).get();
             first = false;
         }
     }
