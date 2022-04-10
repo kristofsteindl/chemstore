@@ -32,7 +32,6 @@ class CategoryDashboard extends Component {
             }
 
         }
-        console.log(`Hello ${category.name}`)
     }
 
     async componentDidMount() {

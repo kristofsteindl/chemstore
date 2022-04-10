@@ -18,6 +18,12 @@ export const checkIfAdmin = (selectedLab, user) => {
                   selectedLab.labManagers.map(manager => manager.username).includes(user.username))
 }
 
+
+export const checkIfManager = (selectedLab, user) => {
+  return (selectedLab.key) && selectedLab.labManagers.map(manager => manager.username).includes(user.username)
+}
+
+
 export const checkIfAccountManager = (user) => {
   return user.username && user.authorities.map(listItem => listItem.authority).includes("ACCOUNT_MANAGER")
 }

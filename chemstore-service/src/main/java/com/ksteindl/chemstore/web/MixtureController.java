@@ -66,7 +66,7 @@ public class MixtureController {
     @GetMapping("/{labKey}")
     public ResponseEntity<PagedList<Mixture>> getMixturesForLab(
             @PathVariable String labKey,
-            @RequestParam(value= "recipeId") Long recipeId,
+            @RequestParam(value= "recipeId", required = false) Long recipeId,
             @RequestParam(value= "available", defaultValue = "true") Boolean available,
             @RequestParam(value="page", defaultValue = "0") Integer page,
             @RequestParam(value= "size", defaultValue = "10") Integer size,

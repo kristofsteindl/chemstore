@@ -27,6 +27,9 @@ import AddCategory from './components/category/AddCategory';
 import UpdateCategory from './components/category/UpdateCategory';
 import ChemItemDashboard from './components/chemitem/ChemItemDashboard';
 import UserManual from './components/layout/UserManual';
+import ProjectDashboard from './components/project/ProjectDashboard';
+import AddProject from './components/project/AddProject';
+import UpdateProject from './components/project/UpdateProject';
 
 
 refreshState()
@@ -66,6 +69,10 @@ function App() {
             <SecuredRoute exact path="/categories" component={CategoryDashboard} />
             <SecuredRoute exact path="/add-category" component={AddCategory} />
             <SecuredRoute exact path="/update-category/:id" component={UpdateCategory} />
+
+            <SecuredRoute exact path="/projects" component={ProjectDashboard} />
+            <SecuredRoute exact path="/add-project" component={AddProject} />
+            <SecuredRoute exact path="/update-project/:id" component={UpdateProject} />
 
             <SecuredRoute exact path="/chem-items" component={ChemItemDashboard} />
             <SecuredRoute exact path="/add-chem-item" component={AddChemItem} />

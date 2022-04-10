@@ -65,6 +65,9 @@ public class Mixture implements HasLab, Serializable {
 
     @JsonProperty("chemItems")
     public List<ChemItemForMixture> getChemItemsForMixtures() {
+        if (chemItems.isEmpty()) {
+            return new ArrayList<>();
+        }
         return chemItems.stream().map(chemItem -> new ChemItemForMixture(chemItem, this))
                 .collect(Collectors.toList());
     }

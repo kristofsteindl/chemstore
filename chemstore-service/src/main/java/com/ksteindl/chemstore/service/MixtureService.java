@@ -57,8 +57,10 @@ public class MixtureService {
 
         mixture.getChemItemsForMixtures().clear();
         mixture.getChemItems().clear();
-
-        return updateAndSaveMixture(input, mixture);
+        
+        updateMixtureAttributes(input, mixture);
+        validateMixtureUsageConsistency(mixture);
+        return mixtureRepository.save(mixture); 
     }
 
     public PagedList<Mixture> getMixturesForLab(MixtureQuery mixtureQuery) {
@@ -87,10 +89,11 @@ public class MixtureService {
         Lab lab = recipe.getProject().getLab();
         labService.validateLabForUser(lab, creator.getUsername());
         mixture.setCreator(creator);
-        return updateAndSaveMixture(input, mixture);
+        updateMixtureAttributes(input, mixture);
+        return mixtureRepository.save(mixture);
     }
     
-    private Mixture updateAndSaveMixture(MixtureInput input, Mixture mixture) {
+    private void updateMixtureAttributes(MixtureInput input, Mixture mixture) {
         Recipe recipe = mixture.getRecipe();
         LocalDate creationDate = validateAndGetCreationDate(input.getCreationDate());
 
@@ -100,9 +103,6 @@ public class MixtureService {
         mixture.setCreationDate(creationDate);
         mixture.setExpirationDate(creationDate.plusDays(recipe.getShelfLifeInDays()));
         mixture.setAmount(input.getAmount());
-        validateMixtureUsageConsistency(mixture);
-
-        return mixtureRepository.save(mixture);
     }
     
 

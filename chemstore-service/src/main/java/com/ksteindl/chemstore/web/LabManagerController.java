@@ -94,14 +94,14 @@ public class LabManagerController {
         logger.info("DELETE '/api/lab-manager/project/{id}' was successful");
     }
 
-//    @GetMapping("/project/{id}")
-//    public ResponseEntity<Project> getProject(
-//            @PathVariable  Long id) {
-//        logger.info("GET '/project/{id}' was called with id {}", id);
-//        Project project = projectService.findById(id);
-//        logger.info("GET '/project/{id}' was succesful with returned result{}", project);
-//        return new ResponseEntity<>(project, HttpStatus.OK);
-//    }
+    @GetMapping("/project/{id}")
+    public ResponseEntity<Project> getProject(
+            @PathVariable  Long id) {
+        logger.info("GET '/project/{id}' was called with id {}", id);
+        Project project = projectService.findById(id);
+        logger.info("GET '/project/{id}' was succesful with returned result{}", project);
+        return new ResponseEntity<>(project, HttpStatus.OK);
+    }
     
     //RECIPE
     @PostMapping("/recipe")

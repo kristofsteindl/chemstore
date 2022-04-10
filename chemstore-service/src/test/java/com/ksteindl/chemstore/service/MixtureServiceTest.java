@@ -53,6 +53,7 @@ public class MixtureServiceTest extends BaseControllerTest {
     private static ChemItem availMeOHAlpha;
     private static ChemItem availEtOHAlpha;
     private static Mixture availLisoBuffer;
+    
     private final static Principal alphaUser = AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL;
     
     @BeforeAll
@@ -74,14 +75,14 @@ public class MixtureServiceTest extends BaseControllerTest {
             }
         }
         Pageable pageable = Pageable.ofSize(100).withPage(0);
-        MixtureQuery mixtureQuery = MixtureQuery.builder()
+        MixtureQuery.MixtureQueryBuilder mixtureQueryBuilder = MixtureQuery.builder()
                 .labKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
                 .recipeId(alphaLisoBuffer.getId())
                 .available(true)
                 .page(0)
                 .size(100)
-                .principal(alphaUser)
-                .build();
+                .principal(alphaUser);
+        MixtureQuery mixtureQuery = mixtureQueryBuilder.build();
         availLisoBuffer = mixtureRepository.findMixtures(mixtureQuery, pageable).getContent().get(0);
     }
     
@@ -268,6 +269,76 @@ public class MixtureServiceTest extends BaseControllerTest {
         logger.info("with class: " + exception.getClass());
         logger.info("with message: " + exception.getMessage());
     }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void createMixture_whenAcnIsInNotOpened_gotValidationException() {
+        MixtureInput input = getContEluBMixInput();
+        ChemItem acn = chemItemRepository.findByLab(alphaLab, PageRequest.of(0, 1000)).getContent().stream()
+                .filter(chemItem -> chemItem.getChemical().getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME))
+                .filter(chemItem -> chemItem.getOpeningDate() == null)
+                .findAny().get();
+        for (int i = 0; i < input.getChemItemIds().size(); i++) {
+            if (input.getChemItemIds().get(i) == availAcnAlpha.getId()) {
+                input.getChemItemIds().remove(i);
+                input.getChemItemIds().add(i, acn.getId());
+            }
+        }
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            mixtureService.createMixtureAsUser(input, alphaUser);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void createMixture_whenAcnIsConsumed_gotValidationException() {
+        MixtureInput input = getContEluBMixInput();
+        ChemItem acn = chemItemRepository.findByLab(alphaLab, PageRequest.of(0, 1000)).getContent().stream()
+                .filter(chemItem -> chemItem.getChemical().getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME))
+                .filter(chemItem -> chemItem.getConsumptionDate() != null)
+                .findAny().get();
+        for (int i = 0; i < input.getChemItemIds().size(); i++) {
+            if (input.getChemItemIds().get(i) == availAcnAlpha.getId()) {
+                input.getChemItemIds().remove(i);
+                input.getChemItemIds().add(i, acn.getId());
+            }
+        }
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            mixtureService.createMixtureAsUser(input, alphaUser);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    public void createMixture_whenNH4AcIsExpired_gotValidationException() {
+        MixtureInput input = getContEluBMixInput();
+        ChemItem nh4Ac = chemItemRepository.findByLab(alphaLab, PageRequest.of(0, 1000)).getContent().stream()
+                .filter(chemItem -> chemItem.getChemical().getShortName().equals(LabAdminTestUtils.NH4_ACETATE_SHORT_NAME))
+                .filter(chemItem -> chemItem.getExpirationDate().isBefore(LocalDate.now()))
+                .findAny().get();
+        for (int i = 0; i < input.getChemItemIds().size(); i++) {
+            if (input.getChemItemIds().get(i) == availNH4AcAlpha.getId()) {
+                input.getChemItemIds().remove(i);
+                input.getChemItemIds().add(i, nh4Ac.getId());
+            }
+        }
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+            mixtureService.createMixtureAsUser(input, alphaUser);
+        });
+        logger.info("Expected Exception is thrown:");
+        logger.info("with class: " + exception.getClass());
+        logger.info("with message: " + exception.getMessage());
+    }
+    
     
     
     

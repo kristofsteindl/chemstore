@@ -57,36 +57,41 @@ const Header = () => {
     const userISAuthenticated = (                    
         <div className="collapse navbar-collapse" id="mobile-nav">
             <ul className="navbar-nav mr-auto">
+
+                <ButtonGroup >
+                    <DropdownButton as={ButtonGroup} title={<i style={{"color": "#88b7fc"}} className="fas">Account</i>} id="bg-nested-dropdown">
+                        <Dropdown.Item eventKey="1" href='/users' style={{ textDecoration: 'none' }}>
+                            Users
+                        </Dropdown.Item>
+                        <Dropdown.Item eventKey="1" href='/labs' style={{ textDecoration: 'none' }}>
+                            Labs
+                        </Dropdown.Item>
+                        <Dropdown.Item eventKey="1" href='/manufacturers' style={{ textDecoration: 'none' }}>
+                            Manufacturers
+                        </Dropdown.Item>
+                    </DropdownButton>
+                </ButtonGroup>
+
+                <ButtonGroup >
+                    <DropdownButton as={ButtonGroup} title={<i style={{"color": "#88b7fc"}} className="fas">Lab</i>} id="bg-nested-dropdown">
+                        <Dropdown.Item eventKey="1" href='/categories' style={{ textDecoration: 'none' }}>
+                            Categories
+                        </Dropdown.Item>
+                        <Dropdown.Item eventKey="1" href='/chemicals' style={{ textDecoration: 'none' }}>
+                            Chemicals
+                        </Dropdown.Item>
+                        <Dropdown.Item eventKey="1" href='/projects' style={{ textDecoration: 'none' }}>
+                            Projects
+                        </Dropdown.Item>
+                    </DropdownButton>
+                </ButtonGroup>
+
                 <li className="nav-item">
                     <Link className="nav-link" to="/chem-items">
                         Chem items
                     </Link>
                 </li>
-                <li className="nav-item">
-                    <Link className="nav-link " to="/users">
-                        Users
-                    </Link>
-                </li>
-                <li className="nav-item">
-                    <Link className="nav-link " to="/labs">
-                        Labs
-                    </Link>
-                </li>
-                <li className="nav-item">
-                    <Link className="nav-link " to="/manufacturers">
-                        Manufacturers
-                    </Link>
-                </li>
-                <li className="nav-item">
-                    <Link className="nav-link" to="/categories">
-                        Categories
-                    </Link>
-                </li>
-                <li className="nav-item">
-                    <Link className="nav-link " to="/chemicals">
-                        Chemicals
-                    </Link>
-                </li>
+
             </ul>
 
             <ul className="navbar-nav ms-auto">
@@ -101,17 +106,16 @@ const Header = () => {
                     />
                 </li>
                 <li className="nav-item">
-                <ButtonGroup style={{"paddingLeft": "10px", "paddingRight": "10px"}}>
-                    <DropdownButton as={ButtonGroup} title={<i style={{"color": "#dddddd"}} className="fas fa-user">{user.fullName}</i>} id="bg-nested-dropdown">
-                        <Dropdown.Item eventKey="1" href='/change-password' style={{ textDecoration: 'none' }}>
-                            Change Password
-                        </Dropdown.Item>
-                        <Dropdown.Item eventKey="2" tag={Link} to="/" onClick={handleLogout} style={{ textDecoration: 'none' }}>
-                            Logout
-                        </Dropdown.Item>
-                    </DropdownButton>
-                </ButtonGroup>
-
+                    <ButtonGroup style={{"paddingLeft": "10px", "paddingRight": "10px"}}>
+                        <DropdownButton as={ButtonGroup} title={<i style={{"color": "#dddddd"}} className="fas fa-user">{user.fullName}</i>} id="bg-nested-dropdown">
+                            <Dropdown.Item eventKey="1" href='/change-password' style={{ textDecoration: 'none' }}>
+                                Change Password
+                            </Dropdown.Item>
+                            <Dropdown.Item eventKey="2" tag={Link} to="/" onClick={handleLogout} style={{ textDecoration: 'none' }}>
+                                Logout
+                            </Dropdown.Item>
+                        </DropdownButton>
+                    </ButtonGroup>
                 </li>
                 {userManual}
             </ul>

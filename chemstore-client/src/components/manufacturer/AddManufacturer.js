@@ -61,7 +61,7 @@ export default class AddManufacturer extends Component {
                                             placeholder="manufacturer name" 
                                         />
                                         {
-                                            (errors.username && <div className="invalid-feedback">{errors.username}</div>)
+                                            (errors.name && <div className="invalid-feedback">{errors.name}</div>)
                                         }
                                        
                                     </div>
