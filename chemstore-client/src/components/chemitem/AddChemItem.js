@@ -116,7 +116,6 @@ class AddChemItem extends Component {
                                         labelField="shortName"
                                         valueField="shortName"
                                         placeholder="chemical"
-                                        searchBy="shortName"
                                         searchable={false}
                                         clearable={false}
                                         style={{height: "42px", fontSize: "16px"}}

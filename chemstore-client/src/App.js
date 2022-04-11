@@ -30,6 +30,7 @@ import UserManual from './components/layout/UserManual';
 import ProjectDashboard from './components/project/ProjectDashboard';
 import AddProject from './components/project/AddProject';
 import UpdateProject from './components/project/UpdateProject';
+import RecipeDashboard from './components/recipe/RecipeDashboard';
 
 
 refreshState()
@@ -73,6 +74,8 @@ function App() {
             <SecuredRoute exact path="/projects" component={ProjectDashboard} />
             <SecuredRoute exact path="/add-project" component={AddProject} />
             <SecuredRoute exact path="/update-project/:id" component={UpdateProject} />
+
+            <SecuredRoute exact path="/recipes" component={RecipeDashboard} />
 
             <SecuredRoute exact path="/chem-items" component={ChemItemDashboard} />
             <SecuredRoute exact path="/add-chem-item" component={AddChemItem} />

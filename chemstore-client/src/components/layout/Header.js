@@ -83,6 +83,9 @@ const Header = () => {
                         <Dropdown.Item eventKey="1" href='/projects' style={{ textDecoration: 'none' }}>
                             Projects
                         </Dropdown.Item>
+                        <Dropdown.Item eventKey="1" href='/recipes' style={{ textDecoration: 'none' }}>
+                            Recipes
+                        </Dropdown.Item>
                     </DropdownButton>
                 </ButtonGroup>
 
