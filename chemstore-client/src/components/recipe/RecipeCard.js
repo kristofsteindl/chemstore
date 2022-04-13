@@ -1,0 +1,76 @@
+import React, { useState } from 'react'
+import useCollapse from 'react-collapsed';
+import VerifyPanel from '../UI/VerifyPanel';
+import IngredientRow from './IngredientRow';
+import "./RecipeCard.css"
+
+const RecipeCard = props => {
+    const [recipe, setRecipe] = useState(props.recipe)
+    const [activeModal, setActiveModal] = useState(false)
+    
+
+    const getVerifyMessage = () => {
+        return (
+            <div>
+                <p>{`Are you sure you want to delete `}<b>{recipe.name}</b></p>
+            </div>
+        )
+    }
+
+
+    const deleteChemItem = () => {
+        props.deleteChemItem(recipe.id)
+        setActiveModal(false)
+    }
+
+    const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
+        
+    return (
+        <div className="container">
+           <div className="card card-body bg-light mb-3" style={{padding: "10px"}}>
+                <div className="header" {...getToggleProps()}>
+                    <div className="row" >
+                        <div className="col-4">
+                            <h4 className="mx-auto">{recipe.name}</h4>
+                        </div>
+                        <div className="col-sm-1">
+                            <i>{recipe.amount} {recipe.unit}</i>
+                        </div>
+                        <div className="col-sm-1">
+                            <i>{recipe.shelfLifeInDays} day{recipe.shelfLifeInDays > 1 ? "s" : ""}</i>
+                        </div>
+                        <div className="col-6">  
+                        </div>
+                    </div>  
+                </div>
+                <div {...getCollapseProps()}>
+                <div className="content" style={{padding: "10px"}}>
+                    
+                    <p><strong>Chemical Ingredients</strong></p>
+                    <ol>
+                        {recipe.chemicalIngredients.map(ing => <IngredientRow row={ing} />)}
+                    </ol>
+                    <p><strong>Recipe Ingredients</strong></p>
+                    <ol>
+                        {recipe.recipeIngredients.map(ing => <IngredientRow row={ing} />)}
+                    </ol>
+                </div>
+            </div>
+           </div>
+
+            
+
+
+            {activeModal && 
+                <VerifyPanel 
+                    onCancel={() => setActiveModal(false)} 
+                    veryfyMessage={getVerifyMessage()}
+                    onSubmit={() => ""}
+                    buttonLabel="Delete"
+                />}
+        </div>
+    )
+
+}
+
+export default RecipeCard 
