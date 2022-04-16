@@ -8,7 +8,7 @@ import RecipeCard from './RecipeCard'
 
 function RecipeDashboard() {
 
-    const [projects, setProjects] = useState("")
+    const [projects, setProjects] = useState([])
     const [recipes, setRecipes] = useState([])
     const [selectedProject, setSelectedProject] = useState("")
 
@@ -18,6 +18,7 @@ function RecipeDashboard() {
     useEffect(() => {
         if (selectedLab) {
             check()
+            setSelectedProject("")
             axios.get(`/api/logged-in/project/${selectedLab.key}`).then(result => {setProjects(result.data)})
         }
         
@@ -39,7 +40,7 @@ function RecipeDashboard() {
         setRecipes(originalList => originalList.filter(project => project.id !== id))
     }
 
-    const getProjectDashboardContent = () => recipes.map(recipe => <RecipeCard recipe={recipe} />)
+    const getProjectDashboardContent = () => recipes.map(recipe => <RecipeCard key={recipe.id} recipe={recipe} />)
 
     const handleProjectDropdownChange = items => {
         const selectedProject = items[0]
@@ -56,7 +57,7 @@ function RecipeDashboard() {
                         <p className="lead text-center">List {isManager ? " and manage" : ""} the recipes of {selectedLab.name}</p>
                         <br/>
                         {isManager && 
-                            <RedirectFormButton formRoute="/add-recipe" buttonLabel="Add Recipe"/>
+                            <RedirectFormButton objectToPass={{formRoute:"/add-recipe", selectedProject: selectedProject}} formRoute="/add-recipe" buttonLabel="Add Recipe"/>
                         }
                         <hr />
                         <div className="form-group row mb-3">
@@ -64,6 +65,7 @@ function RecipeDashboard() {
                             <div className="col-sm-10">
                                 <Select
                                     options={projects}
+                                    values={projects.filter(project => selectedProject && (project.id === selectedProject.id))}
                                     labelField="name"
                                     valueField="name"
                                     placeholder="project"

@@ -2,11 +2,12 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 function RedirectFormButton(props) {
+    const toUrl = props.objectToPass ? props.objectToPass.formRoute : props.formRoute
+    console.log(props.objectToPass)
     return (
-        <Link to={props.formRoute} className="btn btn-lg btn-info">
+        <Link to={{pathname: toUrl, state: props.objectToPass}} className="btn btn-lg btn-info">
             {props.buttonLabel}
         </Link>
-
     )
 }
 

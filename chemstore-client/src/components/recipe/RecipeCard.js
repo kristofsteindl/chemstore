@@ -45,20 +45,26 @@ const RecipeCard = props => {
                 </div>
                 <div {...getCollapseProps()}>
                 <div className="content" style={{padding: "10px"}}>
+                    {(recipe.chemicalIngredients.length > 0  && 
+                    <div>
+                        <p><strong>Chemical Ingredients</strong></p>
+                        <ul>
+                        {recipe.chemicalIngredients.map(ing => <IngredientRow key={ing.id} row={ing} />)}
+                        </ul>
+                    </div>
+                    )}
+
                     
-                    <p><strong>Chemical Ingredients</strong></p>
-                    <ol>
-                        {recipe.chemicalIngredients.map(ing => <IngredientRow row={ing} />)}
-                    </ol>
-                    <p><strong>Recipe Ingredients</strong></p>
-                    <ol>
-                        {recipe.recipeIngredients.map(ing => <IngredientRow row={ing} />)}
-                    </ol>
+                    {(recipe.recipeIngredients.length > 0  && 
+                    <div><p><strong>Recipe Ingredients</strong></p>
+                        <ul>
+                            {recipe.recipeIngredients.map(ing => <IngredientRow key={ing.id} row={ing} />)}
+                        </ul>
+                    </div>
+                    )}
                 </div>
             </div>
            </div>
-
-            
 
 
             {activeModal && 

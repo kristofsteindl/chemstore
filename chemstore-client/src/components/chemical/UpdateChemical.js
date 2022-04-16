@@ -79,86 +79,84 @@ class UpdateChemical extends Component {
     render() {
         const {errors} = this.state
         return (
-            <div className="update-manufacturer">
-                <div className="container">
-                    <div className="row">
-                    
-                        <div className="col-md-8 m-auto">
-                            <h1 className="display-4 text-center">Update Chemical</h1>
-                            <br/>
-                            {
-                                (errors.message && <h5 className="invalid-input">{errors.message}</h5>)
-                            }
-                            {
-                                (errors.message && 
-                                <div className="form-group row mb-3 invalid-feedback">
-                                    {errors.message}
-                                </div>)
-                            }
-                            <form onSubmit={this.onSubmit}>
-                                <div className="form-group row mb-3">
-                                    <label htmlFor="shortName" className="col-sm-4 col-form-label">short name</label>
-                                    <div className="col-sm-8">
-                                        <input 
-                                            name="shortName"
-                                            value={this.state.shortName}
-                                            onChange={this.onChange}
-                                            type="text" 
-                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.shortName})} 
-                                            placeholder="short name" 
-                                        />
-                                        {
-                                            (errors.shortName && <div className="invalid-feedback">{errors.shortName}</div>)
-                                        }
-                                       
-                                    </div>
+            <div className="container">
+                
+                
+                    <div className="col-md-8 m-auto">
+                        <h1 className="display-4 text-center">Update Chemical</h1>
+                        <br/>
+                        {
+                            (errors.message && <h5 className="invalid-input">{errors.message}</h5>)
+                        }
+                        {
+                            (errors.message && 
+                            <div className="form-group row mb-3 invalid-feedback">
+                                {errors.message}
+                            </div>)
+                        }
+                        <form onSubmit={this.onSubmit}>
+                            <div className="form-group row mb-3">
+                                <label htmlFor="shortName" className="col-sm-4 col-form-label">short name</label>
+                                <div className="col-sm-8">
+                                    <input 
+                                        name="shortName"
+                                        value={this.state.shortName}
+                                        onChange={this.onChange}
+                                        type="text" 
+                                        className={classNames("form-control form-control-lg", {"is-invalid": errors.shortName})} 
+                                        placeholder="short name" 
+                                    />
+                                    {
+                                        (errors.shortName && <div className="invalid-feedback">{errors.shortName}</div>)
+                                    }
+                                    
                                 </div>
-                                <div className="form-group row mb-3">
-                                    <label htmlFor="exactName" className="col-sm-4 col-form-label">exact name</label>
-                                    <div className="col-sm-8">
-                                        <input 
-                                            name="exactName"
-                                            value={this.state.exactName}
-                                            onChange={this.onChange}
-                                            type="text" 
-                                            className={classNames("form-control form-control-lg", {"is-invalid": errors.exactName})} 
-                                            placeholder="exact name" 
-                                        />
-                                        {
-                                            (errors.exactName && <div className="invalid-feedback">{errors.exactName}</div>)
-                                        }
-                                       
-                                    </div>
+                            </div>
+                            <div className="form-group row mb-3">
+                                <label htmlFor="exactName" className="col-sm-4 col-form-label">exact name</label>
+                                <div className="col-sm-8">
+                                    <input 
+                                        name="exactName"
+                                        value={this.state.exactName}
+                                        onChange={this.onChange}
+                                        type="text" 
+                                        className={classNames("form-control form-control-lg", {"is-invalid": errors.exactName})} 
+                                        placeholder="exact name" 
+                                    />
+                                    {
+                                        (errors.exactName && <div className="invalid-feedback">{errors.exactName}</div>)
+                                    }
+                                    
                                 </div>
+                            </div>
 
-                                <div className="form-group row mb-3">
-                                    <label htmlFor="exactName" className="col-sm-4 col-form-label">category</label>
-                                    <div className="col-sm-8">
-                                        <Select
-                                                options={this.state.categories}
-                                                labelField="name"
-                                                values={this.state.categories.filter(category => category.id === this.state.categoryId)}
-                                                valueField="id"
-                                                placeholder="category"
-                                                searchable="true"
-                                                searchBy="name"
-                                                clearable="true"
-                                                style={{height: "42px", fontSize: "16px"}}
-                                                onChange={(items) => this.setState({categoryId: items[0].id })}
-                                        />
-                                        {
-                                            (errors.chemType && <div className="invalid-feedback">{errors.chemType}</div>)
-                                        }
-                                       
-                                    </div>
+                            <div className="form-group row mb-3">
+                                <label htmlFor="exactName" className="col-sm-4 col-form-label">category</label>
+                                <div className="col-sm-8">
+                                    <Select
+                                            options={this.state.categories}
+                                            labelField="name"
+                                            values={this.state.categories.filter(category => category.id === this.state.categoryId)}
+                                            valueField="id"
+                                            placeholder="category"
+                                            searchable="true"
+                                            searchBy="name"
+                                            clearable="true"
+                                            style={{height: "42px", fontSize: "16px"}}
+                                            onChange={(items) => this.setState({categoryId: items[0].id })}
+                                    />
+                                    {
+                                        (errors.chemType && <div className="invalid-feedback">{errors.chemType}</div>)
+                                    }
+                                    
                                 </div>
-                                
-                                <button type="submit" className="btn btn-info btn-block mt-4">Update Chemical</button>
-                                
-                            </form>
-                        </div>
+                            </div>
+                            
+                            <button type="submit" className="btn btn-info btn-block mt-4">Update Chemical</button>
+                            
+                        </form>
                     </div>
-                </div>
+                
             </div>
         )
     }
