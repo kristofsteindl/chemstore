@@ -23,6 +23,7 @@ const AddRecipe = props => {
     const [ amount, setAmount ] = useState("")
     const [ unit, setUnit ] = useState("")
     const [ chemicalIngredients, setChemicalIngredients ] = useState([{nr:0}, {nr:1}])
+    const [ recipeIngredients, setRecipeIngredients ] = useState([{nr:0}, {nr:1}])
     const [ selectedRecipes, setSelectedRecipes ] = useState([])
     
     const [ errors, setErrors ] = useState("")
@@ -34,9 +35,12 @@ const AddRecipe = props => {
         }
     }
 
-    const handleOnRemove = nr => {
-        console.log(nr)
+    const handleChemicalOnRemove = nr => {
         setChemicalIngredients(chemicalIngredients.filter(chemicalIngredient => chemicalIngredient.nr != nr))
+    }
+
+    const handleRecipeOnRemove = nr => {
+        setRecipeIngredients(recipeIngredients.filter(recipeIngredient => recipeIngredient.nr != nr))
     }
 
     const onSubmit = () => {
@@ -152,8 +156,11 @@ const AddRecipe = props => {
             <ChemicalIngredientInputs 
                 chemicalIngredients={chemicalIngredients} 
                 setChemicalIngredients={setChemicalIngredients}
+                recipeIngredients={recipeIngredients}
+                setRecipeIngredients={setRecipeIngredients}
                 units={units}
-                handleOnRemove={handleOnRemove}
+                handleChemicalOnRemove={handleChemicalOnRemove}
+                handleRecipeOnRemove={handleRecipeOnRemove}
             />
             <h3 className="display-8">Recipe ingredients</h3>
         </div>

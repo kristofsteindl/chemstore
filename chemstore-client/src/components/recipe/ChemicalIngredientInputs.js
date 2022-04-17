@@ -1,17 +1,26 @@
-import { Forest } from "@mui/icons-material"
 import axios from "axios"
 import { useEffect, useState } from "react"
-import Select from "react-dropdown-select"
 import { useSelector } from "react-redux"
-import ChemItem from "../chemitem/ChemItem"
 import ChemInput from "./ChemInput"
 
 const ChemicalIngredientInputs = props => {
     
     const selectedLab = useSelector(state => state.selectedLab)
 
+    const { 
+        chemicalIngredients, 
+        setChemicalIngredients, 
+        recipeIngredients, 
+        setRecipeIngredients, 
+        units, 
+        handleChemicalOnRemove, 
+        handleRecipeOnRemove } = props
+
     const [ chemicals, setChemicals ] = useState([])
-    const { chemicalIngredients, setChemicalIngredients, units, handleOnRemove } = props
+    const [ availableChemicals, setAvailableChemicals ] = useState([])
+
+    const [ recipes, setRecipes ] = useState([])
+    const [ availableRecipes, setAvailableRecipes ] = useState([])
 
     useEffect( () => {
         axios.get(`/api/logged-in/chemical/${selectedLab.key}`).then(result => setChemicals(result.data))
@@ -21,15 +30,17 @@ const ChemicalIngredientInputs = props => {
     return(
         <div>
             <h3 className="display-8">Chemical ingredients</h3>
-            {chemicalIngredients.map(chemicalIngredient => 
+            {chemicalIngredients.map((chemicalIngredient, index) => 
                 <ChemInput 
                     key={chemicalIngredient.nr}
                     chemicalIngredient={chemicalIngredient} 
                     chemicalIngredients={chemicalIngredients}
                     setChemicalIngredients={setChemicalIngredients} 
                     chemicals={chemicals} 
-                    handleOnRemove={handleOnRemove} 
-                    units={units}/>
+                    handleOnRemove={handleChemicalOnRemove} 
+                    units={units}
+                    isLast={chemicalIngredients.length - 1 === index}
+                    />
 
             )}
 

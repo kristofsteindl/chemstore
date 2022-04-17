@@ -3,7 +3,14 @@ import { useState } from "react"
 import Select from "react-dropdown-select"
 
 const ChemInput = props => {
-    const { units, chemicals, chemicalIngredient, chemicalIngredients, setChemicalIngredients, handleOnRemove } = props
+    const { 
+        units, 
+        chemicals, 
+        chemicalIngredient, 
+        chemicalIngredients, 
+        setChemicalIngredients, 
+        handleOnRemove,
+        isLast } = props
 
     const [ errors, setErrors ] = useState("")
 
@@ -61,12 +68,14 @@ const ChemInput = props => {
                 }
             </div>
             <div className="col-sm-2">
-                <button 
-                    onClick={() => handleOnRemove(chemicalIngredient.nr)}
-                    className="btn btn-outline-danger" 
-                    style={{height: "42px", fontSize: "16px"}}>
-                    <i className="fas fa-times-circle"></i>
-                </button>
+                {!isLast && 
+                    <button 
+                        onClick={() => handleOnRemove(chemicalIngredient.nr)}
+                        className="btn btn-outline-danger" 
+                        style={{height: "42px", fontSize: "16px"}}>
+                        <i className="fas fa-times-circle"></i>
+                    </button>
+                }
                 
             </div>
         </div>
