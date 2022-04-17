@@ -2,13 +2,14 @@ import classNames from "classnames"
 import { useState } from "react"
 import Select from "react-dropdown-select"
 
-const ChemInput = props => {
+const IngredientInputRow = props => {
     const { 
+        label,
         units, 
-        chemicals, 
-        chemicalIngredient, 
-        chemicalIngredients, 
-        setChemicalIngredients, 
+        entities, 
+        ingredient, 
+        ingredients, 
+        setIngredients, 
         handleOnRemove,
         isLast } = props
 
@@ -16,32 +17,30 @@ const ChemInput = props => {
 
     
     const updateListItemAttribute = (key, value) => {
-        console.log(key)
-        console.log(value)
-        const updated = ({...chemicalIngredient})
+        const updated = ({...ingredient})
         updated[key] = value
-        const updatedList = chemicalIngredients.map(item => item.nr === chemicalIngredient.nr ? updated : item)
-        setChemicalIngredients(updatedList)
+        const updatedList = ingredients.map(item => item.nr === ingredient.nr ? updated : item)
+        setIngredients(updatedList)
     }
     
     return(
         <div className="form-group row mb-3" >
             <div className="col-sm-6" >
                 <Select
-                    options={chemicals}
-                    labelField="shortName"
+                    options={entities}
+                    labelField={label}
                     valueField="id"
-                    placeholder="chemical"
+                    placeholder="ingredient"
                     searchable={false}
                     clearable={false}
                     style={{height: "42px", fontSize: "16px"}}
-                    onChange={items => updateListItemAttribute("chemical", items[0])}
+                    onChange={items => updateListItemAttribute("ingredient", items[0])}
                 />
             </div>
             <div className="col-sm-2" >
                 <input 
                     name="amount"
-                    value={chemicalIngredient.amount}
+                    value={ingredient.amount}
                     onChange={event =>  updateListItemAttribute("amount", event.target.value)}
                     type="number" 
                     step="0.001"
@@ -70,7 +69,7 @@ const ChemInput = props => {
             <div className="col-sm-2">
                 {!isLast && 
                     <button 
-                        onClick={() => handleOnRemove(chemicalIngredient.nr)}
+                        onClick={() => handleOnRemove(ingredient.nr)}
                         className="btn btn-outline-danger" 
                         style={{height: "42px", fontSize: "16px"}}>
                         <i className="fas fa-times-circle"></i>
@@ -82,4 +81,4 @@ const ChemInput = props => {
     )
 }
 
-export default ChemInput
+export default IngredientInputRow

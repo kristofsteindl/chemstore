@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
-import ChemInput from "./ChemInput"
+import IngredientInputRow from "./IngredientInputRow"
 
 const IngredientInputs = props => {
     
@@ -30,7 +30,7 @@ const IngredientInputs = props => {
 
     	
     useEffect(() => {
-        const usedChemicalIds = chemicalIngredients.map(ingredient => ingredient.chemical && ingredient.chemical.id)
+        const usedChemicalIds = chemicalIngredients.map(ingredient => ingredient.ingredient && ingredient.ingredient.id)
         setAvailableChemicals(chemicals.filter(chemical => !usedChemicalIds.includes(chemical.id)))
     }, [chemicalIngredients, chemicals])
 
@@ -39,12 +39,13 @@ const IngredientInputs = props => {
         <div>
             <h3 className="display-8">Chemical ingredients</h3>
             {chemicalIngredients.map((chemicalIngredient, index) => 
-                <ChemInput 
+                <IngredientInputRow 
                     key={chemicalIngredient.nr}
-                    chemicalIngredient={chemicalIngredient} 
-                    chemicalIngredients={chemicalIngredients}
-                    setChemicalIngredients={setChemicalIngredients} 
-                    chemicals={availableChemicals} 
+                    label={"shortName"} 
+                    ingredient={chemicalIngredient} 
+                    ingredients={chemicalIngredients}
+                    setIngredients={setChemicalIngredients} 
+                    entities={availableChemicals} 
                     handleOnRemove={handleChemicalOnRemove} 
                     units={units}
                     isLast={chemicalIngredients.length - 1 === index}
@@ -52,6 +53,21 @@ const IngredientInputs = props => {
 
             )}
             <h3 className="display-8">Recipe ingredients</h3>
+            {recipeIngredients.map((recipeIngredient, index) => 
+                <IngredientInputRow 
+                    key={recipeIngredient.nr}
+                    label={"name"} 
+                    ingredient={recipeIngredient} 
+                    ingredients={recipeIngredients}
+                    setIngredients={setRecipeIngredients} 
+                    entities={recipes} 
+                    handleOnRemove={handleRecipeOnRemove} 
+                    units={units}
+                    isLast={recipeIngredients.length - 1 === index}
+                    />
+
+            )}
+            <div style={{height: "600px", width: "100%", clear:"both"}}></div>
         </div>
     )
 }

@@ -47,11 +47,18 @@ const AddRecipe = props => {
     }
 
     useEffect(() => {
-        if (chemicalIngredients[chemicalIngredients.length - 1].chemical) {
+        if (chemicalIngredients[chemicalIngredients.length - 1].ingredient) {
             setChemicalIngredients(oldList => [...oldList, {nr: chemicalIngredients.length}])
         }
 
     }, [chemicalIngredients])
+
+    useEffect(() => {
+        if (recipeIngredients[recipeIngredients.length - 1].ingredient) {
+            setRecipeIngredients(oldList => [...oldList, {nr: recipeIngredients.length}])
+        }
+
+    }, [recipeIngredients])
 
 
     useEffect(() => {
