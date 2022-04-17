@@ -3,11 +3,12 @@ import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import ChemInput from "./ChemInput"
 
-const ChemicalIngredientInputs = props => {
+const IngredientInputs = props => {
     
     const selectedLab = useSelector(state => state.selectedLab)
 
     const { 
+        projectId,
         chemicalIngredients, 
         setChemicalIngredients, 
         recipeIngredients, 
@@ -24,7 +25,14 @@ const ChemicalIngredientInputs = props => {
 
     useEffect( () => {
         axios.get(`/api/logged-in/chemical/${selectedLab.key}`).then(result => setChemicals(result.data))
+        axios.get(`/api/logged-in/recipe/${projectId}`).then(result => setRecipes(result.data))
     }, [])
+
+    	
+    useEffect(() => {
+        const usedChemicalIds = chemicalIngredients.map(ingredient => ingredient.chemical && ingredient.chemical.id)
+        setAvailableChemicals(chemicals.filter(chemical => !usedChemicalIds.includes(chemical.id)))
+    }, [chemicalIngredients, chemicals])
 
     
     return(
@@ -36,16 +44,16 @@ const ChemicalIngredientInputs = props => {
                     chemicalIngredient={chemicalIngredient} 
                     chemicalIngredients={chemicalIngredients}
                     setChemicalIngredients={setChemicalIngredients} 
-                    chemicals={chemicals} 
+                    chemicals={availableChemicals} 
                     handleOnRemove={handleChemicalOnRemove} 
                     units={units}
                     isLast={chemicalIngredients.length - 1 === index}
                     />
 
             )}
-
+            <h3 className="display-8">Recipe ingredients</h3>
         </div>
     )
 }
 
-export default ChemicalIngredientInputs
+export default IngredientInputs

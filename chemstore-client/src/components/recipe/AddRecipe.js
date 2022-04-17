@@ -6,7 +6,7 @@ import Select from 'react-dropdown-select'
 import { useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { check } from '../../utils/securityUtils'
-import ChemicalIngredientInputs from './ChemicalIngredientInputs'
+import IngredientInputs from './IngredientInputs'
 
 const AddRecipe = props => {
     const location = useLocation()
@@ -153,16 +153,18 @@ const AddRecipe = props => {
                 </div>
                 
             </form>
-            <ChemicalIngredientInputs 
-                chemicalIngredients={chemicalIngredients} 
-                setChemicalIngredients={setChemicalIngredients}
-                recipeIngredients={recipeIngredients}
-                setRecipeIngredients={setRecipeIngredients}
-                units={units}
-                handleChemicalOnRemove={handleChemicalOnRemove}
-                handleRecipeOnRemove={handleRecipeOnRemove}
-            />
-            <h3 className="display-8">Recipe ingredients</h3>
+            {selectedProject &&
+                <IngredientInputs 
+                    projectId={selectedProject.id}
+                    chemicalIngredients={chemicalIngredients} 
+                    setChemicalIngredients={setChemicalIngredients}
+                    recipeIngredients={recipeIngredients}
+                    setRecipeIngredients={setRecipeIngredients}
+                    units={units}
+                    handleChemicalOnRemove={handleChemicalOnRemove}
+                    handleRecipeOnRemove={handleRecipeOnRemove}
+                />
+            }
         </div>
     )
 }
