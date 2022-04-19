@@ -2,23 +2,32 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import Select from 'react-dropdown-select'
 import { useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 import { check } from '../../utils/securityUtils'
 import RedirectFormButton from '../RedirectFormButton'
+import VerifyPanel from '../UI/VerifyPanel'
 import RecipeCard from './RecipeCard'
 
-function RecipeDashboard() {
+const RecipeDashboard = props => {
+    const location = useLocation()
 
     const [projects, setProjects] = useState([])
     const [recipes, setRecipes] = useState([])
     const [selectedProject, setSelectedProject] = useState("")
+    const [justAddedRecipe, setJustAddedRecipe] = useState(location.state ? location.state.detail.justAddedRecipe : "")
 
     const selectedLab = useSelector((state) => state.selectedLab)
     const user = useSelector((state) => state.security.user)
-
+        
     useEffect(() => {
         if (selectedLab) {
+            console.log("hello1")
             check()
-            setSelectedProject("")
+            if (justAddedRecipe) {
+                setSelectedProject(location.state.detail.selectedProject)
+            } else {
+                setSelectedProject("")
+            }
             axios.get(`/api/logged-in/project/${selectedLab.key}`).then(result => {setProjects(result.data)})
         }
         
@@ -45,14 +54,26 @@ function RecipeDashboard() {
     }
 
     return (
+        
         <div className="container">
+                {justAddedRecipe && 
+                    <VerifyPanel 
+                        onCancel={() => setJustAddedRecipe("")} 
+                        veryfyMessage={`Recipe ${justAddedRecipe.name} was successfully created 
+                            in project ${location.state.detail.selectedProject.name} in lab ${selectedLab.name}`}
+                        buttonLabel="Ok"
+                    />}
                 <div className="row">
                     <div className="col-md-12">
                         <h3 className="display-4 text-center">Recipes</h3>
                         <p className="lead text-center">List {isManager ? " and manage" : ""} the recipes of {selectedLab.name}</p>
                         <br/>
                         {isManager && 
-                            <RedirectFormButton objectToPass={{formRoute:"/add-recipe", selectedProject: selectedProject}} formRoute="/add-recipe" buttonLabel="Add Recipe"/>
+                            <RedirectFormButton 
+                                objectToPass={{formRoute:"/add-recipe", selectedProject: selectedProject}} 
+                                formRoute="/add-recipe" 
+                                buttonLabel="Add Recipe"
+                            />
                         }
                         <hr />
                         <div className="form-group row mb-3">

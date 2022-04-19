@@ -2,6 +2,7 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min'
 import { check } from '../../utils/securityUtils'
 import IngredientInputs from './IngredientInputs'
 import RecipeCoreForm from './RecipeCoreForm'
@@ -9,6 +10,7 @@ import RecipeCoreForm from './RecipeCoreForm'
 const AddRecipe = props => {
     const location = useLocation()
     const { state } = location
+    let history = useHistory()
     
     const selectedLab = useSelector((state) => state.selectedLab)
 
@@ -58,7 +60,18 @@ const AddRecipe = props => {
             ingredients: collectIngredientInputs(chemicalIngredients, "CHEMICAL").concat(collectIngredientInputs(recipeIngredients, "RECIPE"))
         }
         await axios.post('/api/lab-manager/recipe', newRecipe)
-            .then(result => props.history.push("/recipes"))
+            .then(result => history.push(
+                {
+                    pathname:"/recipes", 
+                    state: { 
+                        detail: {
+                            selectedProject: selectedProject,
+                            justAddedRecipe: result.data
+                        
+                        } 
+                    }
+                }
+            ))
             .catch(error => setErrors(error.response.data))
     }
 

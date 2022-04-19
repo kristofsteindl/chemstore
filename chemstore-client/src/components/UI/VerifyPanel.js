@@ -10,8 +10,10 @@ const VerifyPanel = props => {
                 {props.veryfyMessage} 
             </div>
             <div className="button-container">
-                <Button style={{marginRight: "10px"}} variant="contained" onClick={props.onCancel}>Cancel</Button>
-                <Button  variant="contained" onClick={props.onSubmit}>{props.buttonLabel}</Button>
+                <Button style={{marginRight: "10px"}} variant="contained" onClick={props.onCancel}>{props.onSubmit ? "Cancel" : props.buttonLabel}</Button>
+                {props.onSubmit &&
+                    <Button  variant="contained" onClick={props.onSubmit}>{props.buttonLabel}</Button>
+                }
             </div>
 
         </Modal>
