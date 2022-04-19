@@ -19,7 +19,8 @@ public class RecipeInput {
 
     @NotNull(message = "project (projectId) is required")
     private Long projectId;
-    
+
+    @NotBlank(message = "shelf life (shelfLifeInDays) is required")
     @Min(value = 0, message = "shelf life (shelfLifeInDays) must be greater or equals then 0")
     private Integer shelfLifeInDays;
 
@@ -30,7 +31,7 @@ public class RecipeInput {
     @NotBlank(message = "unit is required")
     private String unit;
 
-    @Size(min=1)
+    @Size(min=1, message = "ingredients must not be empty")
     @Valid
     private List<IngredientInput> ingredients = new ArrayList<>();
 }
