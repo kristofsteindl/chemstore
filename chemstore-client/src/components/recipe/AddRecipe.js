@@ -22,8 +22,11 @@ const AddRecipe = props => {
     const [ name, setName ] = useState("")
     const [ amount, setAmount ] = useState("")
     const [ unit, setUnit ] = useState("")
-    const [ chemicalIngredients, setChemicalIngredients ] = useState([{nr:0}, {nr:1}])
-    const [ recipeIngredients, setRecipeIngredients ] = useState([{nr:0}, {nr:1}])
+    const [ shelfLifeInDays, setShelfLifeInDays ] = useState("")
+    const [ ingredientsAreValid, setIngredientsAreValid ] = useState(false)
+
+    const [ chemicalIngredients, setChemicalIngredients ] = useState([{nr:0}])
+    const [ recipeIngredients, setRecipeIngredients ] = useState([{nr:0}])
     const [ selectedRecipes, setSelectedRecipes ] = useState([])
     
     const [ errors, setErrors ] = useState("")
@@ -43,8 +46,41 @@ const AddRecipe = props => {
         setRecipeIngredients(recipeIngredients.filter(recipeIngredient => recipeIngredient.nr != nr))
     }
 
-    const onSubmit = () => {
+    const collectIngredientInputs = (ingredients, type) => {
+        return ingredients
+            .filter(ingredient => ingredient.ingredient && ingredient.ingredient.id && ingredient.unit && ingredient.amount)
+            .map(ingredient =>  ({
+                type: type,
+                ingredientId: ingredient.ingredient.id,
+                amount: parseInt(ingredient.amount),
+                unit: ingredient.unit
+            }))
     }
+
+    const onSubmit = async (event) => {
+        check()
+        event.preventDefault()
+        const newRecipe = {
+            projectId: selectedProject.id,
+            name: name,
+            amount: amount,
+            unit: unit.unit,
+            shelfLifeInDays: shelfLifeInDays,
+            ingredients: collectIngredientInputs(chemicalIngredients, "CHEMICAL").concat(collectIngredientInputs(recipeIngredients, "RECIPE"))
+        }
+        await axios.post('/api/lab-manager/recipe', newRecipe)
+            .then(result => props.history.push("/recipes"))
+            .catch(error => setErrors(error.response.data))
+    }
+
+    useEffect(() => {
+        chemicalIngredients
+            .filter((recipeIngredient, index) => index < recipeIngredient.length - 1)
+            .filter(ingredient => !ingredient.ingredient || !ingredient.ingredient.id || !ingredient.unit || !ingredient.amount)
+            .forEach(ingredient => setIngredientsAreValid(false))
+        
+
+    }, [chemicalIngredients, recipeIngredients])
 
     useEffect(() => {
         if (chemicalIngredients[chemicalIngredients.length - 1].ingredient) {
@@ -57,21 +93,17 @@ const AddRecipe = props => {
         if (recipeIngredients[recipeIngredients.length - 1].ingredient) {
             setRecipeIngredients(oldList => [...oldList, {nr: recipeIngredients.length}])
         }
-
     }, [recipeIngredients])
 
 
     useEffect(() => {
-        axios.get("/api/chem-item/unit")
-                .then(result => setUnits(result.data.map(unit => {return {"unit": unit}})))
-                .catch(error =>  this.setState({ errors: {...this.state.errors, unitsErrorStatus: error.response.status}}))
+        axios.get("/api/chem-item/unit").then(result => setUnits(result.data.map(unit => {return {"unit": unit}})))
         if (selectedLab) {
             check()
             axios.get(`/api/logged-in/project/${selectedLab.key}`).then(result => {setProjects(result.data)})
         } else {
             props.history.push("/recipes")
         }
-        
     }, [])
 
     useEffect(() => {
@@ -86,11 +118,13 @@ const AddRecipe = props => {
     return(
         <div className="col-md-8 m-auto">
             <h1 className="display-4 text-center">Add Recipe</h1>
+            
             <br/>
             {
-                (errors.message && <h5 className="invalid-input">{errors.message}</h5>)
+                (errors.message && <h5 className="text-danger">{errors.message}</h5>)
             }
             <form onSubmit={onSubmit}>
+                <button type="submit" className="btn btn-info mt-4" disabled={!ingredientsAreValid}  >Add Recipe</button>
                 <div className="form-group row mb-3">
                     <label htmlFor="chemical" className="col-sm-2 col-form-label">project</label>
                     <div className="col-sm-10">
@@ -119,7 +153,7 @@ const AddRecipe = props => {
                             placeholder="name" 
                         />
                         {
-                            (errors.name && <div className="invalid-feedback">{errors.name}</div>)
+                            (errors.name && <div className="text-danger">{errors.name}</div>)
                         }
                         
                     </div>
@@ -130,14 +164,17 @@ const AddRecipe = props => {
                         <input 
                             name="amount"
                             value={amount}
-                            onChange={event => setAmount(event.target.value)}
+                            onChange={event => setAmount(parseFloat(event.target.value))}
                             type="number" 
                             className={classNames("form-control form-control-lg", {"is-invalid": errors.amount})} 
                             placeholder="amount" 
+                            min="0.000"
+                            step="0.001"
                         />
                         {
-                            (errors.amount && <div className="invalid-feedback">{errors.amount}</div>)
+                            (errors.amount && <div className="text-danger">{errors.amount}</div>)
                         }
+                        
                     </div>
                 </div>
                 <div className="form-group row mb-3">
@@ -151,27 +188,51 @@ const AddRecipe = props => {
                             searchable={false}
                             clearable={false}
                             style={{height: "42px", fontSize: "16px"}}
+                            className={classNames("form-control form-control-lg", {"is-invalid": errors.unit})} 
                             onChange={items => items[0] && setUnit({unit: items[0].unit })}
                         />
                         {
-                            (errors.unit && <div className="invalid-feedback">{errors.unit}</div>)
+                            (errors.unit && <div className="text-danger">{errors.unit}</div>)
                         }
                     </div>
                 </div>
+                <div className="form-group row mb-3">
+                    <label htmlFor="shelfLifeInDays" className="col-sm-2 col-form-label">shelf life (days)</label>
+                    <div className="col-sm-10">
+                        <input 
+                            name="shelfLifeInDays"
+                            value={shelfLifeInDays}
+                            onChange={event => setShelfLifeInDays(parseInt(event.target.value))}
+                            type="number" 
+                            className={classNames("form-control form-control-lg", {"is-invalid": errors.shelfLifeInDays})} 
+                            placeholder="shelf life (days)" 
+                            min="0"
+                        />
+                        {
+                            (errors.shelfLifeInDays && <div className="text-danger">{errors.shelfLifeInDays}</div>)
+                        }
+                    </div>
+                </div>
+                {
+                    (errors.ingredients && <div className="text-danger">{errors.ingredients}</div>)
+                }
+                {selectedProject &&
+                    <IngredientInputs 
+                        projectId={selectedProject.id}
+                        chemicalIngredients={chemicalIngredients} 
+                        setChemicalIngredients={setChemicalIngredients}
+                        recipeIngredients={recipeIngredients}
+                        setRecipeIngredients={setRecipeIngredients}
+                        units={units}
+                        handleChemicalOnRemove={handleChemicalOnRemove}
+                        handleRecipeOnRemove={handleRecipeOnRemove}
+                    />
+                }
+                <button type="submit" className="btn btn-info mt-4">Add Recipe</button>
                 
             </form>
-            {selectedProject &&
-                <IngredientInputs 
-                    projectId={selectedProject.id}
-                    chemicalIngredients={chemicalIngredients} 
-                    setChemicalIngredients={setChemicalIngredients}
-                    recipeIngredients={recipeIngredients}
-                    setRecipeIngredients={setRecipeIngredients}
-                    units={units}
-                    handleChemicalOnRemove={handleChemicalOnRemove}
-                    handleRecipeOnRemove={handleRecipeOnRemove}
-                />
-            }
+            
+            <div style={{height: "600px", width: "100%", clear:"both"}}></div>
         </div>
     )
 }

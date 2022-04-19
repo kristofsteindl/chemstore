@@ -34,6 +34,11 @@ const IngredientInputs = props => {
         setAvailableChemicals(chemicals.filter(chemical => !usedChemicalIds.includes(chemical.id)))
     }, [chemicalIngredients, chemicals])
 
+    useEffect(() => {
+        const usedRecipeIds = recipeIngredients.map(ingredient => ingredient.ingredient && ingredient.ingredient.id)
+        setAvailableRecipes(recipes.filter(recipe => !usedRecipeIds.includes(recipe.id)))
+    }, [recipeIngredients, recipes])
+
     
     return(
         <div>
@@ -60,14 +65,13 @@ const IngredientInputs = props => {
                     ingredient={recipeIngredient} 
                     ingredients={recipeIngredients}
                     setIngredients={setRecipeIngredients} 
-                    entities={recipes} 
+                    entities={availableRecipes} 
                     handleOnRemove={handleRecipeOnRemove} 
                     units={units}
                     isLast={recipeIngredients.length - 1 === index}
                     />
 
             )}
-            <div style={{height: "600px", width: "100%", clear:"both"}}></div>
         </div>
     )
 }

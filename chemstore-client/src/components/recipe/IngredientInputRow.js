@@ -34,6 +34,7 @@ const IngredientInputRow = props => {
                     searchable={false}
                     clearable={false}
                     style={{height: "42px", fontSize: "16px"}}
+                    className={classNames("form-control form-control-lg", {"is-invalid": !isLast && !ingredient.ingredient})} 
                     onChange={items => updateListItemAttribute("ingredient", items[0])}
                 />
             </div>
@@ -41,15 +42,13 @@ const IngredientInputRow = props => {
                 <input 
                     name="amount"
                     value={ingredient.amount}
-                    onChange={event =>  updateListItemAttribute("amount", event.target.value)}
+                    onChange={event =>  updateListItemAttribute("amount", parseFloat(event.target.value))}
                     type="number" 
                     step="0.001"
-                    className={classNames("form-control form-control-lg", {"is-invalid": errors.amount})} 
+                    min="0.001"
+                    className={classNames("form-control form-control-lg", {"is-invalid": !isLast && !ingredient.amount})} 
                     placeholder="amount" 
                 />
-                {
-                    (errors.amount && <div className="invalid-feedback">{errors.amount}</div>)
-                }
             </div>
             <div className="col-sm-2">
                 <Select
@@ -60,11 +59,9 @@ const IngredientInputRow = props => {
                     searchable={false}
                     clearable={false}
                     style={{height: "42px", fontSize: "16px"}}
-                    onChange={items => updateListItemAttribute("unit", items[0].unit)}
+                    className={classNames("form-control form-control-lg", {"is-invalid": !isLast && !ingredient.unit})} 
+                    onChange={items => items[0] && updateListItemAttribute("unit", items[0].unit)}
                 />
-                {
-                    (errors.unit && <div className="invalid-feedback">{errors.unit}</div>)
-                }
             </div>
             <div className="col-sm-2">
                 {!isLast && 
