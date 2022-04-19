@@ -20,7 +20,7 @@ const AddProject = props => {
             }
         }
         
-    }, [selectedLab])
+    }, [selectedLab, user])
 
     const onSubmit = async (event) => {
         event.preventDefault()

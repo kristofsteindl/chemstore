@@ -1,5 +1,4 @@
 import classNames from "classnames"
-import { useState } from "react"
 import Select from "react-dropdown-select"
 
 const IngredientInputRow = props => {
@@ -12,9 +11,6 @@ const IngredientInputRow = props => {
         setIngredients, 
         handleOnRemove,
         isLast } = props
-
-    const [ errors, setErrors ] = useState("")
-
     
     const updateListItemAttribute = (key, value) => {
         const updated = ({...ingredient})

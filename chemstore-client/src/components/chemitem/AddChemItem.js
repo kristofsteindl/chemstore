@@ -97,7 +97,6 @@ class AddChemItem extends Component {
 
 
     render() {
-        const options = this.state.units.map(unit => {return {...unit, value: unit.unit, label: unit.unit}})
         return (
             <div className="container">
                 <div className="row">

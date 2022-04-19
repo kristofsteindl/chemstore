@@ -5,7 +5,7 @@ import IngredientRow from './IngredientRow';
 import "./RecipeCard.css"
 
 const RecipeCard = props => {
-    const [recipe, setRecipe] = useState(props.recipe)
+    const recipe = useState(props.recipe)[0]
     const [activeModal, setActiveModal] = useState(false)
     
 
@@ -17,13 +17,7 @@ const RecipeCard = props => {
         )
     }
 
-
-    const deleteChemItem = () => {
-        props.deleteChemItem(recipe.id)
-        setActiveModal(false)
-    }
-
-    const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
+    const { getCollapseProps, getToggleProps } = useCollapse();
         
     return (
         <div className="container">

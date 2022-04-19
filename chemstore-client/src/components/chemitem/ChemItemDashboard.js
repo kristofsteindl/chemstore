@@ -34,9 +34,6 @@ function ChemItemDashboard() {
     const selectedLab = useSelector((state) => state.selectedLab)
     const user = useSelector((state) => state.security.user)
 
-    useEffect(() => {
-        loadChemItems()
-    }, [])
 
     useEffect(() => {
         loadChemItems()

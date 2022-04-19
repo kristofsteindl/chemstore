@@ -18,6 +18,15 @@ const Header = () => {
     const { user } = security;
     const userIsAuth = user && JSON.stringify(user) !== '{}'
 
+
+    const handleLabSelection = justSelected => {
+        localStorage.setItem(`${user.username.split('@')[0]}.selectedLab`, justSelected.key)
+        store.dispatch({
+            type: SELECT_LAB,
+            payload: justSelected
+        });
+    }
+
     useEffect(() => {
         if (userIsAuth && labs.length > 0) {
             const storedLabKeyKey = `${user.username.split('@')[0]}.selectedLab`
@@ -33,18 +42,14 @@ const Header = () => {
         
     }, [labs, security])
 
+
     const handleLogout = () => {
         logout()
         window.location.href = '/'
     }
 
-    const handleLabSelection = justSelected => {
-        localStorage.setItem(`${user.username.split('@')[0]}.selectedLab`, justSelected.key)
-        store.dispatch({
-            type: SELECT_LAB,
-            payload: justSelected
-        });
-    }
+
+
 
     const userManual = (
         <li className="nav-item">

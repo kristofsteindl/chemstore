@@ -26,7 +26,7 @@ const IngredientInputs = props => {
     useEffect( () => {
         axios.get(`/api/logged-in/chemical/${selectedLab.key}`).then(result => setChemicals(result.data))
         axios.get(`/api/logged-in/recipe/${projectId}`).then(result => setRecipes(result.data))
-    }, [])
+    }, [projectId, selectedLab])
 
     	
     useEffect(() => {

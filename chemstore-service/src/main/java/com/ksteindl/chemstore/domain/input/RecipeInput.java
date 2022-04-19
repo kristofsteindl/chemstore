@@ -20,7 +20,7 @@ public class RecipeInput {
     @NotNull(message = "project (projectId) is required")
     private Long projectId;
 
-    @NotBlank(message = "shelf life (shelfLifeInDays) is required")
+    @NotNull(message = "shelf life (shelfLifeInDays) is required")
     @Min(value = 0, message = "shelf life (shelfLifeInDays) must be greater or equals then 0")
     private Integer shelfLifeInDays;
 

@@ -3,8 +3,6 @@ import PropTypes from "prop-types"
 import { connect } from "react-redux"
 import classNames from 'classnames'
 import { login } from '../../actions/loginActions'
-import { Button } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
 import "./Login.css"
 
 

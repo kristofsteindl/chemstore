@@ -3,7 +3,6 @@ import classNames from "classnames"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import { check, checkIfManager } from "../../utils/securityUtils"
-import ProjectCard from "./ProjectCard"
 
 const UpdateProject = props => {
     const [name, setName] = useState("")
@@ -19,11 +18,11 @@ const UpdateProject = props => {
         if (selectedLab) {
             check()
             if (!checkIfManager(selectedLab, user)) {
-                this.props.history.push("/projects")
+                props.history.push("/projects")
             }
         }
         
-    }, [selectedLab])
+    }, [selectedLab, user, props.history])
 
     useEffect( () => {
         axios.get(`/api/lab-manager/project/${id}`).then(result => {

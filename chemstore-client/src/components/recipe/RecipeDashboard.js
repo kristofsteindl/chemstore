@@ -35,11 +35,6 @@ function RecipeDashboard() {
     
     const isManager =  (selectedLab.key) && selectedLab.labManagers.filter(manager => manager.username === user.username).length > 0
 
-    const deleteProject = async id => {
-        await axios.delete(`/api/lab-manager/project/${id}`)
-        setRecipes(originalList => originalList.filter(project => project.id !== id))
-    }
-
     const getProjectDashboardContent = () => recipes.map(recipe => <RecipeCard key={recipe.id} recipe={recipe} />)
 
     const handleProjectDropdownChange = items => {

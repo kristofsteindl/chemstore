@@ -1,12 +1,10 @@
-
 import axios from 'axios'
-import classNames from 'classnames'
 import { useEffect, useState } from 'react'
-import Select from 'react-dropdown-select'
 import { useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { check } from '../../utils/securityUtils'
 import IngredientInputs from './IngredientInputs'
+import RecipeCoreForm from './RecipeCoreForm'
 
 const AddRecipe = props => {
     const location = useLocation()
@@ -16,34 +14,25 @@ const AddRecipe = props => {
 
     const [ firstRender, setFirstRender ] = useState(true)
     const [ selectedProject, setSelectedProject ] = useState(state.selectedProject)
-    const [projects, setProjects] = useState([])
     const [units, setUnits] = useState([])
     
     const [ name, setName ] = useState("")
     const [ amount, setAmount ] = useState("")
     const [ unit, setUnit ] = useState("")
     const [ shelfLifeInDays, setShelfLifeInDays ] = useState("")
-    const [ ingredientsAreValid, setIngredientsAreValid ] = useState(false)
+    const [ ingredientsAreInValid, setIngredientsAreInValid ] = useState(true)
 
-    const [ chemicalIngredients, setChemicalIngredients ] = useState([{nr:0}])
-    const [ recipeIngredients, setRecipeIngredients ] = useState([{nr:0}])
-    const [ selectedRecipes, setSelectedRecipes ] = useState([])
+    const [ chemicalIngredients, setChemicalIngredients ] = useState([{nr:0, amount:""}])
+    const [ recipeIngredients, setRecipeIngredients ] = useState([{nr:0, amount:""}])
     
     const [ errors, setErrors ] = useState("")
 
-    const handleProjectDropdownChange = items => {
-        const selectedProject = items[0]
-        if (selectedProject) {
-            setSelectedProject(selectedProject)
-        }
-    }
-
     const handleChemicalOnRemove = nr => {
-        setChemicalIngredients(chemicalIngredients.filter(chemicalIngredient => chemicalIngredient.nr != nr))
+        setChemicalIngredients(chemicalIngredients.filter(chemicalIngredient => chemicalIngredient.nr !== nr))
     }
 
     const handleRecipeOnRemove = nr => {
-        setRecipeIngredients(recipeIngredients.filter(recipeIngredient => recipeIngredient.nr != nr))
+        setRecipeIngredients(recipeIngredients.filter(recipeIngredient => recipeIngredient.nr !== nr))
     }
 
     const collectIngredientInputs = (ingredients, type) => {
@@ -65,7 +54,7 @@ const AddRecipe = props => {
             name: name,
             amount: amount,
             unit: unit.unit,
-            shelfLifeInDays: shelfLifeInDays,
+            shelfLifeInDays: parseInt(shelfLifeInDays),
             ingredients: collectIngredientInputs(chemicalIngredients, "CHEMICAL").concat(collectIngredientInputs(recipeIngredients, "RECIPE"))
         }
         await axios.post('/api/lab-manager/recipe', newRecipe)
@@ -74,13 +63,25 @@ const AddRecipe = props => {
     }
 
     useEffect(() => {
-        chemicalIngredients
-            .filter((recipeIngredient, index) => index < recipeIngredient.length - 1)
+        check()
+        if (chemicalIngredients.length === 1 && recipeIngredients.length === 1) {
+            return setIngredientsAreInValid(true)
+        }
+        if (!selectedProject || !selectedProject.id || !name || amount < 0.001 || !unit.unit || !shelfLifeInDays || parseInt(shelfLifeInDays) < 0)  {
+            return setIngredientsAreInValid(true)
+        }
+        const invalidChemRows = chemicalIngredients
+            .slice(0, chemicalIngredients.length - 1)
             .filter(ingredient => !ingredient.ingredient || !ingredient.ingredient.id || !ingredient.unit || !ingredient.amount)
-            .forEach(ingredient => setIngredientsAreValid(false))
-        
-
-    }, [chemicalIngredients, recipeIngredients])
+        if (invalidChemRows.length > 0) {
+            setIngredientsAreInValid(true)
+            return
+        }
+        const invalidRecipeRows = recipeIngredients
+            .slice(0, recipeIngredients.length - 1)
+            .filter(ingredient => !ingredient.ingredient || !ingredient.ingredient.id || !ingredient.unit || !ingredient.amount)
+        setIngredientsAreInValid(invalidRecipeRows.length > 0)
+    }, [chemicalIngredients, recipeIngredients, selectedProject, name, amount, unit, shelfLifeInDays])
 
     useEffect(() => {
         if (chemicalIngredients[chemicalIngredients.length - 1].ingredient) {
@@ -95,12 +96,10 @@ const AddRecipe = props => {
         }
     }, [recipeIngredients])
 
-
     useEffect(() => {
-        axios.get("/api/chem-item/unit").then(result => setUnits(result.data.map(unit => {return {"unit": unit}})))
         if (selectedLab) {
             check()
-            axios.get(`/api/logged-in/project/${selectedLab.key}`).then(result => {setProjects(result.data)})
+            axios.get("/api/chem-item/unit").then(result => setUnits(result.data.map(unit => {return {"unit": unit}})))
         } else {
             props.history.push("/recipes")
         }
@@ -111,108 +110,28 @@ const AddRecipe = props => {
             props.history.push("/recipes")
         }
         setFirstRender(false)
-        
     }, [selectedLab])
     
+    const sumbitButton = <button type="submit" className="btn btn-info mt-4" disabled={ingredientsAreInValid}>Add Recipe</button>
 
     return(
         <div className="col-md-8 m-auto">
             <h1 className="display-4 text-center">Add Recipe</h1>
-            
             <br/>
             {
                 (errors.message && <h5 className="text-danger">{errors.message}</h5>)
             }
             <form onSubmit={onSubmit}>
-                <button type="submit" className="btn btn-info mt-4" disabled={!ingredientsAreValid}  >Add Recipe</button>
-                <div className="form-group row mb-3">
-                    <label htmlFor="chemical" className="col-sm-2 col-form-label">project</label>
-                    <div className="col-sm-10">
-                        <Select
-                            options={projects}
-                            values={projects.filter(project => selectedProject && (project.id === selectedProject.id))}
-                            labelField="name"
-                            valueField="name"
-                            placeholder="project"
-                            searchable={false}
-                            clearable={false}
-                            style={{height: "42px", fontSize: "16px"}}
-                            onChange={handleProjectDropdownChange}
-                        />
-                    </div>
-                </div>
-                <div className="form-group row mb-3">
-                    <label htmlFor="name" className="col-sm-2 col-form-label">recipe name</label>
-                    <div className="col-sm-10">
-                        <input 
-                            name="name"
-                            value={name}
-                            onChange={event => setName(event.target.value)}
-                            type="text" 
-                            className={classNames("form-control form-control-lg", {"is-invalid": errors.name})} 
-                            placeholder="name" 
-                        />
-                        {
-                            (errors.name && <div className="text-danger">{errors.name}</div>)
-                        }
-                        
-                    </div>
-                </div>
-                <div className="form-group row mb-3">
-                    <label htmlFor="amount" className="col-sm-2 col-form-label">amount</label>
-                    <div className="col-sm-10">
-                        <input 
-                            name="amount"
-                            value={amount}
-                            onChange={event => setAmount(parseFloat(event.target.value))}
-                            type="number" 
-                            className={classNames("form-control form-control-lg", {"is-invalid": errors.amount})} 
-                            placeholder="amount" 
-                            min="0.000"
-                            step="0.001"
-                        />
-                        {
-                            (errors.amount && <div className="text-danger">{errors.amount}</div>)
-                        }
-                        
-                    </div>
-                </div>
-                <div className="form-group row mb-3">
-                    <label htmlFor="unit" className="col-sm-2 col-form-label">unit</label>
-                    <div className="col-sm-10">
-                        <Select
-                            options={units}
-                            labelField="unit"
-                            placeholder="unit"
-                            valueField="unit"
-                            searchable={false}
-                            clearable={false}
-                            style={{height: "42px", fontSize: "16px"}}
-                            className={classNames("form-control form-control-lg", {"is-invalid": errors.unit})} 
-                            onChange={items => items[0] && setUnit({unit: items[0].unit })}
-                        />
-                        {
-                            (errors.unit && <div className="text-danger">{errors.unit}</div>)
-                        }
-                    </div>
-                </div>
-                <div className="form-group row mb-3">
-                    <label htmlFor="shelfLifeInDays" className="col-sm-2 col-form-label">shelf life (days)</label>
-                    <div className="col-sm-10">
-                        <input 
-                            name="shelfLifeInDays"
-                            value={shelfLifeInDays}
-                            onChange={event => setShelfLifeInDays(parseInt(event.target.value))}
-                            type="number" 
-                            className={classNames("form-control form-control-lg", {"is-invalid": errors.shelfLifeInDays})} 
-                            placeholder="shelf life (days)" 
-                            min="0"
-                        />
-                        {
-                            (errors.shelfLifeInDays && <div className="text-danger">{errors.shelfLifeInDays}</div>)
-                        }
-                    </div>
-                </div>
+                {sumbitButton}
+                <RecipeCoreForm 
+                    units={units}
+                    errors={errors}
+                    selectedProject={selectedProject} setSelectedProject={setSelectedProject}
+                    name={name} setName={setName}
+                    amount={amount} setAmount={setAmount}
+                    unit={unit} setUnit={setUnit}
+                    shelfLifeInDays={shelfLifeInDays} setShelfLifeInDays={setShelfLifeInDays}
+                />
                 {
                     (errors.ingredients && <div className="text-danger">{errors.ingredients}</div>)
                 }
@@ -228,10 +147,8 @@ const AddRecipe = props => {
                         handleRecipeOnRemove={handleRecipeOnRemove}
                     />
                 }
-                <button type="submit" className="btn btn-info mt-4">Add Recipe</button>
-                
+                {sumbitButton}
             </form>
-            
             <div style={{height: "600px", width: "100%", clear:"both"}}></div>
         </div>
     )
