@@ -107,7 +107,6 @@ class Pagination extends Component {
 
     const currentPage = this.state.currentPage;
 
-    console.log("in Pagination, this.state.totalPages: " + totalPages)
     if (!this.props.totalRecords || totalPages === 1) return null;
 
     const pages = this.fetchPageNumbers();

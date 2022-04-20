@@ -5,7 +5,7 @@ import VerifyPanel from "../UI/VerifyPanel"
 const ProjectCard = props => {
     const project = props.project
 
-    const [activeModal, setActiveModal] = useState(false)
+    const [deletionConfirmation, setDeletionConfirmation] = useState(false)
 
     return (
         <div className="card card-body bg-light mb-3" style={{padding: "10px"}}>
@@ -18,15 +18,15 @@ const ProjectCard = props => {
                     { props.isManager && 
                         <DuButtons 
                             updateFormTo={`/update-project/${project.id}`}
-                            onDelete={() => setActiveModal(true)}
+                            onDelete={() => setDeletionConfirmation(true)}
                         /> 
                         
                     }
                 </div>
             </div>
-            {activeModal && 
+            {deletionConfirmation && 
                 <VerifyPanel 
-                    onCancel={() => setActiveModal(false)} 
+                    onCancel={() => setDeletionConfirmation(false)} 
                     veryfyMessage={`Are you sure you want to delete project ${project.name}?`}
                     onSubmit={() => props.deleteProject(project.id)}
                     buttonLabel="Delete"

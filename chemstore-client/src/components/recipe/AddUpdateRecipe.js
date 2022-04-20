@@ -7,15 +7,14 @@ import { check } from '../../utils/securityUtils'
 import IngredientInputs from './IngredientInputs'
 import RecipeCoreForm from './RecipeCoreForm'
 
-const AddRecipe = props => {
+const AddUpdateRecipe = props => {
     const location = useLocation()
-    const { state } = location
     let history = useHistory()
     
     const selectedLab = useSelector((state) => state.selectedLab)
 
     const [ firstRender, setFirstRender ] = useState(true)
-    const [ selectedProject, setSelectedProject ] = useState(state.selectedProject)
+    const [ selectedProject, setSelectedProject ] = useState(location.state.selectedProject)
     const [units, setUnits] = useState([])
     
     const [ name, setName ] = useState("")
@@ -167,4 +166,4 @@ const AddRecipe = props => {
     )
 }
 
-export default AddRecipe
+export default AddUpdateRecipe

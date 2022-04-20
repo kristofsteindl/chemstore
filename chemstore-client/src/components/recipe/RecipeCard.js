@@ -1,41 +1,43 @@
 import React, { useState } from 'react'
 import useCollapse from 'react-collapsed';
+import DuButtons from '../UI/DuButtons';
 import VerifyPanel from '../UI/VerifyPanel';
 import IngredientRow from './IngredientRow';
 import "./RecipeCard.css"
 
 const RecipeCard = props => {
     const recipe = useState(props.recipe)[0]
-    const [activeModal, setActiveModal] = useState(false)
-    
+    const [deletionConfirmation, setDeletionConfirmation] = useState(false)
 
-    const getVerifyMessage = () => {
-        return (
-            <div>
-                <p>{`Are you sure you want to delete `}<b>{recipe.name}</b></p>
-            </div>
-        )
-    }
+    const getVerifyMessage = () => <p>{`Are you sure you want to delete `}<b>{recipe.name}</b></p>
 
     const { getCollapseProps, getToggleProps } = useCollapse();
         
     return (
         <div className="container">
            <div className="card card-body bg-light mb-3" style={{padding: "10px"}}>
-                <div className="header" {...getToggleProps()}>
-                    <div className="row" >
-                        <div className="col-4">
-                            <h4 className="mx-auto">{recipe.name}</h4>
-                        </div>
-                        <div className="col-sm-1">
-                            <i>{recipe.amount} {recipe.unit}</i>
-                        </div>
-                        <div className="col-sm-1">
-                            <i>{recipe.shelfLifeInDays} day{recipe.shelfLifeInDays > 1 ? "s" : ""}</i>
-                        </div>
-                        <div className="col-6">  
-                        </div>
-                    </div>  
+                <div className="header row" {...getToggleProps()}>
+
+                    <div className="col-4">
+                        <h4 className="mx-auto">{recipe.name}</h4>
+                    </div>
+                    <div className="col-sm-1">
+                        <i>{recipe.amount} {recipe.unit}</i>
+                    </div>
+                    <div className="col-sm-1">
+                        <i>{recipe.shelfLifeInDays} day{recipe.shelfLifeInDays > 1 ? "s" : ""}</i>
+                    </div>
+                    <div className="col-3" />  
+                    <div className="col-sm-3">
+                        { props.isManager && 
+                            <DuButtons 
+                                updateFormTo={`/add-update-recipe/${recipe.id}`}
+                                onDelete={() => setDeletionConfirmation(true)}
+                            /> 
+                            
+                        }
+                    </div>
+
                 </div>
                 <div {...getCollapseProps()}>
                 <div className="content" style={{padding: "10px"}}>
@@ -47,8 +49,6 @@ const RecipeCard = props => {
                         </ul>
                     </div>
                     )}
-
-                    
                     {(recipe.recipeIngredients.length > 0  && 
                     <div><p><strong>Recipe Ingredients</strong></p>
                         <ul>
@@ -59,15 +59,14 @@ const RecipeCard = props => {
                 </div>
             </div>
            </div>
-
-
-            {activeModal && 
+           {deletionConfirmation && 
                 <VerifyPanel 
-                    onCancel={() => setActiveModal(false)} 
-                    veryfyMessage={getVerifyMessage()}
-                    onSubmit={() => ""}
+                    onCancel={() => setDeletionConfirmation(false)} 
+                    veryfyMessage={`Are you sure you want to delete recipe ${recipe.name}?`}
+                    onSubmit={() => props.deleteRecipe(recipe.id)}
                     buttonLabel="Delete"
-                />}
+                />
+            }
         </div>
     )
 

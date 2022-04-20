@@ -21,7 +21,6 @@ const RecipeDashboard = props => {
         
     useEffect(() => {
         if (selectedLab) {
-            console.log("hello1")
             check()
             if (justAddedRecipe) {
                 setSelectedProject(location.state.detail.selectedProject)
@@ -44,13 +43,24 @@ const RecipeDashboard = props => {
     
     const isManager =  (selectedLab.key) && selectedLab.labManagers.filter(manager => manager.username === user.username).length > 0
 
-    const getProjectDashboardContent = () => recipes.map(recipe => <RecipeCard key={recipe.id} recipe={recipe} />)
+    const getProjectDashboardContent = () => recipes.map(recipe => 
+            <RecipeCard 
+                key={recipe.id} 
+                recipe={recipe} 
+                isManager={isManager}
+                deleteRecipe={deleteRecipe}
+                />)
 
     const handleProjectDropdownChange = items => {
         const selectedProject = items[0]
         if (selectedProject) {
             setSelectedProject(selectedProject)
         }
+    }
+
+    const deleteRecipe = async recipeId => {
+        await axios.delete(`/api/lab-manager/recipe/${recipeId}`)
+        setRecipes(originalList => originalList.filter(recipe => recipe.id !== recipeId))
     }
 
     return (
@@ -70,8 +80,8 @@ const RecipeDashboard = props => {
                         <br/>
                         {isManager && 
                             <RedirectFormButton 
-                                objectToPass={{formRoute:"/add-recipe", selectedProject: selectedProject}} 
-                                formRoute="/add-recipe" 
+                                objectToPass={{formRoute:"/add-update-recipe", selectedProject: selectedProject}} 
+                                formRoute="/add-update-recipe" 
                                 buttonLabel="Add Recipe"
                             />
                         }
