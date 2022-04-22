@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min'
@@ -13,9 +13,10 @@ const AddUpdateRecipe = props => {
     
     const selectedLab = useSelector((state) => state.selectedLab)
 
-    const [ firstRender, setFirstRender ] = useState(true)
-    const [ selectedProject, setSelectedProject ] = useState(location.state.selectedProject)
+    const [ selectedProject, setSelectedProject ] = useState("")
     const [units, setUnits] = useState([])
+
+    const [originalRecipe, setOriginalRecipe] = useState("")
     
     const [ name, setName ] = useState("")
     const [ amount, setAmount ] = useState("")
@@ -28,13 +29,7 @@ const AddUpdateRecipe = props => {
     
     const [ errors, setErrors ] = useState("")
 
-    const handleChemicalOnRemove = nr => {
-        setChemicalIngredients(chemicalIngredients.filter(chemicalIngredient => chemicalIngredient.nr !== nr))
-    }
-
-    const handleRecipeOnRemove = nr => {
-        setRecipeIngredients(recipeIngredients.filter(recipeIngredient => recipeIngredient.nr !== nr))
-    }
+    const prevSelectedLab = useRef();
 
     const collectIngredientInputs = (ingredients, type) => {
         return ingredients
@@ -47,32 +42,34 @@ const AddUpdateRecipe = props => {
             }))
     }
 
-    const onSubmit = async (event) => {
-        check()
-        event.preventDefault()
-        const newRecipe = {
-            projectId: selectedProject.id,
-            name: name,
-            amount: amount,
-            unit: unit.unit,
-            shelfLifeInDays: parseInt(shelfLifeInDays),
-            ingredients: collectIngredientInputs(chemicalIngredients, "CHEMICAL").concat(collectIngredientInputs(recipeIngredients, "RECIPE"))
+
+    const setStateForCreateOrUpdate = updadeId => {
+        if (updadeId) {
+            axios.get(`/api/lab-manager/recipe/${updadeId}`)
+                .then(result => setOriginalRecipe(result.data))
+                .catch(() => history.push("/recipes"))
+        } else {
+            setSelectedProject(location.state.selectedProject)
         }
-        await axios.post('/api/lab-manager/recipe', newRecipe)
-            .then(result => history.push(
-                {
-                    pathname:"/recipes", 
-                    state: { 
-                        detail: {
-                            selectedProject: selectedProject,
-                            justAddedRecipe: result.data
-                        
-                        } 
-                    }
-                }
-            ))
-            .catch(error => setErrors(error.response.data))
     }
+
+    useEffect(() => {
+        if (originalRecipe) {
+            setName(originalRecipe.name)
+            setAmount(originalRecipe.amount)
+            setUnit({unit: originalRecipe.unit})
+            setShelfLifeInDays(originalRecipe.shelfLifeInDays)
+            setChemicalIngredients(originalRecipe.chemicalIngredients.map((ing, index) => ({nr: index, ingredient: ing.ingredient, amount: ing.amount, unit: ing.unit})))
+            setRecipeIngredients(originalRecipe.recipeIngredients.map((ing, index) => ({nr: index, ingredient: ing.ingredient, amount: ing.amount, unit: ing.unit})))    
+            setSelectedProject(originalRecipe.project)
+        }
+    }, [originalRecipe])
+
+    useEffect(() => {
+        check()
+        setStateForCreateOrUpdate(props.match.params.id)
+        axios.get("/api/chem-item/unit").then(result => setUnits(result.data.map(unit => {return {"unit": unit}})))
+    }, [])
 
     useEffect(() => {
         check()
@@ -96,33 +93,58 @@ const AddUpdateRecipe = props => {
     }, [chemicalIngredients, recipeIngredients, selectedProject, name, amount, unit, shelfLifeInDays])
 
     useEffect(() => {
-        if (chemicalIngredients[chemicalIngredients.length - 1].ingredient) {
+        if (chemicalIngredients.length === 0 || chemicalIngredients[chemicalIngredients.length - 1].ingredient) {
             setChemicalIngredients(oldList => [...oldList, {nr: chemicalIngredients.length}])
         }
 
     }, [chemicalIngredients])
 
     useEffect(() => {
-        if (recipeIngredients[recipeIngredients.length - 1].ingredient) {
+        if (recipeIngredients.length === 0 || recipeIngredients[recipeIngredients.length - 1].ingredient) {
             setRecipeIngredients(oldList => [...oldList, {nr: recipeIngredients.length}])
         }
     }, [recipeIngredients])
 
     useEffect(() => {
-        if (selectedLab) {
-            check()
-            axios.get("/api/chem-item/unit").then(result => setUnits(result.data.map(unit => {return {"unit": unit}})))
-        } else {
+        if (!selectedLab || (prevSelectedLab.current && prevSelectedLab.current.id !== selectedLab.id)) {
             props.history.push("/recipes")
         }
-    }, [])
-
-    useEffect(() => {
-        if (!firstRender) {
-            props.history.push("/recipes")
-        }
-        setFirstRender(false)
+        prevSelectedLab.current = selectedLab
     }, [selectedLab])
+
+    const getBacktrackObject = justAddedRecipe =>  
+    ({
+        pathname:"/recipes", 
+        state: {detail: {selectedProject: selectedProject, justAddedRecipe: justAddedRecipe}}
+    })
+
+    const sendCreateRequest = async recipeInput => {
+        await axios.post('/api/lab-manager/recipe', recipeInput)
+            .then(result => history.push(getBacktrackObject(result.data)))
+            .catch(error => setErrors(error.response.data))
+    }
+
+    const onSubmit = async (event) => {
+        check()
+        event.preventDefault()
+        const recipeInput = {
+            projectId: selectedProject.id,
+            name: name,
+            amount: amount,
+            unit: unit.unit,
+            shelfLifeInDays: parseInt(shelfLifeInDays),
+            ingredients: collectIngredientInputs(chemicalIngredients, "CHEMICAL").concat(collectIngredientInputs(recipeIngredients, "RECIPE"))
+        }
+        await sendCreateRequest(recipeInput)
+    }
+
+    const handleChemicalOnRemove = nr => {
+        setChemicalIngredients(chemicalIngredients.filter(chemicalIngredient => chemicalIngredient.nr !== nr))
+    }
+
+    const handleRecipeOnRemove = nr => {
+        setRecipeIngredients(recipeIngredients.filter(recipeIngredient => recipeIngredient.nr !== nr))
+    }
     
     const sumbitButton = <button type="submit" className="btn btn-info mt-4" disabled={ingredientsAreInValid}>Add Recipe</button>
 
@@ -136,6 +158,7 @@ const AddUpdateRecipe = props => {
             <form onSubmit={onSubmit}>
                 {sumbitButton}
                 <RecipeCoreForm 
+                    isUpdate={originalRecipe}
                     units={units}
                     errors={errors}
                     selectedProject={selectedProject} setSelectedProject={setSelectedProject}

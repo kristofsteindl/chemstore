@@ -77,6 +77,12 @@ public class RecipeService {
                 recipeRepository.findAllByProject(project);
     }
 
+    public Recipe getRecipe(Long id, Principal labManager) {
+        Recipe recipe = findById(id, false);
+        labService.validateLabForManager(recipe.getLab(), labManager);
+        return recipe;
+    }
+
     public Recipe findById(Long id) {
         return findById(id, true);
     }

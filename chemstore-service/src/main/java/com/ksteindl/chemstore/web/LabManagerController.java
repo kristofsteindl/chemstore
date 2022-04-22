@@ -141,5 +141,16 @@ public class LabManagerController {
 
     }
 
+    @GetMapping("/recipe/{recipeId}")
+    public ResponseEntity<Recipe> getRecipe(
+            @PathVariable Long recipeId,
+            Principal user
+    ) {
+        logger.info("GET '/api/lab-manager/recipe/{recipeId}' was called, with recipeId {} by user {}", recipeId, user.getName());
+        Recipe recipe = recipeService.getRecipe(recipeId, user);
+        logger.info("GET '/api/lab-manager/recipe/{recipeId}' was succesful with recipe {}", recipe);
+        return new ResponseEntity<>(recipe, HttpStatus.OK);
+    }
+
 
 }

@@ -6,12 +6,13 @@ import { useSelector } from "react-redux"
 
 const RecipeCoreForm = props => {
     const { 
+        isUpdate,
         units, 
         errors,
         selectedProject, setSelectedProject,
         name, setName,
         amount, setAmount,
-        setUnit,
+        unit, setUnit,
         shelfLifeInDays, setShelfLifeInDays
     } = props 
     const [projects, setProjects] = useState([])
@@ -29,6 +30,7 @@ const RecipeCoreForm = props => {
                 <label htmlFor="project" className="col-sm-2 col-form-label">project</label>
                 <div className="col-sm-10">
                     <Select
+                        disabled={isUpdate}
                         options={projects}
                         values={projects.filter(project => selectedProject && (project.id === selectedProject.id))}
                         labelField="name"
@@ -82,6 +84,7 @@ const RecipeCoreForm = props => {
                 <div className="col-sm-10">
                     <Select
                         options={units}
+                        values={[unit]}
                         labelField="unit"
                         placeholder="unit"
                         valueField="unit"

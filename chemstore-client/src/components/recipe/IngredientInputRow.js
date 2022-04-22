@@ -24,6 +24,7 @@ const IngredientInputRow = props => {
             <div className="col-sm-6" >
                 <Select
                     options={entities}
+                    values={ingredient.ingredient ? [ingredient.ingredient] : []}
                     labelField={label}
                     valueField="id"
                     placeholder="ingredient"
@@ -49,6 +50,7 @@ const IngredientInputRow = props => {
             <div className="col-sm-2">
                 <Select
                     options={units}
+                    values={[{unit: ingredient.unit}]}
                     labelField="unit"
                     placeholder="unit"
                     valueField="unit"

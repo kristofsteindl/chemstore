@@ -2,6 +2,7 @@ package com.ksteindl.chemstore.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ksteindl.chemstore.service.wrapper.ProjectCard;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -50,9 +51,9 @@ public class Recipe implements HasLab {
         return project.getLab().getKey();
     }
 
-    @JsonProperty("projectName")
-    private String getProjectName() {
-        return project.getName();
+    @JsonProperty("project")
+    private ProjectCard getProjectCard() {
+        return new ProjectCard(project);
     }
     
     public void addChemicalIngredient(ChemicalIngredient chemicalIngredient) {
