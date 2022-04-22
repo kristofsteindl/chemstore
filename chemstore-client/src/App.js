@@ -77,7 +77,8 @@ function App() {
             <SecuredRoute exact path="/update-project/:id" component={UpdateProject} />
 
             <SecuredRoute exact path="/recipes" component={RecipeDashboard} />
-            <SecuredRoute exact path="/add-update-recipe/:id" component={AddUpdateRecipe} />
+            <SecuredRoute exact path="/add-recipe" component={AddUpdateRecipe} />
+            <SecuredRoute exact path="/update-recipe/:id" component={AddUpdateRecipe} />
 
             <SecuredRoute exact path="/chem-items" component={ChemItemDashboard} />
             <SecuredRoute exact path="/add-chem-item" component={AddChemItem} />

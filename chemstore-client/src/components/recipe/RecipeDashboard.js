@@ -63,14 +63,20 @@ const RecipeDashboard = props => {
         setRecipes(originalList => originalList.filter(recipe => recipe.id !== recipeId))
     }
 
+    const createVerifyMessage = () => {
+        const project = location.state.detail.selectedProject
+        const originalRecipe = location.state.detail.originalRecipe
+        const oldName = originalRecipe ? `(${originalRecipe.name})` : ""
+        return `Recipe ${justAddedRecipe.name} ${oldName} was successfully ${originalRecipe ? "updated" : "created"} in project ${project.name} in lab ${selectedLab.name}`
+    }
+
     return (
         
         <div className="container">
                 {justAddedRecipe && 
                     <VerifyPanel 
                         onCancel={() => setJustAddedRecipe("")} 
-                        veryfyMessage={`Recipe ${justAddedRecipe.name} was successfully created 
-                            in project ${location.state.detail.selectedProject.name} in lab ${selectedLab.name}`}
+                        veryfyMessage={createVerifyMessage()}
                         buttonLabel="Ok"
                     />}
                 <div className="row">
@@ -80,8 +86,7 @@ const RecipeDashboard = props => {
                         <br/>
                         {isManager && 
                             <RedirectFormButton 
-                                objectToPass={{formRoute:"/add-update-recipe", selectedProject: selectedProject}} 
-                                formRoute="/add-update-recipe" 
+                                objectToPass={{formRoute:"/add-recipe", selectedProject: selectedProject}} 
                                 buttonLabel="Add Recipe"
                             />
                         }

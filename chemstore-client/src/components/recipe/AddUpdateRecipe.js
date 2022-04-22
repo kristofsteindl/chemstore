@@ -11,6 +11,8 @@ const AddUpdateRecipe = props => {
     const location = useLocation()
     let history = useHistory()
     
+    const auLabel = props.match.params.id ? "Update" : "Add"
+
     const selectedLab = useSelector((state) => state.selectedLab)
 
     const [ selectedProject, setSelectedProject ] = useState("")
@@ -115,11 +117,19 @@ const AddUpdateRecipe = props => {
     const getBacktrackObject = justAddedRecipe =>  
     ({
         pathname:"/recipes", 
-        state: {detail: {selectedProject: selectedProject, justAddedRecipe: justAddedRecipe}}
+        state: {detail: {selectedProject: selectedProject, justAddedRecipe: justAddedRecipe, isUpdate: originalRecipe}}
     })
 
-    const sendCreateRequest = async recipeInput => {
-        await axios.post('/api/lab-manager/recipe', recipeInput)
+    const sendRequest = async (recipeInput, originalRecipe) => {
+        if (originalRecipe) {
+            return axios.put(`/api/lab-manager/recipe/${originalRecipe.id}`, recipeInput)
+        } else {
+            return axios.post('/api/lab-manager/recipe', recipeInput)
+        }
+    }
+
+    const sendAndHandleRequest = async (recipeInput, originalRecipe) => {
+        await sendRequest(recipeInput, originalRecipe)
             .then(result => history.push(getBacktrackObject(result.data)))
             .catch(error => setErrors(error.response.data))
     }
@@ -135,7 +145,7 @@ const AddUpdateRecipe = props => {
             shelfLifeInDays: parseInt(shelfLifeInDays),
             ingredients: collectIngredientInputs(chemicalIngredients, "CHEMICAL").concat(collectIngredientInputs(recipeIngredients, "RECIPE"))
         }
-        await sendCreateRequest(recipeInput)
+        await sendAndHandleRequest(recipeInput, originalRecipe)
     }
 
     const handleChemicalOnRemove = nr => {
@@ -146,11 +156,11 @@ const AddUpdateRecipe = props => {
         setRecipeIngredients(recipeIngredients.filter(recipeIngredient => recipeIngredient.nr !== nr))
     }
     
-    const sumbitButton = <button type="submit" className="btn btn-info mt-4" disabled={ingredientsAreInValid}>Add Recipe</button>
+    const sumbitButton = <button type="submit" className="btn btn-info mt-4" disabled={ingredientsAreInValid}>{auLabel} Recipe</button>
 
     return(
         <div className="col-md-8 m-auto">
-            <h1 className="display-4 text-center">Add Recipe</h1>
+            <h1 className="display-4 text-center">{auLabel} Recipe</h1>
             <br/>
             {
                 (errors.message && <h5 className="text-danger">{errors.message}</h5>)
