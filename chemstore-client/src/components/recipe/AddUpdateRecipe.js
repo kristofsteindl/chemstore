@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min'
 import { check } from '../../utils/securityUtils'
+import VerifyPanel from '../UI/VerifyPanel'
 import IngredientInputs from './IngredientInputs'
 import RecipeCoreForm from './RecipeCoreForm'
 
@@ -28,6 +29,7 @@ const AddUpdateRecipe = props => {
 
     const [ chemicalIngredients, setChemicalIngredients ] = useState([{nr:0, amount:""}])
     const [ recipeIngredients, setRecipeIngredients ] = useState([{nr:0, amount:""}])
+    const [justAddedRecipe, setJustAddedRecipe] = useState("")
     
     const [ errors, setErrors ] = useState("")
 
@@ -114,10 +116,10 @@ const AddUpdateRecipe = props => {
         prevSelectedLab.current = selectedLab
     }, [selectedLab])
 
-    const getBacktrackObject = justAddedRecipe =>  
+    const getBacktrackObject = () =>  
     ({
         pathname:"/recipes", 
-        state: {detail: {selectedProject: selectedProject, justAddedRecipe: justAddedRecipe, isUpdate: originalRecipe}}
+        state: {detail: {selectedProject: selectedProject}}
     })
 
     const sendRequest = async (recipeInput, originalRecipe) => {
@@ -130,7 +132,7 @@ const AddUpdateRecipe = props => {
 
     const sendAndHandleRequest = async (recipeInput, originalRecipe) => {
         await sendRequest(recipeInput, originalRecipe)
-            .then(result => history.push(getBacktrackObject(result.data)))
+            .then(result => setJustAddedRecipe(result.data))
             .catch(error => setErrors(error.response.data))
     }
 
@@ -146,6 +148,15 @@ const AddUpdateRecipe = props => {
             ingredients: collectIngredientInputs(chemicalIngredients, "CHEMICAL").concat(collectIngredientInputs(recipeIngredients, "RECIPE"))
         }
         await sendAndHandleRequest(recipeInput, originalRecipe)
+    }
+
+    const createVerifyMessage = () => {
+        const oldName = originalRecipe ? `(${originalRecipe.name})` : ""
+        return `Recipe ${justAddedRecipe.name} ${oldName} was successfully ${originalRecipe ? "updated" : "created"} in project ${selectedProject.name} in lab ${selectedLab.name}`
+    }
+
+    const returnToDashboard = () => {
+        history.push(getBacktrackObject(justAddedRecipe))
     }
 
     const handleChemicalOnRemove = nr => {
@@ -192,6 +203,12 @@ const AddUpdateRecipe = props => {
                         handleRecipeOnRemove={handleRecipeOnRemove}
                     />
                 }
+                {justAddedRecipe && 
+                    <VerifyPanel 
+                        onCancel={() => returnToDashboard()} 
+                        veryfyMessage={createVerifyMessage()}
+                        buttonLabel="Ok"
+                    />}
                 {sumbitButton}
             </form>
             <div style={{height: "600px", width: "100%", clear:"both"}}></div>

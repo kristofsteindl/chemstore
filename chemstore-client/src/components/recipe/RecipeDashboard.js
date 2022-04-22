@@ -20,10 +20,12 @@ const RecipeDashboard = props => {
     const user = useSelector((state) => state.security.user)
         
     useEffect(() => {
-        if (selectedLab) {
+         if (selectedLab) {
             check()
-            if (justAddedRecipe) {
+            if (location.state.detail) {
                 setSelectedProject(location.state.detail.selectedProject)
+            } else if (selectedProject) {
+                setSelectedProject(selectedProject)
             } else {
                 setSelectedProject("")
             }
@@ -63,22 +65,10 @@ const RecipeDashboard = props => {
         setRecipes(originalList => originalList.filter(recipe => recipe.id !== recipeId))
     }
 
-    const createVerifyMessage = () => {
-        const project = location.state.detail.selectedProject
-        const originalRecipe = location.state.detail.originalRecipe
-        const oldName = originalRecipe ? `(${originalRecipe.name})` : ""
-        return `Recipe ${justAddedRecipe.name} ${oldName} was successfully ${originalRecipe ? "updated" : "created"} in project ${project.name} in lab ${selectedLab.name}`
-    }
 
     return (
         
         <div className="container">
-                {justAddedRecipe && 
-                    <VerifyPanel 
-                        onCancel={() => setJustAddedRecipe("")} 
-                        veryfyMessage={createVerifyMessage()}
-                        buttonLabel="Ok"
-                    />}
                 <div className="row">
                     <div className="col-md-12">
                         <h3 className="display-4 text-center">Recipes</h3>
