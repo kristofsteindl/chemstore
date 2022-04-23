@@ -6,6 +6,8 @@ import com.ksteindl.chemstore.domain.entities.ChemicalIngredient;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.entities.Mixture;
 
+import java.time.LocalDate;
+
 public class ChemItemForMixture {
     
     
@@ -48,6 +50,11 @@ public class ChemItemForMixture {
     @JsonProperty("seqNumber")
     public Integer getSeqNumber() {
         return chemItem.getSeqNumber();
+    }
+
+    @JsonProperty("expirationDate")
+    public LocalDate getExpirationDate() {
+        return chemItem.getExpirationDate();
     }
 
 }

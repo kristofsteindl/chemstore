@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ksteindl.chemstore.service.wrapper.AppUserCard;
 import com.ksteindl.chemstore.service.wrapper.ChemItemForMixture;
 import com.ksteindl.chemstore.service.wrapper.MixtureItemForMixture;
-import com.ksteindl.chemstore.service.wrapper.RecipeCard;
+import com.ksteindl.chemstore.service.wrapper.RecipeInMixture;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -54,8 +54,8 @@ public class Mixture implements HasLab, Serializable {
     private List<Mixture> mixtureItems = new ArrayList<>();
 
     @JsonProperty("recipe")
-    public RecipeCard getRecipeCard() {
-        return new RecipeCard(recipe);
+    public RecipeInMixture getRecipeForMixture() {
+        return new RecipeInMixture(recipe);
     }
     
     @JsonProperty("creator")

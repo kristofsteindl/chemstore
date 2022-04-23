@@ -10,7 +10,6 @@ import { ButtonGroup, Dropdown, DropdownButton } from 'react-bootstrap'
 
 
 const Header = () => {
-    //const [selectedLab, setSelectedLab] = useState("") 
     const security = useSelector((state) => state.security)
     const labs = useSelector((state) => state.labs)
     const selectedLab = useSelector((state) => state.selectedLab)
@@ -97,6 +96,11 @@ const Header = () => {
                 <li className="nav-item">
                     <Link className="nav-link" to="/chem-items">
                         Chem items
+                    </Link>
+                </li>
+                <li className="nav-item">
+                    <Link className="nav-link" to="/mixtures">
+                        Mixtures
                     </Link>
                 </li>
 

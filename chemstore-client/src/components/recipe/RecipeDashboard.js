@@ -22,7 +22,7 @@ const RecipeDashboard = props => {
     useEffect(() => {
          if (selectedLab) {
             check()
-            if (location.state.detail) {
+            if (location.state) {
                 setSelectedProject(location.state.detail.selectedProject)
             } else if (selectedProject) {
                 setSelectedProject(selectedProject)
@@ -66,45 +66,40 @@ const RecipeDashboard = props => {
     }
 
 
-    return (
-        
-        <div className="container">
-                <div className="row">
-                    <div className="col-md-12">
-                        <h3 className="display-4 text-center">Recipes</h3>
-                        <p className="lead text-center">List {isManager ? " and manage" : ""} the recipes of {selectedLab.name}</p>
-                        <br/>
-                        {isManager && 
-                            <RedirectFormButton 
-                                objectToPass={{formRoute:"/add-recipe", selectedProject: selectedProject}} 
-                                buttonLabel="Add Recipe"
-                            />
-                        }
-                        <hr />
-                        <div className="form-group row mb-3">
-                            <label htmlFor="chemical" className="col-sm-2 col-form-label">project</label>
-                            <div className="col-sm-10">
-                                <Select
-                                    options={projects}
-                                    values={projects.filter(project => selectedProject && (project.id === selectedProject.id))}
-                                    labelField="name"
-                                    valueField="name"
-                                    placeholder="project"
-                                    searchable={false}
-                                    clearable={false}
-                                    style={{height: "42px", fontSize: "16px"}}
-                                    onChange={handleProjectDropdownChange}
-                                />
-                            </div>
-                        </div>
-
-                        {selectedLab.key && selectedProject? 
-                            getProjectDashboardContent() :
-                            <p className="lead"><i>Please select a recipe</i></p>
-                        }
-                    </div>
+    return (      
+        <div className="container col-md-12">
+            <h3 className="display-4 text-center">Recipes</h3>
+            <p className="lead text-center">List {isManager ? " and manage" : ""} the recipes of {selectedLab.name}</p>
+            <br/>
+            {isManager && 
+                <RedirectFormButton 
+                    objectToPass={{formRoute:"/add-recipe", selectedProject: selectedProject}} 
+                    buttonLabel="Add Recipe"
+                />
+            }
+            <hr />
+            <div className="form-group row mb-3">
+                <label htmlFor="chemical" className="col-sm-2 col-form-label">project</label>
+                <div className="col-sm-10">
+                    <Select
+                        options={projects}
+                        values={projects.filter(project => selectedProject && (project.id === selectedProject.id))}
+                        labelField="name"
+                        valueField="name"
+                        placeholder="project"
+                        searchable={false}
+                        clearable={false}
+                        style={{height: "42px", fontSize: "16px"}}
+                        onChange={handleProjectDropdownChange}
+                    />
                 </div>
             </div>
+
+            {selectedLab.key && selectedProject? 
+                getProjectDashboardContent() :
+                <p className="lead"><i>Please select a recipe</i></p>
+            }
+        </div>
     )
 }
 

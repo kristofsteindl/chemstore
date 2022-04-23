@@ -32,6 +32,7 @@ import AddProject from './components/project/AddProject';
 import UpdateProject from './components/project/UpdateProject';
 import RecipeDashboard from './components/recipe/RecipeDashboard';
 import AddUpdateRecipe from './components/recipe/AddUpdateRecipe';
+import MixtureDashboard from './components/mixture/MixtureDashboard';
 
 
 refreshState()
@@ -82,6 +83,8 @@ function App() {
 
             <SecuredRoute exact path="/chem-items" component={ChemItemDashboard} />
             <SecuredRoute exact path="/add-chem-item" component={AddChemItem} />
+
+            <SecuredRoute exact path="/mixtures" component={MixtureDashboard} />
             
             
           </Switch>

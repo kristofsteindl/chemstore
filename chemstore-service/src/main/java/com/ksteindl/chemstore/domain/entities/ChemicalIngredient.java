@@ -1,6 +1,8 @@
 package com.ksteindl.chemstore.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ksteindl.chemstore.service.wrapper.ChemicalCard;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +23,8 @@ public class ChemicalIngredient implements Ingredient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Chemical ingredient;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,6 +35,11 @@ public class ChemicalIngredient implements Ingredient {
     private Double amount;
     
     private String unit;
+
+    @JsonProperty("ingredient")
+    private ChemicalCard getChemicalCard() {
+        return new ChemicalCard(ingredient);
+    }
 
     @Override
     public boolean equals(Object o) {
