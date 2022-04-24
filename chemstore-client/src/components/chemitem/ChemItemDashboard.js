@@ -49,7 +49,7 @@ function ChemItemDashboard() {
 
     const onPageChanged = data => {
         check()
-        const { currentPage, pageLimit, onlyAvailable } = data;
+        const { currentPage, pageLimit } = data;
         if (selectedLab && selectedLab.key && currentPage) {
 
             axios.get(`/api/chem-item/${selectedLab.key}?page=${currentPage - 1}&size=${pageLimit}&available=${onlyAvailable}`)
@@ -78,7 +78,6 @@ function ChemItemDashboard() {
                                 pageLimit={PAGE_LIMIT} 
                                 pageNeighbours={1}
                                 onPageChanged={onPageChanged}
-                                onlyAvailable={onlyAvailable}
     
                             />
                             <div className="pad-chckbx" >

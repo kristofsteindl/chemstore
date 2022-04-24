@@ -3,24 +3,30 @@ import { useEffect, useState } from "react"
 import Select from "react-dropdown-select"
 import { useSelector } from "react-redux"
 import { check } from "../../utils/securityUtils"
+import Pagination from "../Pagination"
 import MixtureCard from "./MixtureCard"
 import MixtureHeader from "./MixtureHeader"
 
 const MixtureDashboard = () => {
+    const PAGE_LIMIT = 3
 
     const selectedLab = useSelector(state => state.selectedLab)
     const user = useSelector((state) => state.security.user)
 
     const [ mixtures, setMixtures ] = useState([])
     const [ projects, setProjects ] = useState([])
-
-    const [ page, setPage ] = useState(0)
-    const [ size, setSize ] = useState(20)
+    
     const [ selectedProject, setSelectedProject ] = useState("")
+    const [onlyAvailable, setOnlyAvailable] = useState(true)
+    
+    const [totalItems, setTotalItems] = useState(1)
+    const [ page, setPage ] = useState(1)
+    const [ size, setSize ] = useState(PAGE_LIMIT)
     
     const queryString = () => {
-        let queryString = `?page=${page}&size=${size}`
+        let queryString = `?page=${page - 1}&size=${size}`
         queryString = `${queryString}${selectedProject ? ('&projectId=' + selectedProject.id) : ''}`
+        queryString = `${queryString}${onlyAvailable ? '&available=true': ''}`
         return queryString
     }
 
@@ -37,16 +43,14 @@ const MixtureDashboard = () => {
         check()
         if (selectedLab) {
             axios.get(`/api/mixture/${selectedLab.key}${queryString()}`)
-                .then(result => setMixtures(result.data.content))
+                .then(result => {
+                    setMixtures(result.data.content)
+                    setTotalItems(result.data.totalItems)
+                    
+                })
         }
-    }, [selectedProject, page, size])
+    }, [page, size, selectedProject, onlyAvailable])
    
-
-    useEffect(() => {
-        check()
-        axios.get(`/api/mixture/${selectedLab.key}${queryString()}`)
-            .then(result => setMixtures(result.data.content))
-    }, [])
 
     const deleteMixture = async mixtureId => {
         await axios.delete(`/api/mixture/${mixtureId}`)
@@ -57,11 +61,29 @@ const MixtureDashboard = () => {
         
         <div className="container col-md-12">
             <h3 className="display-4 text-center">Mixtures</h3>
-                <p className="lead text-center">List the mixtures and eluents of {selectedLab.name}</p>
-                <br/>
-                <div className="form-group row mb-3">
-                <label htmlFor="chemical" className="col-sm-2 col-form-label">project</label>
-                <div className="col-sm-10">
+            <p className="lead text-center">List the mixtures and eluents of {selectedLab.name}</p>
+            <br/>
+            <div className="w-300 px-4 py-0 d-flex flex-row flex-wrap align-items-center justify-content-between">
+                <div className="col-sm-4 d-flex flex-row py-2 align-items-center">
+                    <Pagination 
+                        totalRecords={totalItems}
+                        pageLimit={PAGE_LIMIT} 
+                        pageNeighbours={1}
+                        onPageChanged={paginatioData => setPage(paginatioData.currentPage)}
+                    />
+                    <div className="pad-chckbx" >
+                        <input
+                            type="checkbox"
+                            checked={onlyAvailable}
+                            onChange={() => setOnlyAvailable(!onlyAvailable)}
+                        />
+                        <label className="pad-5" >Only available</label>
+                        
+                    </div>
+                    
+                
+                </div>
+                <div className="col-sm-8">
                     <Select
                         options={projects}
                         labelField="name"
@@ -74,6 +96,7 @@ const MixtureDashboard = () => {
                     />
                 </div>
             </div>
+            
             <MixtureHeader />
             <hr />
             {mixtures.map(mixture => 

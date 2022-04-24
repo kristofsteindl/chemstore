@@ -180,7 +180,6 @@ class Pagination extends Component {
       totalPages: totalPages,
       pageLimit: pageLimit,
       totalRecords: this.props.totalRecords,
-      onlyAvailable: this.props.onlyAvailable
     };
 
     this.setState({ currentPage }, () => onPageChanged(paginationData));
