@@ -4,6 +4,7 @@ import Select from "react-dropdown-select"
 import { useSelector } from "react-redux"
 import { check } from "../../utils/securityUtils"
 import MixtureCard from "./MixtureCard"
+import MixtureHeader from "./MixtureHeader"
 
 const MixtureDashboard = () => {
 
@@ -73,6 +74,8 @@ const MixtureDashboard = () => {
                     />
                 </div>
             </div>
+            <MixtureHeader />
+            <hr />
             {mixtures.map(mixture => 
                 <MixtureCard 
                     key={mixture.id} 

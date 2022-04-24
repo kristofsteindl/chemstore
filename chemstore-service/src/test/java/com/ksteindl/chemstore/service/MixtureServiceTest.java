@@ -77,7 +77,7 @@ public class MixtureServiceTest extends BaseControllerTest {
         Pageable pageable = Pageable.ofSize(100).withPage(0);
         MixtureQuery.MixtureQueryBuilder mixtureQueryBuilder = MixtureQuery.builder()
                 .labKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
-                .recipeId(alphaLisoBuffer.getId())
+                .projectId(alphaLisoBuffer.getId())
                 .available(true)
                 .page(0)
                 .size(100)

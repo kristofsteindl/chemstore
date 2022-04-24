@@ -32,7 +32,7 @@ public class MixtureItemForMixture {
         return mixtureItem.getExpirationDate();
     }
     
-    public RecipeCard getRecipeCard() {
+    public RecipeCard getRecipe() {
         return new RecipeCard(mixtureItem.getRecipe());
     }
 }

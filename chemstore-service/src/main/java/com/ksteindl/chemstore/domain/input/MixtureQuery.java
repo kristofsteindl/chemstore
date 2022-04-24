@@ -11,7 +11,7 @@ public class MixtureQuery {
     
     private Principal principal;
     private String labKey;
-    private Long recipeId;
+    private Long projectId;
     private Boolean available;
     private Integer page;
     private Integer size;
