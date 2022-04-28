@@ -24,8 +24,6 @@ const RecipeDashboard = props => {
             check()
             if (location.state) {
                 setSelectedProject(location.state.detail.selectedProject)
-            } else if (selectedProject) {
-                setSelectedProject(selectedProject)
             } else {
                 setSelectedProject("")
             }

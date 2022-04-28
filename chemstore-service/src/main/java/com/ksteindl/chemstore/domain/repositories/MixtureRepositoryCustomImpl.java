@@ -61,6 +61,10 @@ public class MixtureRepositoryCustomImpl implements MixtureRepositoryCustom{
             Predicate recipePredicate = criteriaBuilder.equal(root.get("recipe").get("project").get("id"), mixtureQuery.getProjectId());
             predicates.add(recipePredicate);
         }
+        if (mixtureQuery.getRecipeId() != null) {
+            Predicate recipePredicate = criteriaBuilder.equal(root.get("recipe").get("id"), mixtureQuery.getRecipeId());
+            predicates.add(recipePredicate);
+        }
         return predicates.toArray(new Predicate[predicates.size()]);
     }
     

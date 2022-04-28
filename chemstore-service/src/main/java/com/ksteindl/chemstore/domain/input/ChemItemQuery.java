@@ -7,13 +7,14 @@ import java.security.Principal;
 
 @Builder
 @Data
-public class MixtureQuery {
+public class ChemItemQuery {
     
     private Principal principal;
     private String labKey;
-    private Long projectId;
-    private Long recipeId;
-    private Boolean available;
+    private Long chemicalId;
+    private Boolean opened;
+    private Boolean expired;
+    private Boolean consumed;
     private Integer page;
     private Integer size;
     

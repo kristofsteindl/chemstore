@@ -35,7 +35,7 @@ const MixtureCard = props => {
     }
 
     return (
-        <div className="container card card-body bg-light mb-3" style={{"padding-top": "5px", "padding-bottom": "0px", "padding-right": "10px", "padding-left": "10px"}}>
+        <div className="container card card-body bg-light mb-3" style={{paddingTop: "5px", paddingBottom: "0px", paddingRight: "10px", paddingLeft: "10px"}}>
             <div className="header row" {...getToggleProps()}>
 
                 <div className="col-1">
@@ -71,7 +71,7 @@ const MixtureCard = props => {
                 <div className="content" style={{padding: "10px"}}>
                    
                     {(recipe.chemicalIngredients.length > 0  && 
-                        <div style={{"padding-bottom": "10px"}}>
+                        <div style={{paddingBottom: "10px"}}>
                             <i><strong>Chemical Ingredients</strong></i>
                                 <IngredientMixtureTable 
                                     mixture={mixture}
@@ -80,7 +80,7 @@ const MixtureCard = props => {
                         </div>
                     )}
                     {(recipe.recipeIngredients.length > 0  && 
-                        <div style={{"padding-bottom": "10px"}}>
+                        <div style={{paddingBottom: "10px"}}>
                             <i><strong>Mixture Ingredients</strong></i>
                                 <IngredientMixtureTable 
                                     mixture={mixture}

@@ -2,6 +2,7 @@ package com.ksteindl.chemstore.web;
 
 import com.ksteindl.chemstore.domain.entities.ChemItem;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
+import com.ksteindl.chemstore.domain.input.ChemItemQuery;
 import com.ksteindl.chemstore.service.ChemItemService;
 import com.ksteindl.chemstore.service.UnitService;
 import com.ksteindl.chemstore.service.wrapper.PagedList;
@@ -76,12 +77,27 @@ public class ChemItemController {
     @GetMapping("/{labKey}")
     public ResponseEntity<PagedList<ChemItem>> getChemItemsForLab(
             @PathVariable String labKey,
-            @RequestParam(value= "available", required = false, defaultValue = "true") boolean available,
-            @RequestParam(value="page", required = false, defaultValue = "0") Integer page,
-            @RequestParam(value= "size", required = false, defaultValue = "10") Integer size,
+            @RequestParam(value= "chemicalId", required = false) Long chemicalId,
+            @RequestParam(value= "opened", required = false) Boolean opened,
+            @RequestParam(value= "expired", required = false) Boolean expired,
+            @RequestParam(value= "consumed", required = false) Boolean consumed,
+            @RequestParam(value="page", defaultValue = "0") Integer page,
+            @RequestParam(value= "size", defaultValue = "10") Integer size,
             Principal principal) {
-        logger.info("GET '/chem-item/{labKey}' was called with labKey {}, page {}, offset {}, onlyActive {}", labKey, page, size, available);
-        PagedList<ChemItem> chemItems = chemItemService.findByLab(labKey, principal, available, page, size);
+        logger.info("GET '/chem-item/{labKey}' was called with " +
+                "labKey {}, chemicalId {}, page {}, size {}, opened {}, expired {}, consumed {}", 
+                labKey, chemicalId, page, size, opened, expired, consumed);
+        ChemItemQuery chemItemQuery = ChemItemQuery.builder()
+                .labKey(labKey)
+                .chemicalId(chemicalId)
+                .principal(principal)
+                .page(page)
+                .opened(opened)
+                .expired(expired)
+                .consumed(consumed)
+                .size(size)
+                .build();
+        PagedList<ChemItem> chemItems = chemItemService.getChemItemsByLab(chemItemQuery);
         logger.info("GET '/chem-item' was succesful with returned result{}", chemItems);
         return ResponseEntity.status(HttpStatus.OK).body(chemItems);
     }

@@ -7,7 +7,6 @@ const IngredientMixtureTable = props => {
     
     const getMixtureRow = recipeIngredient => {
         const recipeId = recipeIngredient.ingredient.id
-        console.log(recipeId)
         const mixtureItem = mixture.mixtureItems.filter(mi => mi.recipe.id === recipeId)[0]
         return ({
             id: mixtureItem.id,

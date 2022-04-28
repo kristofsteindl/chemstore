@@ -7,6 +7,7 @@ import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
+import com.ksteindl.chemstore.domain.input.ChemItemQuery;
 import com.ksteindl.chemstore.domain.repositories.ChemItemRepository;
 import com.ksteindl.chemstore.exceptions.ForbiddenException;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
@@ -16,8 +17,6 @@ import com.ksteindl.chemstore.util.Lang;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -116,16 +115,10 @@ public class ChemItemService {
         return chemItemRepository.save(chemItem);
     }
 
-    public PagedList<ChemItem> findByLab(String labKey, Principal user, boolean available, Integer page, Integer size) {
-        Lab lab = labService.findLabForUser(labKey, user);
-        Pageable paging = PageRequest.of(page, size, SORT_BY_ID_DESC);
-        Page<ChemItem> chemItemPages =
-                available ?
-                chemItemRepository.findAvailableByLab(lab, paging) :
-                chemItemRepository.findByLab(lab, paging);
-        chemItemPages.getContent().forEach(chemItem -> logger.trace(chemItem.toString()));
-        PagedList<ChemItem> pagedList = new PagedList(chemItemPages);
-        return pagedList;
+    public PagedList<ChemItem> getChemItemsByLab(ChemItemQuery chemItemQuery) {
+        labService.findLabForUser(chemItemQuery.getLabKey(), chemItemQuery.getPrincipal());
+        Pageable pageable = Pageable.ofSize(chemItemQuery.getSize()).withPage(chemItemQuery.getPage());
+        return chemItemRepository.findChemItems(chemItemQuery, pageable);
     }
     
     public void hardDeleteChemItem(Long id, Principal principal) {

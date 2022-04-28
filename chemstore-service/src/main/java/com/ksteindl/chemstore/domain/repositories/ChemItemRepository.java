@@ -11,7 +11,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface ChemItemRepository extends CrudRepository<ChemItem, Long> {
+public interface ChemItemRepository extends CrudRepository<ChemItem, Long>, ChemItemRepositoryCustom {
 
     @Query("SELECT c FROM ChemItem c WHERE c.lab = ?1 and c.chemical = ?2 and c.batchNumber = ?3 ")
     List<ChemItem> findEqualChemItems(Lab lab, Chemical chemical, String batchNumber, Sort sort);

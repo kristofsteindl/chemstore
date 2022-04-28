@@ -67,6 +67,7 @@ public class MixtureController {
     public ResponseEntity<PagedList<Mixture>> getMixturesForLab(
             @PathVariable String labKey,
             @RequestParam(value= "projectId", required = false) Long projectId,
+            @RequestParam(value= "recipeId", required = false) Long recipeId,
             @RequestParam(value= "available", defaultValue = "true") Boolean available,
             @RequestParam(value="page", defaultValue = "0") Integer page,
             @RequestParam(value= "size", defaultValue = "10") Integer size,
@@ -75,6 +76,7 @@ public class MixtureController {
         MixtureQuery mixtureQuery = MixtureQuery.builder()
                 .labKey(labKey)
                 .projectId(projectId)
+                .recipeId(recipeId)
                 .principal(user)
                 .page(page)
                 .available(available)

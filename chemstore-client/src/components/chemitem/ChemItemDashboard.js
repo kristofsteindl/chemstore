@@ -51,8 +51,8 @@ function ChemItemDashboard() {
         check()
         const { currentPage, pageLimit } = data;
         if (selectedLab && selectedLab.key && currentPage) {
-
-            axios.get(`/api/chem-item/${selectedLab.key}?page=${currentPage - 1}&size=${pageLimit}&available=${onlyAvailable}`)
+            const availableString = onlyAvailable ? "&expired=false&consumed=false" : ""
+            axios.get(`/api/chem-item/${selectedLab.key}?page=${currentPage - 1}&size=${pageLimit}${availableString}`)
                 .then(result => {
                     setCurrentPage(currentPage)
                     setChemItems(result.data.content)

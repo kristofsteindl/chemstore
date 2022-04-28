@@ -4,6 +4,7 @@ import Select from "react-dropdown-select"
 import { useSelector } from "react-redux"
 import { check } from "../../utils/securityUtils"
 import Pagination from "../Pagination"
+import RedirectFormButton from "../RedirectFormButton"
 import MixtureCard from "./MixtureCard"
 import MixtureHeader from "./MixtureHeader"
 
@@ -34,9 +35,9 @@ const MixtureDashboard = () => {
 
     useEffect(() => {
         if (selectedLab) {
+            setSelectedProject("")
             axios.get(`/api/logged-in/project/${selectedLab.key}`).then(result => setProjects(result.data))
-        }
-        
+        } 
     }, [selectedLab])
 
     useEffect(() => {
@@ -49,7 +50,7 @@ const MixtureDashboard = () => {
                     
                 })
         }
-    }, [page, size, selectedProject, onlyAvailable])
+    }, [selectedLab, page, size, selectedProject, onlyAvailable])
    
 
     const deleteMixture = async mixtureId => {
@@ -57,21 +58,51 @@ const MixtureDashboard = () => {
         setMixtures(originalList => originalList.filter(mixture => mixture.id !== mixtureId))
     }
 
+    const getMixtureTable = () => {
+        if (mixtures.length === 0) {
+            return <p className="lead"><i>There is no mixture in the lab (according to the filter criteria)</i></p>
+        } else {
+            return (<div>
+                <MixtureHeader />
+                <hr />
+                {mixtures.map(mixture => 
+                    <MixtureCard 
+                        key={mixture.id} 
+                        mixture={mixture}
+                        deleteMixture={deleteMixture}
+                        isManager={isManager}
+                    />
+                )}
+            </div>)
+        }
+    }
+
     return (
-        
         <div className="container col-md-12">
-            <h3 className="display-4 text-center">Mixtures</h3>
-            <p className="lead text-center">List the mixtures and eluents of {selectedLab.name}</p>
+            <div className="row" style={{ position: "relative"}}>
+                {isManager && 
+                    <div style={{ position: "absolute", bottom: "0",left: "0"}}>
+                        <RedirectFormButton formRoute="/add-mixture" buttonLabel="Add Mixture"/>
+                    </div>
+                }
+                <div className="text-center">
+                    <h3 className="display-4">Mixtures</h3>
+                    <p className="lead">List the mixtures and eluents of {selectedLab.name}</p>
+                </div>
+            </div>
             <br/>
             <div className="w-300 px-4 py-0 d-flex flex-row flex-wrap align-items-center justify-content-between">
-                <div className="col-sm-4 d-flex flex-row py-2 align-items-center">
-                    <Pagination 
-                        totalRecords={totalItems}
-                        pageLimit={PAGE_LIMIT} 
-                        pageNeighbours={1}
-                        onPageChanged={paginatioData => setPage(paginatioData.currentPage)}
-                    />
-                    <div className="pad-chckbx" >
+                <div className="col-sm-4 d-flex py-2 align-items-center">
+                    <div className="col-sm-4">
+                        <Pagination 
+                            totalRecords={totalItems}
+                            pageLimit={PAGE_LIMIT} 
+                            pageNeighbours={1}
+                            onPageChanged={paginatioData => setPage(paginatioData.currentPage)}
+                        />
+                    </div>
+
+                    <div className="col-sm-8 pad-chckbx" >
                         <input
                             type="checkbox"
                             checked={onlyAvailable}
@@ -80,14 +111,14 @@ const MixtureDashboard = () => {
                         <label className="pad-5" >Only available</label>
                         
                     </div>
-                    
-                
+
                 </div>
                 <div className="col-sm-8">
                     <Select
                         options={projects}
                         labelField="name"
                         valueField="name"
+                        values={projects.filter(project => selectedProject && (project.id === selectedProject.id))}
                         placeholder="project"
                         searchable={false}
                         clearable={false}
@@ -96,17 +127,8 @@ const MixtureDashboard = () => {
                     />
                 </div>
             </div>
-            
-            <MixtureHeader />
             <hr />
-            {mixtures.map(mixture => 
-                <MixtureCard 
-                    key={mixture.id} 
-                    mixture={mixture}
-                    deleteMixture={deleteMixture}
-                    isManager={isManager}
-                />
-            )}
+            {getMixtureTable()} 
         </div>
     )
 }
