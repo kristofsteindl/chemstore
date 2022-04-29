@@ -11,7 +11,7 @@ const ItemInputsInMixture = props => {
     return (
         
         <div>
-            {ingredients && ( 
+            {ingredients && ingredients.length > 0 && ( 
                 <div style={{paddingBottom: "20px"}}>
                     <h3 className="display-8">{isChemItems ? "Chemical" : "Mixture"} ingredients</h3>
                     <TableContainer component={Paper}>
@@ -32,7 +32,6 @@ const ItemInputsInMixture = props => {
                                         amountFactor={amount / recipe.amount}
                                         ingredientRow={chemicalIngredient} 
                                         setSelectedItems={setSelectedItems} 
-                                        setSelectedItems={setSelectedItems}
                                         selectedItems={selectedItems}
                                         posFromLast={ingredients.length - index - 1}
                                         setSpacer={setSpacer}

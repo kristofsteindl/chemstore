@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Select from "react-dropdown-select"
 import { useSelector } from "react-redux"
 import { check } from "../../../utils/securityUtils"
+import VerifyPanel from "../../UI/VerifyPanel"
 import ItemInputsInMixture from "./ItemInputsInMixture"
 
 const AddUpdateMixture = props => {
@@ -55,10 +56,17 @@ const AddUpdateMixture = props => {
             creationDate: (new Date()).toISOString().split('T')[0],
             username: user.username,
             amount: amount,
-            chemItemIds: [],
-            mixtureItemIds: []
+            chemItemIds: Object.values(chemItems).map(chemItem => chemItem.id),
+            mixtureItemIds: Object.values(mixtureItems).map(mixtureItem => mixtureItem.id)
         }
+        await axios.post(`/api/mixture`, mixtureInput)
+                .then(result => setJustAddedMixture(result.data))
+                .catch(error => setErrors(error.response.data))
        
+    }
+
+    const createVerifyMessage = () => {
+        return `Mixture ${justAddedMixture.recipe.name} was successfully ${originalMixture ? "updated" : "created"} in project ${selectedProject.name} in lab ${selectedLab.name}`
     }
     
     const auLabel = isUpdate ? "Update" : "Add"
@@ -132,7 +140,6 @@ const AddUpdateMixture = props => {
                         amount={amount}
                         setSelectedItems={setChemItems}
                         selectedItems={chemItems}
-
                     />
                     <ItemInputsInMixture
                         type="MIXTURE_ITEM" 
@@ -142,9 +149,14 @@ const AddUpdateMixture = props => {
                         setSelectedItems={setMixtureItems}
                         selectedItems={mixtureItems}
                     />
-                
             </form>
             <div style={{height: "600px", width: "100%", clear:"both"}}></div>
+            {justAddedMixture && 
+                    <VerifyPanel 
+                        onCancel={() => props.history.push('/mixtures')} 
+                        veryfyMessage={createVerifyMessage()}
+                        buttonLabel="Ok"
+                    />}
         </div>
     )
 }
