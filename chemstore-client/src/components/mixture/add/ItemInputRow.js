@@ -13,7 +13,7 @@ const ItemInputRow = props => {
 
     const selectedLab = useSelector(state => state.selectedLab)
 
-    const [ item, setItem ] = useState("")
+    const [ item, setItem ] = useState(selectedItems[ingredient.id])
     const [ items, setItems ] = useState([])
     const [ open, setOpen ] = useState(false)
 
@@ -41,7 +41,6 @@ const ItemInputRow = props => {
 
     useEffect(() => {
         if (selectedLab) {
-            console.log("isChemItems: " + isChemItems)
             if (isChemItems) {
                 fetchChemItems()   
             } else {
@@ -67,7 +66,7 @@ const ItemInputRow = props => {
             <TableCell style={{width: "500px"}}>
                 <Select
                     options={items}
-                    values={items.filter(i => i.id === item.id)}
+                    values={items.filter(i => item && (i.id === item.id))}
                     onDropdownOpen={() => setOpen(true)}
                     onDropdownClose={() => setOpen(false)}
                     labelField="label"

@@ -87,6 +87,17 @@ public class MixtureController {
         return ResponseEntity.status(HttpStatus.OK).body(mixtures);
     }
 
+    @GetMapping("/{labKey}/{id}")
+    public ResponseEntity<Mixture> getMixtureById(
+            @PathVariable String labKey,
+            @PathVariable Long id,
+            Principal user) {
+        logger.info("GET '/mixture/{labKey}/{id}' was called with labKey {} and id {} by {}", labKey, id, user);
+        Mixture mixture = mixtureService.findByIdForUser(id, user);
+        logger.info("GET '/mixture/{labKey}/{id}'was succesful with mixture id {} ", mixture.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(mixture);
+    }
+    
     @DeleteMapping("/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteMixture(

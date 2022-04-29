@@ -8,7 +8,7 @@ import VerifyPanel from "../../UI/VerifyPanel"
 import ItemInputsInMixture from "./ItemInputsInMixture"
 
 const AddUpdateMixture = props => {
-    const isUpdate = props.match.params.id
+    const mixtureId = props.match.params.id
     
     const selectedLab = useSelector(state => state.selectedLab)
     const user = useSelector(state => state.security.user)
@@ -30,6 +30,33 @@ const AddUpdateMixture = props => {
     const [justAddedMixture, setJustAddedMixture] = useState("")
 
     useEffect(() => {
+        if (mixtureId) {
+            axios.get(`/api/mixture/${selectedLab.key}/${mixtureId}`)
+                .then(result => {setOriginalMixture(result.data)})
+                .catch(() => props.history.push("/mixtures"))
+        }
+    }, [])
+
+    useEffect(() => {
+        if (originalMixture) {
+            setSelectedProject(originalMixture.recipe.project)
+            setRecipe(originalMixture.recipe)
+            setAmount(originalMixture.amount)
+            const initialChemItems = {}
+            originalMixture.chemItems.forEach(item => {
+                initialChemItems[item.chemical.id] = item
+            });
+            setChemItems(initialChemItems)
+            const initialMixtureItems = {}
+            originalMixture.mixtureItems.forEach(item => {
+                initialMixtureItems[item.recipe.id] = item
+            });
+            setMixtureItems(initialMixtureItems)
+        }
+
+    }, [originalMixture])
+
+    useEffect(() => {
         check()
         if (prevSelectedLab.current && prevSelectedLab.current.id !== selectedLab.id) {
             props.history.push("/mixtures")
@@ -48,6 +75,14 @@ const AddUpdateMixture = props => {
         }
     }, [selectedProject])
 
+    const sendRequest = async (mixtureInput) => {
+        if (originalMixture) {
+            return axios.put(`/api/mixture/${originalMixture.id}`, mixtureInput)
+        } else {
+            return axios.post(`/api/mixture`, mixtureInput)
+        }
+    }
+
     const onSubmit = async (event) => {
         check()
         event.preventDefault()
@@ -59,7 +94,7 @@ const AddUpdateMixture = props => {
             chemItemIds: Object.values(chemItems).map(chemItem => chemItem.id),
             mixtureItemIds: Object.values(mixtureItems).map(mixtureItem => mixtureItem.id)
         }
-        await axios.post(`/api/mixture`, mixtureInput)
+        await sendRequest(mixtureInput)
                 .then(result => setJustAddedMixture(result.data))
                 .catch(error => setErrors(error.response.data))
        
@@ -69,7 +104,7 @@ const AddUpdateMixture = props => {
         return `Mixture ${justAddedMixture.recipe.name} was successfully ${originalMixture ? "updated" : "created"} in project ${selectedProject.name} in lab ${selectedLab.name}`
     }
     
-    const auLabel = isUpdate ? "Update" : "Add"
+    const auLabel = mixtureId ? "Update" : "Add"
     const sumbitButton = <button type="submit" className="btn btn-info mt-4" disabled={false}>{auLabel} Mixture</button>
     
     return (
@@ -85,7 +120,7 @@ const AddUpdateMixture = props => {
                     <label htmlFor="project" className="col-sm-2 col-form-label">project</label>
                         <div className="col-sm-10">
                             <Select
-                                disabled={isUpdate}
+                                disabled={mixtureId}
                                 options={projects}
                                 values={projects.filter(project => selectedProject && (project.id === selectedProject.id))}
                                 labelField="name"
@@ -129,8 +164,7 @@ const AddUpdateMixture = props => {
                             />
                             {
                                 (errors.amount && <div className="text-danger">{errors.amount}</div>)
-                            }
-                            
+                            } 
                         </div>
                     </div>
                     <ItemInputsInMixture
@@ -152,11 +186,11 @@ const AddUpdateMixture = props => {
             </form>
             <div style={{height: "600px", width: "100%", clear:"both"}}></div>
             {justAddedMixture && 
-                    <VerifyPanel 
-                        onCancel={() => props.history.push('/mixtures')} 
-                        veryfyMessage={createVerifyMessage()}
-                        buttonLabel="Ok"
-                    />}
+                <VerifyPanel 
+                    onCancel={() => props.history.push('/mixtures')} 
+                    veryfyMessage={createVerifyMessage()}
+                    buttonLabel="Ok"
+                />}
         </div>
     )
 }

@@ -48,7 +48,7 @@ const MixtureCard = props => {
                     <h4 className="mx-auto">{recipe.project.name}</h4>
                 </div>
                 <div className="col-sm-1">
-                    <i>{recipe.amount} {recipe.unit}</i>
+                    <i>{mixture.amount} {recipe.unit}</i>
                 </div>
                 <div className="col-sm-2">
                     <i>{mixture.creationDate}</i><br/>
@@ -60,7 +60,7 @@ const MixtureCard = props => {
                 <div className="col-sm-2">
                     { props.isManager && 
                         <DuButtons 
-                            updateFormTo={`/update-recipe/${recipe.id}`}
+                            updateFormTo={`/update-mixture/${mixture.id}`}
                             onDelete={() => setDeletionConfirmation(true)}
                         /> 
                     }

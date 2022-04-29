@@ -69,6 +69,12 @@ public class MixtureService {
         return mixtureRepository.findMixtures(mixtureQuery, pageable);
     }
 
+    public Mixture findByIdForUser(Long id, Principal user) {
+        Mixture mixture = findById(id);
+        labService.validateLabForUser(mixture.getLab(), user);
+        return mixture;
+    }
+
     public Mixture findById(Long id) {
         return mixtureRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.MIXTURE_ENTITY_NAME, id));
     }
