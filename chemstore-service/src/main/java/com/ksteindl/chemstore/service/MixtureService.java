@@ -75,6 +75,17 @@ public class MixtureService {
         return mixture;
     }
 
+    public PagedList<Mixture> getUsedMixtureItems(Long usedChemItemId, Principal principal) {
+        ChemItem chemItem = chemItemService.findById(usedChemItemId);
+        labService.validateLabForUser(chemItem.getLab(), principal.getName());
+        List<Mixture> usedMixtures = mixtureRepository.findUsedMixtureItems(chemItem);
+        return PagedList.builder(usedMixtures)
+                .setCurrentPage(0)
+                .setTotalItems((long)usedMixtures.size())
+                .setTotalPages(1)
+                .build();
+    }
+
     public Mixture findById(Long id) {
         return mixtureRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.MIXTURE_ENTITY_NAME, id));
     }

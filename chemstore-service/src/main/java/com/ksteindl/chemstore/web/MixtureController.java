@@ -66,6 +66,7 @@ public class MixtureController {
     @GetMapping("/{labKey}")
     public ResponseEntity<PagedList<Mixture>> getMixturesForLab(
             @PathVariable String labKey,
+            @RequestParam(value= "chemItemId", required = false) Long chemItemId,
             @RequestParam(value= "projectId", required = false) Long projectId,
             @RequestParam(value= "recipeId", required = false) Long recipeId,
             @RequestParam(value= "available", defaultValue = "true") Boolean available,
@@ -73,6 +74,10 @@ public class MixtureController {
             @RequestParam(value= "size", defaultValue = "10") Integer size,
             Principal user) {
         logger.info("GET '/mixture/{labKey}' was called with {} by {}", labKey, user);
+        if (chemItemId != null) {
+            PagedList<Mixture> usedMixtures = mixtureService.getUsedMixtureItems(chemItemId, user);
+            return ResponseEntity.status(HttpStatus.OK).body(usedMixtures);
+        }
         MixtureQuery mixtureQuery = MixtureQuery.builder()
                 .labKey(labKey)
                 .projectId(projectId)

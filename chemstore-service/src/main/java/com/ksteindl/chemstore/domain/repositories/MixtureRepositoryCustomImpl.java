@@ -1,5 +1,6 @@
 package com.ksteindl.chemstore.domain.repositories;
 
+import com.ksteindl.chemstore.domain.entities.ChemItem;
 import com.ksteindl.chemstore.domain.entities.Mixture;
 import com.ksteindl.chemstore.domain.input.MixtureQuery;
 import com.ksteindl.chemstore.service.wrapper.PagedList;
@@ -11,6 +12,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.time.LocalDate;
@@ -45,6 +48,20 @@ public class MixtureRepositoryCustomImpl implements MixtureRepositoryCustom{
                 .setTotalItems(count)
                 .setTotalPages((int)(count / (long) mixtureQuery.getSize()) + 1);
         return pageBuilder.build();
+    }
+
+    @Override
+    public List<Mixture> findUsedMixtureItems(ChemItem usedChemItem) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Mixture> selectQuery = criteriaBuilder.createQuery(Mixture.class);
+        Root<Mixture> root = selectQuery.from(Mixture.class);
+
+        Join<Mixture, ChemItem> join = root.join("chemItems", JoinType.LEFT);
+        
+        //selectQuery.where(criteriaBuilder.equal(join.get(Type_.id), 1));
+        selectQuery.select(root).distinct(true);
+
+        return entityManager.createQuery(selectQuery).getResultList();
     }
     
     private Predicate[] assemblePredicate(MixtureQuery mixtureQuery, CriteriaBuilder criteriaBuilder, Root<Mixture> root) {

@@ -89,17 +89,6 @@ public class ChemItemService {
         chemItem.setExpirationDate(calcExpDate(chemItem));
         return chemItemRepository.save(chemItem);
     }
-    
-    private LocalDate calcExpDate(ChemItem chemItem) {
-        ChemicalCategory category = chemItem.getChemical().getCategory();
-        LocalDate expBeforeOpened = chemItem.getExpirationDateBeforeOpened();
-        if (category == null) {
-            return expBeforeOpened;
-        }
-        int shelfLifeInDays = (int) category.getShelfLife().toDays();
-        LocalDate maxExpDate = LocalDate.now().plusDays(shelfLifeInDays);
-        return maxExpDate.isAfter(expBeforeOpened) ? expBeforeOpened : maxExpDate;
-    }
 
     public ChemItem consumeChemItem(Long chemItemId, Principal user) {
         ChemItem chemItem = findById(chemItemId);
@@ -120,9 +109,19 @@ public class ChemItemService {
         Pageable pageable = Pageable.ofSize(chemItemQuery.getSize()).withPage(chemItemQuery.getPage());
         return chemItemRepository.findChemItems(chemItemQuery, pageable);
     }
+
+    public List<ChemItem> getUsedChemItems(Long usedChemItemId, Principal principal) {
+        ChemItem chemItem = findById(usedChemItemId);
+        labService.validateLabForUser(chemItem.getLab(), principal.getName());
+        return chemItemRepository.findUsedChemItems(usedChemItemId);
+    }
+
+    public ChemItem findById(Long id) {
+        return chemItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEM_ITEM_ENTITY_NAME, id));
+    }
     
     public void hardDeleteChemItem(Long id, Principal principal) {
-        AppUser user = appUserService.getMyAppUser(principal);
+        AppUser user = appUserService.getAppUser(principal.getName());
         ChemItem chemItem = findById(id);
         boolean labManager = user.getManagedLabs().stream().anyMatch(lab -> lab.getKey().equals(chemItem.getLab().getKey()));
         if (!labManager) {
@@ -131,12 +130,18 @@ public class ChemItemService {
         }
         chemItemRepository.delete(chemItem);
     }
-
-
-    public ChemItem findById(Long id) {
-        return chemItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEM_ITEM_ENTITY_NAME, id));
-    }
     
+
+    private LocalDate calcExpDate(ChemItem chemItem) {
+        ChemicalCategory category = chemItem.getChemical().getCategory();
+        LocalDate expBeforeOpened = chemItem.getExpirationDateBeforeOpened();
+        if (category == null) {
+            return expBeforeOpened;
+        }
+        int shelfLifeInDays = (int) category.getShelfLife().toDays();
+        LocalDate maxExpDate = LocalDate.now().plusDays(shelfLifeInDays);
+        return maxExpDate.isAfter(expBeforeOpened) ? expBeforeOpened : maxExpDate;
+    }
 
     private List<ChemItem> createBatchedChemItems(ChemItem chemItemTemplate, Integer amount) {
         Integer nextSeqNumber = getNextSeqNumber(chemItemTemplate);
