@@ -9,7 +9,7 @@ import MixtureCard from "./MixtureCard"
 import MixtureHeader from "./MixtureHeader"
 
 const MixtureDashboard = () => {
-    const PAGE_LIMIT = 3
+    const PAGE_LIMIT = 10
 
     const selectedLab = useSelector(state => state.selectedLab)
     const user = useSelector((state) => state.security.user)
