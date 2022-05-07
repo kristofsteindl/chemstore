@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { check } from '../../utils/securityUtils';
 import axios from 'axios';
 import RedirectFormButton from '../RedirectFormButton';
+import VerifyPanel from '../UI/VerifyPanel';
 
 const PAGE_LIMIT = 20
 
@@ -17,6 +18,7 @@ function ChemItemDashboard() {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalItems, setTotalItems] = useState(1)
     const setTotalPages = useState(0)[1]
+    const [error, setError] = useState("")
     
     const toggleOnlyAvailable = () => {
         setOnlyAvailable(!onlyAvailable);
@@ -43,8 +45,14 @@ function ChemItemDashboard() {
 
 
     const deleteChemItem = async id => {
-        await axios.delete(`/api/chem-item/${id}`)
-        setChemItems(originalList => originalList.filter(chemItem => chemItem.id !== id))
+        try {
+            await axios.delete(`/api/chem-item/${id}`)
+            setChemItems(originalList => originalList.filter(chemItem => chemItem.id !== id))
+        } catch (error) {
+            console.log(error.response.data.message)
+            setError(error.response.data.message)
+        }
+        
     }
 
     const onPageChanged = data => {
@@ -127,6 +135,12 @@ function ChemItemDashboard() {
                             getChemItemContent(totalItems) :
                             <p className="lead"><i>Please select a lab</i></p>
                         }
+                        {error && 
+                            <VerifyPanel 
+                                onCancel={() => setError("")} 
+                                veryfyMessage={error}
+                                buttonLabel="Ok"
+                            />}
 
                     </div>
                 </div>

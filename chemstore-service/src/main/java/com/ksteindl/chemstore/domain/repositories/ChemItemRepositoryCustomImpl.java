@@ -46,15 +46,7 @@ public class ChemItemRepositoryCustomImpl implements ChemItemRepositoryCustom{
                 .setTotalPages((int)(count / (long) chemItemQuery.getSize()) + 1);
         return pageBuilder.build();
     }
-
-    @Override
-    public List<ChemItem> findUsedChemItems(Long usedChemItemId) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ChemItem> selectQuery = criteriaBuilder.createQuery(ChemItem.class);
-        Root<ChemItem> root = selectQuery.from(ChemItem.class);
-        root.join("");
-        return null;
-    }
+    
 
     private Predicate[] assemblePredicate(ChemItemQuery chemItemQuery, CriteriaBuilder criteriaBuilder, Root<ChemItem> root) {
         List<Predicate> predicates = new ArrayList<>();

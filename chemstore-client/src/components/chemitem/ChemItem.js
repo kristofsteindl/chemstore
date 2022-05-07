@@ -6,10 +6,13 @@ import { isAvailable, isExpired } from '../../utils/chem-item-utils'
 import VerifyPanel from '../UI/VerifyPanel';
 import "./ChemItem.css"
 import { Button } from "@mui/material"
+import useCollapse from 'react-collapsed';
+  
 
 const ChemItem = props => {
     const [chemItem, setChemItem] = useState(props.chemItem)
     const [activeModal, setActiveModal] = useState("")
+    const { getCollapseProps, getToggleProps } = useCollapse();
     
     const getExpDate = chemItem => {
         if (chemItem.expirationDate) {
@@ -89,7 +92,7 @@ const ChemItem = props => {
     return (
         <div className="container">
             <div className={`card card-body bg-light mb-2 chem-item ${isAvailable(chemItem) ? "" : "unavailable"}`}>
-                <div className="row" >
+                <div className="row"  {...getToggleProps()}>
                     <div className="col-2">
                         <h4 className="mx-auto">{chemical.shortName}</h4>
                     </div>
@@ -120,6 +123,31 @@ const ChemItem = props => {
 
 
                 </div>
+                <div {...getCollapseProps()}>
+                    <div className="row content" style={{padding: "10px"}}>
+                        <div className="col-2">
+                            <i className="mx-auto">{chemical.exactName}</i>
+                        </div>
+                        <div className="col-sm-1" />
+                            
+                        <div className="col-1">
+                            <i className="mx-auto">by {chemItem.arrivedBy.fullName}</i>
+                        </div>
+                        
+                        <div className="col-sm-4" />
+                            
+                        <div className="col-sm-1" />
+                            
+                        <div className="col-sm-1" >
+                            <i className="mx-auto">{chemItem.openedBy && `by ${chemItem.openedBy.fullName}`}</i>
+                           
+                        </div>
+                        <div className="col-sm-1" />
+                            
+                        <div className="col-sm-1" />
+                            
+                    </div>
+                </div>
             </div>
             {activeModal === "CONSUME" && 
                 <VerifyPanel 
@@ -141,7 +169,7 @@ const ChemItem = props => {
                     veryfyMessage={getVerifyMessage("delete")}
                     onSubmit={deleteChemItem}
                     buttonLabel="Delete"
-                />}
+            />}
         </div>
     )
     

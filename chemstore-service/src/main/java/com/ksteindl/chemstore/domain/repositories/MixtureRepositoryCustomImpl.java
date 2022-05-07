@@ -58,7 +58,7 @@ public class MixtureRepositoryCustomImpl implements MixtureRepositoryCustom{
 
         Join<Mixture, ChemItem> join = root.join("chemItems", JoinType.LEFT);
         
-        //selectQuery.where(criteriaBuilder.equal(join.get(Type_.id), 1));
+        selectQuery.where(criteriaBuilder.equal(join.get("id"), usedChemItem.getId()));
         selectQuery.select(root).distinct(true);
 
         return entityManager.createQuery(selectQuery).getResultList();

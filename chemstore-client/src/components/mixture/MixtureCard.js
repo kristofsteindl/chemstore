@@ -1,7 +1,5 @@
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import { useState } from "react";
 import useCollapse from "react-collapsed";
-import IngredientRow from "../recipe/IngredientRow";
 import DuButtons from "../UI/DuButtons";
 import VerifyPanel from "../UI/VerifyPanel";
 import IngredientMixtureTable from "./IngredientMixtureTable";
