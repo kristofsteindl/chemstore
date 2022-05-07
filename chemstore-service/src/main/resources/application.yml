@@ -4,11 +4,6 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
-    url: "jdbc:postgresql://localhost:5432/chemstore_db"
-    username: chemstore_db_user
-    password: chemstore_db_user
-#logging.level:
-#  root: DEBUG
-#  org.hibernate:
-#    SQL: DEBUG
-#    type.descriptor.sql.BasicBinder: TRACE
+    url: ${db_url:jdbc:postgresql://localhost:5432/chemstore_db}
+    username: ${db_username:chemstore_db_user}
+    password: ${db_password:chemstore_db_user}
