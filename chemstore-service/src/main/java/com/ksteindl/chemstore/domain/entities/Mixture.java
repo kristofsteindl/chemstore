@@ -114,4 +114,8 @@ public class Mixture implements HasLab, Serializable {
         mixtureItems.add(mixtureItem);
     }
 
+    @Override
+    public String toString() {
+        return "'Mixture' " + recipe.getName() + " (id=" + id + "), created by " + creator.getFullName() + " on " + creationDate.toString();
+    }
 }

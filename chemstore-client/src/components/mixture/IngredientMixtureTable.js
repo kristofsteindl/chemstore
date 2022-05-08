@@ -10,7 +10,7 @@ const IngredientMixtureTable = props => {
         const mixtureItem = mixture.mixtureItems.filter(mi => mi.recipe.id === recipeId)[0]
         return ({
             id: mixtureItem.id,
-            name: recipe.name,
+            name: mixtureItem.recipe.name,
             amount: recipeIngredient.amount / recipe.amount * mixture.amount,
             unit: recipeIngredient.unit,
             manufacturerName: "",

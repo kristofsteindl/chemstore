@@ -28,6 +28,7 @@ const RecipeCard = props => {
                     <div className="col-sm-3">
                         { props.isManager && 
                             <DuButtons 
+                                updateDisabled={true}
                                 updateFormTo={`/update-recipe/${recipe.id}`}
                                 onDelete={() => setDeletionConfirmation(true)}
                             /> 

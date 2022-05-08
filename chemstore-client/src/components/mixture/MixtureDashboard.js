@@ -5,6 +5,7 @@ import { useSelector } from "react-redux"
 import { check } from "../../utils/securityUtils"
 import Pagination from "../Pagination"
 import RedirectFormButton from "../RedirectFormButton"
+import VerifyPanel from "../UI/VerifyPanel"
 import MixtureCard from "./MixtureCard"
 import MixtureHeader from "./MixtureHeader"
 
@@ -19,6 +20,7 @@ const MixtureDashboard = () => {
     
     const [ selectedProject, setSelectedProject ] = useState("")
     const [onlyAvailable, setOnlyAvailable] = useState(true)
+    const [error, setError] = useState(true)
     
     const [totalItems, setTotalItems] = useState(1)
     const [ page, setPage ] = useState(1)
@@ -54,9 +56,15 @@ const MixtureDashboard = () => {
    
 
     const deleteMixture = async mixtureId => {
-        await axios.delete(`/api/mixture/${mixtureId}`)
-        setMixtures(originalList => originalList.filter(mixture => mixture.id !== mixtureId))
+        try {
+            await axios.delete(`/api/mixture/${mixtureId}`)
+            setMixtures(originalList => originalList.filter(mixture => mixture.id !== mixtureId))
+        } catch (error) {
+            setError(error.response.data.message)
+        }
+        
     }
+
 
     const getMixtureTable = () => {
         if (mixtures.length === 0) {
@@ -129,6 +137,12 @@ const MixtureDashboard = () => {
             </div>
             <hr />
             {getMixtureTable()} 
+            {error && 
+                <VerifyPanel 
+                    onCancel={() => setError("")} 
+                    veryfyMessage={error}
+                    buttonLabel="Ok"
+                />}
         </div>
     )
 }

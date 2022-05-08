@@ -3,6 +3,10 @@
     margin-right: 10px;
 }
 
+.disabled-link {
+    pointer-events: none;
+}
+
 .btn {
     height: 38px
 }

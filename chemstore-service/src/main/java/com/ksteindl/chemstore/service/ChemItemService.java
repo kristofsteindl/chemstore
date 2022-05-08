@@ -11,7 +11,6 @@ import com.ksteindl.chemstore.domain.input.ChemItemInput;
 import com.ksteindl.chemstore.domain.input.ChemItemQuery;
 import com.ksteindl.chemstore.domain.repositories.ChemItemRepository;
 import com.ksteindl.chemstore.domain.repositories.MixtureRepository;
-import com.ksteindl.chemstore.exceptions.ForbiddenException;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.service.wrapper.PagedList;
@@ -119,22 +118,13 @@ public class ChemItemService {
     }
     
     public void hardDeleteChemItem(Long id, Principal principal) {
-        AppUser user = appUserService.getAppUser(principal.getName());
         ChemItem chemItem = findById(id);
-        List<Mixture> usedMixtures = getUsedMixtureItems(chemItem, principal);
+        labService.validateLabForManager(chemItem.getLab(), principal);
+        List<Mixture> usedMixtures = mixtureRepository.findUsedMixtureItems(chemItem);
         if (!usedMixtures.isEmpty()) {
-           throw new ValidationException(String.format(Lang.CHEM_ITEM_DELETION_MIXTURE_USED));
-        }
-        boolean labManager = user.getManagedLabs().stream().anyMatch(lab -> lab.getKey().equals(chemItem.getLab().getKey()));
-        if (!labManager) {
-            //TODO
-            throw new ForbiddenException("Deletion only allowed for lab manager");
+            throw new ValidationException(String.format(Lang.CHEM_ITEM_DELETION_MIXTURE_USED));
         }
         chemItemRepository.delete(chemItem);
-    }
-
-    private List<Mixture> getUsedMixtureItems(ChemItem usedChemItem, Principal principal) {
-        return mixtureRepository.findUsedMixtureItems(usedChemItem);
     }
     
 

@@ -10,6 +10,7 @@ import com.ksteindl.chemstore.domain.entities.Recipe;
 import com.ksteindl.chemstore.domain.entities.RecipeIngredient;
 import com.ksteindl.chemstore.domain.input.MixtureInput;
 import com.ksteindl.chemstore.domain.input.MixtureQuery;
+import com.ksteindl.chemstore.domain.input.UsedMixtureQuery;
 import com.ksteindl.chemstore.domain.repositories.MixtureRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
@@ -75,17 +76,6 @@ public class MixtureService {
         return mixture;
     }
 
-    public PagedList<Mixture> getUsedMixtureItems(Long usedChemItemId, Principal principal) {
-        ChemItem chemItem = chemItemService.findById(usedChemItemId);
-        labService.validateLabForUser(chemItem.getLab(), principal.getName());
-        List<Mixture> usedMixtures = mixtureRepository.findUsedMixtureItems(chemItem);
-        return PagedList.builder(usedMixtures)
-                .setCurrentPage(0)
-                .setTotalItems((long)usedMixtures.size())
-                .setTotalPages(1)
-                .build();
-    }
-
     public Mixture findById(Long id) {
         return mixtureRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.MIXTURE_ENTITY_NAME, id));
     }
@@ -93,7 +83,7 @@ public class MixtureService {
     public void deleteMixture(Long id, Principal labManagerPrincipal) {
         Mixture mixture = findById(id);
         labService.validateLabForManager(mixture.getLab(), labManagerPrincipal);
-        checkIfNoMixtureIsCreatedFrom(mixture);
+        validateMixtureIsNotUsed(mixture);
         mixtureRepository.delete(mixture);
     }
 
@@ -228,11 +218,16 @@ public class MixtureService {
     }
 
 
-    private void checkIfNoMixtureIsCreatedFrom(Mixture mixture) {
-        List<Mixture> mixtures = mixtureRepository.findMixturesMadeOf(mixture);
-        if (!mixtures.isEmpty()) {
-            throw new ValidationException(String.format(Lang.MIXTURE_CANNOT_BE_DELETED,
-                    mixtures.stream().map(Mixture::getIdentifier).collect(Collectors.toList())));
+    private void validateMixtureIsNotUsed(Mixture mixture) {
+        UsedMixtureQuery usedMixtureQuery = UsedMixtureQuery.builder()
+                .labKey(mixture.getLab().getKey())
+                .mixtureItemId(mixture.getId())
+                .build();
+        List<Mixture> usedMixtures = mixtureRepository.findUsedMixtureItems(mixture);
+        //List<Mixture> usedMixtures = mixtureRepository.findMixturesMadeOf(mixture);
+        if (!usedMixtures.isEmpty()) {
+            throw new ValidationException(String.format(Lang.MIXTURE_CANNOT_BE_DELETED, mixture,
+                    usedMixtures.stream().map(Mixture::getIdentifier).collect(Collectors.toList())));
         }
     }
     
