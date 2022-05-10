@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -29,15 +30,20 @@ public class UnitService {
 
     @PostConstruct
     private void loadUnits() {
+        units = DEFAULT_UNITS;
         try {
-            units = Files.readAllLines(Paths.get(UNIT_FILE_NAME), StandardCharsets.UTF_8);
-            logger.info("units loaded succesfully from: " + UNIT_FILE_NAME);
+            Path filePath = Paths.get(UNIT_FILE_NAME);
+            if (Files.exists(filePath)) {
+                units = Files.readAllLines(Paths.get(UNIT_FILE_NAME), StandardCharsets.UTF_8);
+                logger.info("units loaded succesfully from: " + UNIT_FILE_NAME);
+            } else {
+                logger.warn(UNIT_FILE_NAME + " does not exists, falling back to default units");
+            }
+            logger.info("units are: " + units);
         }
         catch (IOException exception) {
-            logger.warn("IOException is thrown when trying to read units from " + UNIT_FILE_NAME, exception);
-            units = DEFAULT_UNITS;
+            throw new RuntimeException(exception);
         }
-        logger.info("units are: " + units);
     }
 
     public List<String> getUnits() {

@@ -150,13 +150,13 @@ public class MixtureService {
                     String.format(Lang.MIXTURE_CI_OPENED_AFTER, chemItem.getChemical().getShortName(), createdDate, chemItem.getOpeningDate()));
         }
         LocalDate consumtionDate = chemItem.getConsumptionDate();
-        if (consumtionDate != null && !consumtionDate.isAfter(createdDate)) {
+        if (consumtionDate != null && consumtionDate.isBefore(createdDate)) {
             throw new ValidationException(
                     Lang.MIXTURE_CREATION_DATE,
                     String.format(Lang.MIXTURE_CI_ALREADY_CONSUMED, chemItem.getChemical().getShortName(), chemItem.getConsumptionDate(), createdDate));
         }
         LocalDate expirationDate = chemItem.getExpirationDate();
-        if (expirationDate != null && !expirationDate.isAfter(createdDate)) {
+        if (expirationDate != null && expirationDate.isBefore(createdDate)) {
             throw new ValidationException(
                     Lang.MIXTURE_CREATION_DATE,
                     String.format(Lang.MIXTURE_CI_ALREADY_EXPIRED, chemItem.getChemical().getShortName(), chemItem.getConsumptionDate(), createdDate));
@@ -186,7 +186,7 @@ public class MixtureService {
                     mixtureItem.getRecipe().getName(), createdDate, mixtureItemCreationDate));
         }
         LocalDate expirationDate = mixtureItem.getExpirationDate();
-        if (!expirationDate.isAfter(createdDate)) {
+        if (expirationDate.isBefore(createdDate)) {
             throw new ValidationException(Lang.MIXTURE_CREATION_DATE,
                     String.format(Lang.MIXTURE_MIXTURE_ITEM_ALREADY_EXPIRED,
                     mixtureItem.getRecipe().getName(), expirationDate, createdDate));
@@ -224,7 +224,6 @@ public class MixtureService {
                 .mixtureItemId(mixture.getId())
                 .build();
         List<Mixture> usedMixtures = mixtureRepository.findUsedMixtureItems(mixture);
-        //List<Mixture> usedMixtures = mixtureRepository.findMixturesMadeOf(mixture);
         if (!usedMixtures.isEmpty()) {
             throw new ValidationException(String.format(Lang.MIXTURE_CANNOT_BE_DELETED, mixture,
                     usedMixtures.stream().map(Mixture::getIdentifier).collect(Collectors.toList())));

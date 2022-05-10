@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="DEBUG">
+<Configuration status="INFO">
     <properties>
         <property name="name">chemstore</property>
         <property name="pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} | %-5.5p | %-10.10t | %-20.20C:%-5.5L | %msg%n</property>
@@ -30,12 +30,12 @@
         </File>
     </Appenders>
     <Loggers>
-        <Logger name="com.ksteindl" level="debug" additivity="false">
+        <Logger name="com.ksteindl" level="info" additivity="false">
             <AppenderRef ref="LogToFile"/>
             <AppenderRef ref="LogToConsole"/>
             <AppenderRef ref="RollingFile"/>
         </Logger>
-        <Logger name="org.springframework.boot" level="debug" additivity="false">
+        <Logger name="org.springframework.boot" level="info" additivity="false">
             <AppenderRef ref="LogToConsole"/>
             <AppenderRef ref="RollingFile"/>
         </Logger>

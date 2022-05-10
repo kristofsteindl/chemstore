@@ -20,7 +20,7 @@ const MixtureDashboard = () => {
     
     const [ selectedProject, setSelectedProject ] = useState("")
     const [onlyAvailable, setOnlyAvailable] = useState(true)
-    const [error, setError] = useState(true)
+    const [error, setError] = useState("")
     
     const [totalItems, setTotalItems] = useState(1)
     const [ page, setPage ] = useState(1)
