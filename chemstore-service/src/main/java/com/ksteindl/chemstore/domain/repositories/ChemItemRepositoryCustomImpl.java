@@ -86,6 +86,15 @@ public class ChemItemRepositoryCustomImpl implements ChemItemRepositoryCustom{
             }
         }
         
+        LocalDate availableOn = chemItemQuery.getAvailableOn();
+        if (availableOn != null) {
+            Predicate notConsumed = criteriaBuilder.or(
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("expirationDate"), availableOn),
+                    criteriaBuilder.isNull(root.get("expirationDate")));
+            Predicate notExpiredAndOpened = criteriaBuilder.greaterThanOrEqualTo(root.get("expirationDate"), availableOn);
+            predicates.add(criteriaBuilder.and(notConsumed, notExpiredAndOpened));
+        }
+        
         Long chemicalId = chemItemQuery.getChemicalId();
         if (chemicalId != null) {
             Predicate recipePredicate = criteriaBuilder.equal(root.get("chemical").get("id"), chemicalId);

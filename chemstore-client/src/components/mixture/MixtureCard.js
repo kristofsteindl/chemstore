@@ -58,7 +58,7 @@ const MixtureCard = props => {
                 <div className="col-sm-2">
                     { props.isManager && 
                         <DuButtons 
-                            updateDisabled={true}
+                            updateDisabled={false}
                             updateFormTo={`/update-mixture/${mixture.id}`}
                             onDelete={() => setDeletionConfirmation(true)}
                         /> 

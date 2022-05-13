@@ -49,7 +49,6 @@ function ChemItemDashboard() {
             await axios.delete(`/api/chem-item/${id}`)
             setChemItems(originalList => originalList.filter(chemItem => chemItem.id !== id))
         } catch (error) {
-            console.log(error.response.data.message)
             setError(error.response.data.message)
         }
         

@@ -3,7 +3,7 @@ import classNames from "classnames"
 import { useEffect, useRef, useState } from "react"
 import Select from "react-dropdown-select"
 import { useSelector } from "react-redux"
-import { check } from "../../../utils/securityUtils"
+import { check, checkIfManager } from "../../../utils/securityUtils"
 import VerifyPanel from "../../UI/VerifyPanel"
 import ItemInputsInMixture from "./ItemInputsInMixture"
 
@@ -20,10 +20,13 @@ const AddUpdateMixture = props => {
     const [ selectedProject, setSelectedProject ] = useState("")
     const [ recipe, setRecipe ] = useState("")
     const [ amount, setAmount ] = useState("")
+    const [ creationDate, setCreationDate ] = useState("")
     const [ chemItems, setChemItems ] = useState("")
     const [ mixtureItems, setMixtureItems ] = useState("")
+    const [changeCraetionDate, setChangeCraetionDate] = useState()
 
     const [ errors, setErrors ] = useState("")
+    const isManager = checkIfManager(selectedLab, user)
 
     const prevSelectedLab = useRef();
 
@@ -103,6 +106,41 @@ const AddUpdateMixture = props => {
     const createVerifyMessage = () => {
         return `Mixture ${justAddedMixture.recipe.name} was successfully ${originalMixture ? "updated" : "created"} in project ${selectedProject.name} in lab ${selectedLab.name}`
     }
+
+    const getCreatedDateInputContent = () => {
+        if (!isManager) {
+            return
+        }
+        return (
+            <div>
+                <div className="form-group row mb-3 align-items-center">
+                    <label htmlFor="changeCraetionDate" className="col-sm-2 col-form-label">change creation date</label>
+                    <div className="col-sm-10">
+                        <input
+                            type="checkbox"
+                            checked={changeCraetionDate}
+                            onChange={() => setChangeCraetionDate(!changeCraetionDate)}
+                        />
+                    </div>
+                </div>
+                {changeCraetionDate && (<div className="form-group row mb-3">
+                    <label htmlFor="amount" className="col-sm-2 col-form-label">creation date</label>
+                    <div className="col-sm-10">
+                        <input 
+                            name="creationDate" 
+                            value={creationDate}
+                            onChange={event => setCreationDate(event.target.value)}
+                            type="date" 
+                            className="form-control form-control-lg " 
+                        />
+                        {
+                            (errors.creationDate && <div className="text-danger">{errors.creationDate}</div>)
+                        } 
+                    </div>
+                </div>)}
+            </div>
+        )
+    }
     
     const auLabel = mixtureId ? "Update" : "Add"
     const sumbitButton = <button type="submit" className="btn btn-info mt-4" disabled={false}>{auLabel} Mixture</button>
@@ -137,6 +175,7 @@ const AddUpdateMixture = props => {
                         <label htmlFor="project" className="col-sm-2 col-form-label">recipe</label>
                         <div className="col-sm-10">
                             <Select
+                                disabled={mixtureId}
                                 options={recipes}
                                 values={recipes.filter(recipeFromList => recipe && (recipeFromList.id === recipe.id))}
                                 labelField="name"
@@ -167,6 +206,7 @@ const AddUpdateMixture = props => {
                             } 
                         </div>
                     </div>
+                    {getCreatedDateInputContent()}
                     <ItemInputsInMixture
                         type="CHEM_ITEM" 
                         recipe={recipe}
@@ -174,6 +214,7 @@ const AddUpdateMixture = props => {
                         amount={amount}
                         setSelectedItems={setChemItems}
                         selectedItems={chemItems}
+                        creationDate={changeCraetionDate && creationDate}
                     />
                     <ItemInputsInMixture
                         type="MIXTURE_ITEM" 
@@ -182,6 +223,7 @@ const AddUpdateMixture = props => {
                         amount={amount}
                         setSelectedItems={setMixtureItems}
                         selectedItems={mixtureItems}
+                        creationDate={changeCraetionDate && creationDate}
                     />
             </form>
             <div style={{height: "600px", width: "100%", clear:"both"}}></div>

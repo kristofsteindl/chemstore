@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -78,6 +79,7 @@ public class ChemItemController {
     public ResponseEntity<PagedList<ChemItem>> getChemItemsForLab(
             @PathVariable String labKey,
             @RequestParam(value= "chemicalId", required = false) Long chemicalId,
+            @RequestParam(value= "availableOn", required = false) LocalDate availableOn,
             @RequestParam(value= "opened", required = false) Boolean opened,
             @RequestParam(value= "expired", required = false) Boolean expired,
             @RequestParam(value= "consumed", required = false) Boolean consumed,
@@ -92,6 +94,7 @@ public class ChemItemController {
                 .chemicalId(chemicalId)
                 .principal(principal)
                 .page(page)
+                .availableOn(availableOn)
                 .opened(opened)
                 .expired(expired)
                 .consumed(consumed)

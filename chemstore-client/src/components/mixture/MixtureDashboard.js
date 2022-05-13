@@ -88,18 +88,16 @@ const MixtureDashboard = () => {
     return (
         <div className="container col-md-12">
             <div className="row" style={{ position: "relative"}}>
-                {isManager && 
-                    <div style={{ position: "absolute", bottom: "0",left: "0"}}>
-                        <RedirectFormButton formRoute="/add-mixture" buttonLabel="Add Mixture"/>
-                    </div>
-                }
+                <div style={{ position: "absolute", bottom: "0",left: "0"}}>
+                    <RedirectFormButton formRoute="/add-mixture" buttonLabel="Add Mixture"/>
+                </div>
                 <div className="text-center">
                     <h3 className="display-4">Mixtures</h3>
                     <p className="lead">List the mixtures and eluents of {selectedLab.name}</p>
                 </div>
             </div>
             <br/>
-            <div className="w-300 px-4 py-0 d-flex flex-row flex-wrap align-items-center justify-content-between">
+            <div className="w-300 px-4 py-0 d-flex flex-row">
                 <div className="col-sm-4 d-flex py-2 align-items-center">
                     <div className="col-sm-4">
                         <Pagination 

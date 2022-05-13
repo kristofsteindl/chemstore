@@ -20,7 +20,7 @@ export const checkIfAdmin = (selectedLab, user) => {
 
 
 export const checkIfManager = (selectedLab, user) => {
-  return (selectedLab.key) && selectedLab.labManagers.map(manager => manager.username).includes(user.username)
+  return  (selectedLab.key) && selectedLab.labManagers.filter(manager => manager.username === user.username).length > 0
 }
 
 

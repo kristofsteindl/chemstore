@@ -3,7 +3,7 @@ import { useState } from "react"
 import ItemInputRow from "./ItemInputRow"
 
 const ItemInputsInMixture = props => {
-    const { recipe, amount, ingredients, setSelectedItems, selectedItems, type } = props 
+    const { recipe, amount, ingredients, setSelectedItems, selectedItems, type, creationDate } = props 
     const [ spacer, setSpacer ] = useState(0)
 
     const isChemItems = type === "CHEM_ITEM"
@@ -35,6 +35,7 @@ const ItemInputsInMixture = props => {
                                         selectedItems={selectedItems}
                                         posFromLast={ingredients.length - index - 1}
                                         setSpacer={setSpacer}
+                                        creationDate={creationDate}
                                     />
 
                                 )}

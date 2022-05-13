@@ -5,7 +5,7 @@ import Select from "react-dropdown-select"
 import { useSelector } from "react-redux"
 
 const ItemInputRow = props => {
-    const { ingredientRow, type, amountFactor, selectedItems, setSelectedItems, setSpacer, posFromLast } = props
+    const { ingredientRow, type, amountFactor, selectedItems, setSelectedItems, setSpacer, posFromLast, creationDate } = props
     const ingredient = ingredientRow.ingredient
     const height = posFromLast * 50
 
@@ -18,7 +18,13 @@ const ItemInputRow = props => {
     const [ open, setOpen ] = useState(false)
 
     const fetchChemItems = () => {
-        axios.get(`/api/chem-item/${selectedLab.key}?chemicalId=${ingredient.id}&opened=true&expired=false&consumed=false&size=100`)
+        let query
+        if (creationDate) {
+            query = `/api/chem-item/${selectedLab.key}?chemicalId=${ingredient.id}&availableOn=${creationDate}&size=100`
+        } else {
+            query = `/api/chem-item/${selectedLab.key}?chemicalId=${ingredient.id}&opened=true&expired=false&consumed=false&size=100`
+        }
+        axios.get()
                 .then(result => {setItems(result.data.content.map(item => (
                     {...item, label: `${item.manufacturer.name}, ${item.batchNumber}-${item.seqNumber}`}
                 )))})
@@ -48,7 +54,7 @@ const ItemInputRow = props => {
             }
         }
         
-    }, [selectedLab])
+    }, [selectedLab, creationDate])
 
     useEffect(() => {
         if (open) {
