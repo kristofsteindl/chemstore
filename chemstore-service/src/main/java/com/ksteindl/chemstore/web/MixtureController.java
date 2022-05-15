@@ -8,6 +8,7 @@ import com.ksteindl.chemstore.service.wrapper.PagedList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/mixture")
@@ -68,7 +70,8 @@ public class MixtureController {
             @PathVariable String labKey,
             @RequestParam(value= "projectId", required = false) Long projectId,
             @RequestParam(value= "recipeId", required = false) Long recipeId,
-            @RequestParam(value= "available", defaultValue = "true") Boolean available,
+            @RequestParam(value= "availableOn", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate availableOn,
+            @RequestParam(value= "available", required = false) Boolean available,
             @RequestParam(value="page", defaultValue = "0") Integer page,
             @RequestParam(value= "size", defaultValue = "10") Integer size,
             Principal user) {
@@ -79,6 +82,7 @@ public class MixtureController {
                 .recipeId(recipeId)
                 .principal(user)
                 .page(page)
+                .availableOn(availableOn)
                 .available(available)
                 .size(size)
                 .build();

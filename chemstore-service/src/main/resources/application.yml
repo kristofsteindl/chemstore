@@ -7,3 +7,5 @@ spring:
     url: ${db_url:jdbc:postgresql://localhost:5432/chemstore_db}
     username: ${db_username:chemstore_db_user}
     password: ${db_password:chemstore_db_user}
+  server:
+    port: ${PORT:8080}

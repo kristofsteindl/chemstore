@@ -90,6 +90,13 @@ public class MixtureRepositoryCustomImpl implements MixtureRepositoryCustom{
             Predicate recipePredicate = criteriaBuilder.equal(root.get("recipe").get("id"), mixtureQuery.getRecipeId());
             predicates.add(recipePredicate);
         }
+        LocalDate availableOn = mixtureQuery.getAvailableOn();
+        if (availableOn != null) {
+            Predicate notExpired = criteriaBuilder.greaterThanOrEqualTo(root.get("expirationDate"), availableOn);
+            Predicate aleadyCreated = criteriaBuilder.lessThanOrEqualTo(root.get("creationDate"), availableOn);
+            predicates.add(notExpired);
+            predicates.add(aleadyCreated);
+        }
         return predicates.toArray(new Predicate[predicates.size()]);
     }
     

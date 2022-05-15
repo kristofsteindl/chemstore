@@ -9,6 +9,7 @@ import com.ksteindl.chemstore.service.wrapper.PagedList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -79,7 +80,7 @@ public class ChemItemController {
     public ResponseEntity<PagedList<ChemItem>> getChemItemsForLab(
             @PathVariable String labKey,
             @RequestParam(value= "chemicalId", required = false) Long chemicalId,
-            @RequestParam(value= "availableOn", required = false) LocalDate availableOn,
+            @RequestParam(value= "availableOn", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate availableOn,
             @RequestParam(value= "opened", required = false) Boolean opened,
             @RequestParam(value= "expired", required = false) Boolean expired,
             @RequestParam(value= "consumed", required = false) Boolean consumed,

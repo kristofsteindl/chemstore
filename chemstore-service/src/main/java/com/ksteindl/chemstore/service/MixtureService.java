@@ -149,8 +149,8 @@ public class MixtureService {
                     Lang.MIXTURE_CREATION_DATE,
                     String.format(Lang.MIXTURE_CI_OPENED_AFTER, chemItem.getChemical().getShortName(), createdDate, chemItem.getOpeningDate()));
         }
-        LocalDate consumtionDate = chemItem.getConsumptionDate();
-        if (consumtionDate != null && consumtionDate.isBefore(createdDate)) {
+        LocalDate consumptionDate = chemItem.getConsumptionDate();
+        if (consumptionDate != null && consumptionDate.isBefore(createdDate)) {
             throw new ValidationException(
                     Lang.MIXTURE_CREATION_DATE,
                     String.format(Lang.MIXTURE_CI_ALREADY_CONSUMED, chemItem.getChemical().getShortName(), chemItem.getConsumptionDate(), createdDate));

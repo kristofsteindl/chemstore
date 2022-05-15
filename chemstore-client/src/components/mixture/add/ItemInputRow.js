@@ -24,25 +24,40 @@ const ItemInputRow = props => {
         } else {
             query = `/api/chem-item/${selectedLab.key}?chemicalId=${ingredient.id}&opened=true&expired=false&consumed=false&size=100`
         }
-        axios.get()
+        axios.get(query)
                 .then(result => {setItems(result.data.content.map(item => (
                     {...item, label: `${item.manufacturer.name}, ${item.batchNumber}-${item.seqNumber}`}
                 )))})
     }
 
     const fetchMixtures = () => {
-        axios.get(`/api/mixture/${selectedLab.key}?recipeId=${ingredient.id}&available=false&size=100`)
+        let query
+        if (creationDate) {
+            query = `/api/mixture/${selectedLab.key}?recipeId=${ingredient.id}&availableOn=${creationDate}&size=100`
+        }
+        else {
+            query = `/api/mixture/${selectedLab.key}?recipeId=${ingredient.id}&available=false&size=100`
+        }
+        axios.get(query)
                 .then(result => {setItems(result.data.content.map(mixture => (
                     {...mixture, label: `${mixture.id} (created at ${mixture.creationDate} by ${mixture.creator.fullName})`}
                 )))})
     }
 
     useEffect(() => {
-        const ingId = ingredient.id
-        const newItem = {}
-        newItem[ingId] = item
-        
-        setSelectedItems({...selectedItems, ...newItem})
+        if (selectedItems.length == 0) {
+            setItem("")
+        }
+    }, [selectedItems])
+
+    useEffect(() => {
+        if (item) {
+            const ingId = ingredient.id
+            const newItem = {}
+            newItem[ingId] = item
+            setSelectedItems({...selectedItems, ...newItem})
+        }
+
     }, [item])
 
     useEffect(() => {

@@ -5,10 +5,6 @@ import "./DuButtons.css"
 
 const DuButtons = props => {
 
-    const checkAndUpdate = () => {
-        props.onDelete()
-    }
-
     const checkAndDelete = () => {
         check()
         props.onDelete()

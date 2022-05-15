@@ -23,7 +23,7 @@ const AddUpdateMixture = props => {
     const [ creationDate, setCreationDate ] = useState("")
     const [ chemItems, setChemItems ] = useState("")
     const [ mixtureItems, setMixtureItems ] = useState("")
-    const [changeCraetionDate, setChangeCraetionDate] = useState()
+    const [ changeCraetionDate, setChangeCraetionDate ] = useState()
 
     const [ errors, setErrors ] = useState("")
     const isManager = checkIfManager(selectedLab, user)
@@ -77,6 +77,14 @@ const AddUpdateMixture = props => {
             setRecipes([])
         }
     }, [selectedProject])
+
+   const changeRecipe = recipe => {
+        if (!mixtureId) {
+            setRecipe(recipe)
+            setMixtureItems([])
+            setChemItems([])
+        }
+    }
 
     const sendRequest = async (mixtureInput) => {
         if (originalMixture) {
@@ -184,7 +192,7 @@ const AddUpdateMixture = props => {
                                 searchable={false}
                                 clearable={false}
                                 style={{height: "42px", fontSize: "16px"}}
-                                onChange={items => setRecipe(items[0] ? items[0] : "")}
+                                onChange={items => changeRecipe(items[0] ? items[0] : "")}
                             />
                         </div>
                     </div>
