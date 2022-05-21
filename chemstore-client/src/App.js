@@ -2,7 +2,7 @@ import './App.css';
 import Header from './components/layout/Header';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Route, Switch} from "react-router-dom";
-import AddChemItem from './components/chemitem/AddChemItem';
+import AddChemItem from './components/chemitem/addUpdate/AddChemItem';
 import { Provider } from 'react-redux'
 import store from './store'
 import Landing from './components/Landing';
@@ -34,6 +34,7 @@ import RecipeDashboard from './components/recipe/RecipeDashboard';
 import AddUpdateRecipe from './components/recipe/AddUpdateRecipe';
 import MixtureDashboard from './components/mixture/MixtureDashboard';
 import AddUpdateMixture from './components/mixture/add/AddUpdateMixture';
+import UpdateChemItem from './components/chemitem/addUpdate/UpdateChemItem';
 
 
 refreshState()
@@ -84,6 +85,7 @@ function App() {
 
             <SecuredRoute exact path="/chem-items" component={ChemItemDashboard} />
             <SecuredRoute exact path="/add-chem-item" component={AddChemItem} />
+            <SecuredRoute exact path="/update-chem-item/:id" component={UpdateChemItem} />
 
             <SecuredRoute exact path="/mixtures" component={MixtureDashboard} />
             <SecuredRoute exact path="/add-mixture" component={AddUpdateMixture} />

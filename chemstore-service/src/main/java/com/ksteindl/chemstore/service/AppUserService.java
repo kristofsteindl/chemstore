@@ -3,15 +3,15 @@ package com.ksteindl.chemstore.service;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
+import com.ksteindl.chemstore.domain.input.AppUserQuery;
 import com.ksteindl.chemstore.domain.input.PasswordInput;
-import com.ksteindl.chemstore.domain.repositories.AppUserRepository;
 import com.ksteindl.chemstore.domain.repositories.LabRepository;
+import com.ksteindl.chemstore.domain.repositories.appuser.AppUserRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.security.UserDetailsImpl;
 import com.ksteindl.chemstore.security.role.Role;
 import com.ksteindl.chemstore.security.role.RoleService;
-import com.ksteindl.chemstore.service.wrapper.AppUserCard;
 import com.ksteindl.chemstore.util.Lang;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AppUser appUser = appUserRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        AppUser appUser = findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         //return appUser;
         return new UserDetailsImpl(appUser);
     }
@@ -89,62 +89,33 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
     }
 
     public AppUser updatePassword(PasswordInput passwordInput, Principal principal) {
-        AppUser appUser = getMyAppUser(principal);
+        AppUser appUser = getAppUser(principal.getName());
         validateAndSetPassword(appUser, passwordInput);
         return appUserRepository.save(appUser);
     }
 
-
-    public List<AppUser> getAppUsers() {
-        return getAppUsers(true);
-    }
-
-    /**
-     * <p> Returns a list of all active app users with publicly available data (without any confidential data).
-     * This method should be called by users, without any privilage.
-     * </p>
-     * @return list of AppUser representation
-     */
-    public List<AppUserCard> getAppUserCards() {
-        return getAppUsers().stream().map(appUser -> new AppUserCard(appUser)).collect(Collectors.toList());
-    }
-
-    /*
-    * @Deprecated use getAppUser(String username) instead
-    * */
-    @Deprecated
-    public AppUser getMyAppUser(Principal principal) {
-        String username = principal.getName();
-        return appUserRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username));
+    public List<AppUser> getAppUsers(AppUserQuery appUserQuery) {
+        return appUserRepository.findAppUsers(appUserQuery);
     }
 
     public AppUser getAppUser(String username) {
-        return appUserRepository
-                .findByUsername(username)
+        return findByUsername(username).stream().findAny()
                 .orElseThrow(() -> new ResourceNotFoundException(Lang.APP_USER_ENTITY_NAME, username));
     }
 
     public Map<String, List<AppUser>> getUsersFromManagedLabs(Principal principal) {
-        AppUser manager = getMyAppUser(principal);
+        AppUser manager = getAppUser(principal.getName());
         return manager.getManagedLabs().stream()
                 .collect(Collectors.toMap(lab -> lab.getKey(), lab -> appUserRepository.findByLabsAsUser(lab)));
     }
 
     public List<AppUser> getUsersFromManagedLab(Principal managerPrincipal, String labKey) {
-        AppUser manager = getMyAppUser(managerPrincipal);
+        AppUser manager = getAppUser(managerPrincipal.getName());
         Lab managedLab = findLabByKey(labKey);
         if (!managedLab.getLabManagers().stream().anyMatch(appUser -> appUser.equals(manager))) {
             throw new ValidationException("authorization", "User " + manager.getUsername() + " is not manager of " + managedLab.getKey() + ", please the account admin");
         }
         return appUserRepository.findByLabsAsUser(managedLab);
-    }
-
-    public List<AppUser> getAppUsers(Boolean onlyActive) {
-        return onlyActive ?
-                appUserRepository.findAllActive(SORT_BY_USERNAME) :
-                appUserRepository.findAll(SORT_BY_USERNAME);
     }
 
     public void deleteAppUser(Long id) {
@@ -161,10 +132,8 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
     }
 
     public Optional<AppUser> findByUsername(String username, boolean onlyActive) {
-        if (onlyActive) {
-            return appUserRepository.findByUsernameOnlyActive(username);
-        }
-        return appUserRepository.findByUsername(username);
+        AppUserQuery appUserQuery = AppUserQuery.builder().username(username).onlyActive(onlyActive).build();
+        return appUserRepository.findAppUsers(appUserQuery).stream().findAny();
     }
 
     public AppUser findById(Long id) {
@@ -178,7 +147,6 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         }
         return appUser;
     }
-
 
     public void removeLabsFromAppUsers(Lab labToRemove) {
         appUserRepository.findByLabsAsAdmin(labToRemove).forEach(user -> {
@@ -249,7 +217,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
 
     @Override
     public void throwExceptionIfNotUnique(AppUserInput input, Long id) {
-        Optional<AppUser> foundUser = appUserRepository.findByUsername(
+        Optional<AppUser> foundUser = findByUsername(
                 input.getUsername());
         foundUser.ifPresent(appUser -> {
             if (!appUser.getId().equals(id)) {

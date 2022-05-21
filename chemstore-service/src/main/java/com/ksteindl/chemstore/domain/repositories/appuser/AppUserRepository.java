@@ -1,27 +1,14 @@
-package com.ksteindl.chemstore.domain.repositories;
+package com.ksteindl.chemstore.domain.repositories.appuser;
 
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
-public interface AppUserRepository extends CrudRepository<AppUser, Long> {
-
-    Optional<AppUser> findByUsername(String username);
-
-    @Query("SELECT u FROM AppUser u WHERE u.username = ?1 AND u.deleted = false")
-    Optional<AppUser> findByUsernameOnlyActive(String username);
-
-    List<AppUser> findAll(Sort sort);
-
-    @Query("SELECT u FROM AppUser u WHERE u.deleted = false")
-    List<AppUser> findAllActive(Sort sort);
+public interface AppUserRepository extends CrudRepository<AppUser, Long>, AppUserRepositoryCustom {
 
     List<AppUser> findByLabsAsAdmin(Lab lab);
 

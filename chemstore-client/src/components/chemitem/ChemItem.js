@@ -6,6 +6,9 @@ import "./ChemItem.css"
 import useCollapse from 'react-collapsed';
 import ChemItemFirstRow from './ChemItemFirstRow';
 import ChemItemSecondRow from './ChemItemSecondRow';
+import ChemItemThirdRow from './ChemItemThirdRow';
+ 
+
   
 
 const ChemItem = props => {
@@ -53,6 +56,14 @@ const ChemItem = props => {
                     chemItem={chemItem}
                     getCollapseProps={getCollapseProps}
                 />
+                {props.isManager && (
+                    <ChemItemThirdRow 
+                        chemItem={chemItem}
+                        setActiveModal={setActiveModal}
+                        getCollapseProps={getCollapseProps}
+                    />
+                )}
+
             </div>
             {activeModal === "CONSUME" && 
                 <VerifyPanel 

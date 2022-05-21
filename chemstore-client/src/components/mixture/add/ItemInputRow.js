@@ -26,7 +26,7 @@ const ItemInputRow = props => {
         }
         axios.get(query)
                 .then(result => {setItems(result.data.content.map(item => (
-                    {...item, label: `${item.manufacturer.name}, ${item.batchNumber}-${item.seqNumber}`}
+                    {...item, label: `${item.manufacturer.name}, ${item.batchNumber}-${item.seqNumber} (opened on ${item.openingDate}, expires on ${item.expirationDate})`}
                 )))})
     }
 
@@ -40,7 +40,7 @@ const ItemInputRow = props => {
         }
         axios.get(query)
                 .then(result => {setItems(result.data.content.map(mixture => (
-                    {...mixture, label: `${mixture.id} (created at ${mixture.creationDate} by ${mixture.creator.fullName})`}
+                    {...mixture, label: `${mixture.id} (created on ${mixture.creationDate} by ${mixture.creator.fullName}, expires on ${mixture.creationDate})`}
                 )))})
     }
 

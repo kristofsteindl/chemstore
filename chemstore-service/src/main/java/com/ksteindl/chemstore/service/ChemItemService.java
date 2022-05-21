@@ -9,6 +9,7 @@ import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.entities.Mixture;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
 import com.ksteindl.chemstore.domain.input.ChemItemQuery;
+import com.ksteindl.chemstore.domain.input.ChemItemUpdateInput;
 import com.ksteindl.chemstore.domain.repositories.ChemItemRepository;
 import com.ksteindl.chemstore.domain.repositories.MixtureRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
@@ -26,6 +27,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ChemItemService {
@@ -50,33 +52,129 @@ public class ChemItemService {
 
 
     public List<ChemItem> createChemItems(ChemItemInput chemItemInput, Principal user) {
-        AppUser appUser = appUserService.getMyAppUser(user);
+        AppUser appUser = appUserService.getAppUser(user.getName());
         Lab lab = labService.findLabForUser(chemItemInput.getLabKey(), user);
-        LocalDate arrivalDate = validateArrivalDateAndGet(chemItemInput.getArrivalDate());
-        Chemical chemical = chemicalService.getByShortName(chemItemInput.getChemicalShortName(), lab);
-        Manufacturer manufacturer = manufacturerService.findById(chemItemInput.getManufacturerId());
-        LocalDate expirationDateBeforeOpened = validateExpirationDateBeforeOpenedAndGet(chemItemInput.getExpirationDateBeforeOpened());
-        String unit = chemItemInput.getUnit();
-        unitService.validate(unit);
 
         ChemItem chemItemTemplate = new ChemItem();
+        LocalDate arrivalDate = getArrivalDate(chemItemInput.getArrivalDate());
 
+        LocalDate expDateBeforeOpened = getExpDateBeforeOpened(arrivalDate, chemItemInput.getExpirationDateBeforeOpened());
+        chemItemTemplate.setExpirationDateBeforeOpened(expDateBeforeOpened);
+        
+        chemItemTemplate.setBatchNumber(chemItemInput.getBatchNumber());
         chemItemTemplate.setArrivedBy(appUser);
         chemItemTemplate.setLab(lab);
         chemItemTemplate.setArrivalDate(arrivalDate);
+        Chemical chemical = chemicalService.getByShortName(chemItemInput.getChemicalShortName(), lab);
         chemItemTemplate.setChemical(chemical);
-        chemItemTemplate.setManufacturer(manufacturer);
-        chemItemTemplate.setExpirationDateBeforeOpened(expirationDateBeforeOpened);
-        chemItemTemplate.setUnit(unit);
-        chemItemTemplate.setBatchNumber(chemItemInput.getBatchNumber());
-        chemItemTemplate.setQuantity(chemItemInput.getQuantity());
-
+        updateSimpleAttributes(chemItemInput, chemItemTemplate);
         return createBatchedChemItems(chemItemTemplate, chemItemInput.getAmount());
+    }
+
+    public ChemItem updateChemItem(ChemItemUpdateInput chemItemInput, Long chemItemId, Principal manager) {
+        ChemItem chemItem = getById(chemItemId, manager);
+        Lab lab = chemItem.getLab();
+        labService.validateLabForManager(lab, manager);
+
+        updateArrival(chemItem, chemItemInput);
+        updateOpening(chemItem, chemItemInput);
+        updateConsumption(chemItem, chemItemInput);
+        
+        updateSimpleAttributes(chemItemInput, chemItem);
+        updateBatchAndSeq(chemItem, chemItemInput);
+        return chemItemRepository.save(chemItem);
+    }
+
+    private void updateConsumption(ChemItem chemItem, ChemItemUpdateInput chemItemInput) {
+        String consumedByUsername = chemItemInput.getConsumedByUsername();
+        LocalDate consumptionData = chemItemInput.getConsumptionDate();
+        List<Mixture> productMixtures = mixtureRepository.findProductMixtureItems(chemItem);
+        if (consumedByUsername != null && !consumedByUsername.isEmpty()) {
+            if (consumptionData == null) {
+                //TODO
+                throw new ValidationException("For updating consumption, consumptionData is required (beside consumedBy username)");
+            }
+            List<Mixture> invalidMixtures = productMixtures.stream()
+                    .filter(mixture -> mixture.getCreationDate().isBefore(consumptionData))
+                    .collect(Collectors.toList());
+            if (!invalidMixtures.isEmpty()) {
+                throw new ValidationException(String.format(Lang.CHEM_ITEM_CONSUMED_BEFORE_MIX_CREATED,
+                        consumptionData, getMixtureListToString(invalidMixtures)));
+            }
+        } else {
+            chemItem.setConsumedBy(null);
+            chemItem.setConsumptionDate(null);
+        }
+    }
+    
+    private void updateArrival(ChemItem chemItem, ChemItemUpdateInput chemItemInput) {
+        AppUser arrivedBy = appUserService.getAppUser(chemItemInput.getArrivedByUsername());
+        labService.validateLabForUser(chemItem.getLab(), arrivedBy.getUsername());
+        chemItem.setArrivedBy(arrivedBy);
+
+        LocalDate arrivalDate = getArrivalDate(chemItemInput.getArrivalDate());
+        chemItem.setArrivalDate(arrivalDate);
+    }
+    
+    private void updateOpening(ChemItem chemItem, ChemItemUpdateInput chemItemInput) {
+        String openedByUsername = chemItemInput.getOpenedByUsername();
+        LocalDate openingData = chemItemInput.getOpeningDate();
+        List<Mixture> productMixtures = mixtureRepository.findProductMixtureItems(chemItem);
+        if (openedByUsername != null && !openedByUsername.isEmpty()) {
+            AppUser openedBy = appUserService.getAppUser(openedByUsername);
+            labService.validateLabForUser(chemItem.getLab(), openedBy.getUsername());
+            if (openingData == null) {
+                //TODO
+                throw new ValidationException("For updating opening, openingData is required (beside openedBy username)");
+            }
+            if (openingData.isBefore(chemItem.getArrivalDate())) {
+                //TODO
+                throw new ValidationException("Opening date (openingDate) cannot be before arrival date (arrivalDate)");
+            }
+            if (openingData.isAfter(chemItemInput.getExpirationDateBeforeOpened())) {
+                //TODO
+                throw new ValidationException("Opening date (openingDate) cannot be after expiration date of the chem item" +
+                        " before opened (expirationDateBeforeOpened)");
+            }
+            List<Mixture> invalidMixtures = productMixtures.stream()
+                .filter(mixture -> mixture.getCreationDate().isAfter(openingData))
+                .collect(Collectors.toList());
+            if (!invalidMixtures.isEmpty()) {
+                throw new ValidationException(String.format(Lang.CHEM_ITEM_OPENED_AFTER_MIX_CREATED, 
+                        openingData, getMixtureListToString(invalidMixtures)));
+            }
+            chemItem.setOpenedBy(openedBy);
+            chemItem.setOpeningDate(openingData);
+        } else {
+            if (!productMixtures.isEmpty()) {
+                throw new ValidationException(String.format(Lang.CHEM_ITEM_UNOPEN_RESTRICTED, 
+                        getMixtureListToString(productMixtures)));
+            }
+            chemItem.setOpenedBy(null);
+            chemItem.setOpeningDate(null);
+        }
+    }
+    
+    private String getMixtureListToString(List<Mixture> mixtures) {
+        StringBuilder builder = new StringBuilder("[");
+        mixtures.forEach(mixture -> builder.append(mixtures).append("\n"));
+        builder.append("]");
+        return builder.toString();
+        
+    }
+    
+    private void updateBatchAndSeq(ChemItem chemItem, ChemItemUpdateInput chemItemUpdateInput) {
+        String newBatchNumber = chemItemUpdateInput.getBatchNumber();
+        if (!chemItem.getBatchNumber().equals(newBatchNumber)) {
+            chemItem.setBatchNumber(newBatchNumber);
+            Integer newSeq = getNextSeqNumber(chemItem);
+            chemItem.setSeqNumber(newSeq);
+        }
     }
 
     public ChemItem openChemItem(Long chemItemId, Principal user) {
         ChemItem chemItem = findById(chemItemId);
-        AppUser appUser = appUserService.getMyAppUser(user);
+        AppUser appUser = appUserService.getAppUser(user.getName());
         labService.validateLabForUser(chemItem.getLab(), user);
         if (chemItem.getOpeningDate() != null) {
             //TODO remove Strings
@@ -95,7 +193,7 @@ public class ChemItemService {
 
     public ChemItem consumeChemItem(Long chemItemId, Principal user) {
         ChemItem chemItem = findById(chemItemId);
-        AppUser appUser = appUserService.getMyAppUser(user);
+        AppUser appUser = appUserService.getAppUser(user.getName());
         labService.validateLabForUser(chemItem.getLab(), user);
         if (chemItem.getOpeningDate() == null) {
             //TODO
@@ -113,6 +211,12 @@ public class ChemItemService {
         return chemItemRepository.findChemItems(chemItemQuery, pageable);
     }
 
+    public ChemItem getById(Long id, Principal user) {
+        ChemItem chemItem = findById(id);
+        labService.validateLabForUser(chemItem.getLab(),user.getName());
+        return chemItem;
+    }
+
     public ChemItem findById(Long id) {
         return chemItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEM_ITEM_ENTITY_NAME, id));
     }
@@ -120,11 +224,21 @@ public class ChemItemService {
     public void hardDeleteChemItem(Long id, Principal principal) {
         ChemItem chemItem = findById(id);
         labService.validateLabForManager(chemItem.getLab(), principal);
-        List<Mixture> usedMixtures = mixtureRepository.findUsedMixtureItems(chemItem);
+        List<Mixture> usedMixtures = mixtureRepository.findProductMixtureItems(chemItem);
         if (!usedMixtures.isEmpty()) {
             throw new ValidationException(String.format(Lang.CHEM_ITEM_DELETION_MIXTURE_USED));
         }
         chemItemRepository.delete(chemItem);
+    }
+    
+    private void updateSimpleAttributes(ChemItemInput chemItemInput, ChemItem chemItem) {
+        Manufacturer manufacturer = manufacturerService.findById(chemItemInput.getManufacturerId());
+        String unit = chemItemInput.getUnit();
+        unitService.validate(unit);
+        
+        chemItem.setManufacturer(manufacturer);
+        chemItem.setUnit(unit);
+        chemItem.setQuantity(chemItemInput.getQuantity());
     }
     
 
@@ -168,7 +282,7 @@ public class ChemItemService {
     }
 
 
-    private LocalDate validateArrivalDateAndGet(LocalDate arrivalDate) {
+    private LocalDate getArrivalDate(LocalDate arrivalDate) {
         if (arrivalDate == null) {
             arrivalDate = LocalDate.now();
         } else if (arrivalDate.isAfter(LocalDate.now())) {
@@ -177,12 +291,19 @@ public class ChemItemService {
         }
         return arrivalDate;
     }
+    
+//            if (chemItem.getId() != null) {
+//        List<Mixture> productMixtures = mixtureRepository.findProductMixtureItems(chemItem);
+//        List<Mixture> invalidMixtures = productMixtures.stream()
+//                .filter(mixture -> mixture.getCreationDate().isAfter(expDateBeforeOpened))
+//                .collect(Collectors.toList());
+//        throw new ValidationException(String.format(Lang.CHEM_ITEM_EXP_DATE_IS_IN_PAST, expDateBeforeOpened));
+//    }
 
-    private LocalDate validateExpirationDateBeforeOpenedAndGet(LocalDate expirationDateBeforeOpened) {
-        if (expirationDateBeforeOpened.isBefore(LocalDate.now())) {
-            throw new ValidationException(String.format(Lang.CHEM_ITEM_EXP_DATE_IS_IN_PAST, expirationDateBeforeOpened));
+    private LocalDate getExpDateBeforeOpened(LocalDate arrivalDate, LocalDate expDateBeforeOpened) {
+        if (expDateBeforeOpened.isBefore(arrivalDate)) {
+            throw new ValidationException(String.format(Lang.CHEM_ITEM_EXP_DATE_IS_IN_PAST, expDateBeforeOpened, arrivalDate));
         }
-        return expirationDateBeforeOpened;
+        return expDateBeforeOpened;
     }
-
 }

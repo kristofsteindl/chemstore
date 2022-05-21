@@ -64,7 +64,14 @@ public class Lang {
 
     public static final String CHEM_ITEM_CREATION_NOT_AUTHORIZED = "Adding new chemical to %s is forbidden. %s has to be assigned to lab as user or as lab admin, or has to be the manager of the lab";
     public static final String CHEM_ITEM_ARRIVAL_DATE_IS_FUTURE = "Arrival date of the chemical item (%s) (arrivalDate) cannot be in the future";
-    public static final String CHEM_ITEM_EXP_DATE_IS_IN_PAST = "Expiration Date of item (expirationDateBeforeOpened) (%s) cannot be in the past";
+    public static final String CHEM_ITEM_EXP_DATE_IS_IN_PAST = "Expiration Date of item (expirationDateBeforeOpened) (%s) cannot be before the arrival date (%s)";
+    public static final String CHEM_ITEM_EXP_DATE_TOO_SOON = "Expiration Date of the updating item (expirationDateBeforeOpened) (%s) cannot be before the product mixture (mixtures made of the chem item) creation date";
+    public static final String CHEM_ITEM_UNOPEN_RESTRICTED = "Unopen chem item is not allowed, because already one or more mixture(s) is/are made out of this chem item:\n%s";
+    public static final String CHEM_ITEM_OPENED_AFTER_MIX_CREATED = "The new opening date (%s) is invalid, because one" +
+            " or more mixture creation date is before than the new opening date:\n%s";
+    public static final String CHEM_ITEM_CONSUMED_BEFORE_MIX_CREATED = "The new consumption date (%s) is invalid, because one" +
+            " or more mixture creation date is after than the new consumption date:\n%s";
+
     public static final String CHEM_ITEM_DELETION_MIXTURE_USED = "Chemical (chemItem) cannot be deleted, because it is used by one or more mixtures";
 
     public static final String MIXTURE_ENTITY_NAME = "mixture";

@@ -3,6 +3,7 @@ package com.ksteindl.chemstore.web;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
+import com.ksteindl.chemstore.domain.input.AppUserQuery;
 import com.ksteindl.chemstore.domain.input.LabInput;
 import com.ksteindl.chemstore.service.AppUserService;
 import com.ksteindl.chemstore.service.LabService;
@@ -77,7 +78,8 @@ public class AccountManagerController {
     public ResponseEntity<List<AppUser>> getAllAppUser(
             @RequestParam(value="only-active", required = false, defaultValue = "true") boolean onlyActive) {
         logger.info("GET '/user' was called, with onlyActive {}", onlyActive);
-        List<AppUser> appUsers = appUserService.getAppUsers(onlyActive);
+        AppUserQuery appUserQuery = AppUserQuery.builder().onlyActive(onlyActive).build();
+        List<AppUser> appUsers = appUserService.getAppUsers(appUserQuery);
         logger.info("GET '/user' was succesful with {} item", appUsers.size());
         return ResponseEntity.ok(appUsers);
     }

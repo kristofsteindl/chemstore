@@ -3,6 +3,7 @@ package com.ksteindl.chemstore.web;
 import com.ksteindl.chemstore.domain.entities.ChemItem;
 import com.ksteindl.chemstore.domain.input.ChemItemInput;
 import com.ksteindl.chemstore.domain.input.ChemItemQuery;
+import com.ksteindl.chemstore.domain.input.ChemItemUpdateInput;
 import com.ksteindl.chemstore.service.ChemItemService;
 import com.ksteindl.chemstore.service.UnitService;
 import com.ksteindl.chemstore.service.wrapper.PagedList;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -56,6 +58,19 @@ public class ChemItemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(chemItems);
     }
 
+    @PutMapping("/{chemItemId}")
+    public ResponseEntity<ChemItem> updateChemItem(
+            @Valid @RequestBody ChemItemUpdateInput chemItemUpdateInput,
+            @PathVariable Long chemItemId,
+            BindingResult result,
+            Principal principal) {
+        logger.info("PUT '/chem-item/{chemItemId}' was called with id {} with body {}", chemItemId, chemItemUpdateInput);
+        mapValidationErrorService.throwExceptionIfNotValid(result);
+        ChemItem updatedChemItem = chemItemService.updateChemItem(chemItemUpdateInput, chemItemId, principal);
+        logger.info("PUT '/chem-item/{chemItemId}' was succesful with returned result {}", updatedChemItem);
+        return ResponseEntity.status(HttpStatus.CREATED).body(updatedChemItem);
+    }
+
     @PatchMapping("/open/{chemItemId}")
     public ResponseEntity<ChemItem> openChemItems(
             @PathVariable Long chemItemId,
@@ -72,8 +87,18 @@ public class ChemItemController {
             Principal principal) {
         logger.info("PATCH '/chem-item/consume' was called with {}", chemItemId);
         ChemItem consumed = chemItemService.consumeChemItem(chemItemId, principal);
-        logger.info("PATCH '/chem-item/consume' was successful with returned result{}", consumed);
+        logger.info("PATCH '/chem-item/consume' was successful with returned result {}", consumed);
         return ResponseEntity.status(HttpStatus.OK).body(consumed);
+    }
+
+    @GetMapping("/{labKey}/{id}")
+    public ResponseEntity<ChemItem> getChemItemsForLab(
+            @PathVariable Long id,
+            Principal principal) {
+        logger.info("GET '/chem-item/{id}' was called with id {} by {}", id, principal.getName());
+        ChemItem chemItem = chemItemService.getById(id, principal);
+        logger.info("GET '/chem-item/{id}' was successfully returned with result {}", chemItem);
+        return ResponseEntity.status(HttpStatus.OK).body(chemItem);
     }
 
     @GetMapping("/{labKey}")

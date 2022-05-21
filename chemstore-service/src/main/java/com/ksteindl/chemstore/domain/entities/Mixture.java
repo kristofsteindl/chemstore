@@ -116,6 +116,6 @@ public class Mixture implements HasLab, Serializable {
 
     @Override
     public String toString() {
-        return "'Mixture' " + recipe.getName() + " (id=" + id + "), created by " + creator.getFullName() + " on " + creationDate.toString();
+        return "'Mixture', id=" + id + ", recipe=" + recipe.getName() + ", project=" + recipe.getProject().getName() + ", created by " + creator.getFullName() + " on " + creationDate.toString();
     }
 }

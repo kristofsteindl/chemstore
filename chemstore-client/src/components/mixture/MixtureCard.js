@@ -15,9 +15,7 @@ const MixtureCard = props => {
 
     const getChemicalRow = chemicalIngredient => {
         const chemicalId = chemicalIngredient.ingredient.id
-        console.log(chemicalId)
         const chemItem = mixture.chemItems.filter(chemItem => chemItem.chemical.id === chemicalId)[0]
-        console.log(chemItem)
         const chemical = chemItem.chemical
         return ({
             id: chemicalId,

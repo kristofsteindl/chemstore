@@ -223,7 +223,7 @@ public class MixtureService {
                 .labKey(mixture.getLab().getKey())
                 .mixtureItemId(mixture.getId())
                 .build();
-        List<Mixture> usedMixtures = mixtureRepository.findUsedMixtureItems(mixture);
+        List<Mixture> usedMixtures = mixtureRepository.findProductMixtureItems(mixture);
         if (!usedMixtures.isEmpty()) {
             throw new ValidationException(String.format(Lang.MIXTURE_CANNOT_BE_DELETED, mixture,
                     usedMixtures.stream().map(Mixture::getIdentifier).collect(Collectors.toList())));

@@ -51,16 +51,16 @@ public class MixtureRepositoryCustomImpl implements MixtureRepositoryCustom{
     }
 
     @Override
-    public List<Mixture> findUsedMixtureItems(ChemItem productChemItem) {
-        return findUsedMixtureItems("chemItems", productChemItem.getId());
+    public List<Mixture> findProductMixtureItems(ChemItem ingredientChemItem) {
+        return findProductMixtureItems("chemItems", ingredientChemItem.getId());
     }
     
     @Override
-    public List<Mixture> findUsedMixtureItems(Mixture productMixture) {
-        return findUsedMixtureItems("mixtureItems", productMixture.getId());
+    public List<Mixture> findProductMixtureItems(Mixture ingredientMixture) {
+        return findProductMixtureItems("mixtureItems", ingredientMixture.getId());
     }
     
-    private List<Mixture> findUsedMixtureItems(String itemAttribute, Long productItemId) {
+    private List<Mixture> findProductMixtureItems(String itemAttribute, Long productItemId) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Mixture> selectQuery = criteriaBuilder.createQuery(Mixture.class);
         Root<Mixture> root = selectQuery.from(Mixture.class);

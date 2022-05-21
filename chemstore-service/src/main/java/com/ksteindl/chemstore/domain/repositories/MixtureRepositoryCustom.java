@@ -12,8 +12,8 @@ public interface MixtureRepositoryCustom {
     
     PagedList<Mixture> findMixtures(MixtureQuery mixtureQuery, Pageable pageable);
 
-    List<Mixture> findUsedMixtureItems(ChemItem productChemItem);
+    List<Mixture> findProductMixtureItems(ChemItem ingredientChemItem);
 
-    List<Mixture> findUsedMixtureItems(Mixture productMixture);
+    List<Mixture> findProductMixtureItems(Mixture ingredientMixture);
     
 }

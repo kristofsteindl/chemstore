@@ -1,27 +1,11 @@
-import { Button, IconButton } from "@mui/material";
-import DeleteIcon from '@mui/icons-material/Delete';
-import useCollapse from "react-collapsed";
+import { Button } from "@mui/material";
 import { isExpired } from "../../utils/chem-item-utils";
 
 const ChemItemFirstRow = props => {
-    const { chemItem, setActiveModal, isManager, getToggleProps } = props
+    const { chemItem, setActiveModal, getToggleProps } = props
 
     const chemical = chemItem.chemical
 
-    const getDeleteContent = () => {
-        if (!isManager) {
-            return <div></div>
-        }
-        return (
-            <span  onClick={() => setActiveModal("DELETE")}>
-                <li className="list-group-item action-button delete">              
-                    <IconButton aria-label="delete" size="small">
-                        <DeleteIcon fontSize="inherit"/>
-                    </IconButton>
-                </li>
-            </span>
-        )
-    }
 
     const getOpenContent = chemItem => {
         if (chemItem.openingDate) {
@@ -31,7 +15,8 @@ const ChemItemFirstRow = props => {
         } else {
             return (
                 <Button onClick={() => setActiveModal("OPEN")} className="btn action-button" variant="outlined" size="medium">
-                    <i className="fa fa-edit">Open</i>
+                    <i className="fas fa-external-link-square-alt">Open</i>
+                    <i class=""></i>
                 </Button>
             )
         }
@@ -42,8 +27,8 @@ const ChemItemFirstRow = props => {
             return (<div></div>)
         } else if (chemItem.openingDate && !chemItem.consumptionDate) {
             return (
-                <Button className="btn action-button" color="error" variant="outlined" size="medium" onClick={() => setActiveModal("CONSUME")}  >
-                    <i className="fa fa-minus-circle">Consume</i>
+                <Button className="btn action-button" color="warning" variant="outlined" size="medium" onClick={() => setActiveModal("CONSUME")}  >
+                    <i className="fas fa-check-double">Consume</i>
                 </Button>)
         } else {
             return (<div>{chemItem.consumptionDate}</div>)
@@ -80,11 +65,8 @@ const ChemItemFirstRow = props => {
             <div className="col-sm-1">
                 {getOpenContent(chemItem)}
             </div>
-            <div className="col-sm-1">
+            <div className="col-sm-2">
                 {getConsumeContent(chemItem)}
-            </div>
-            <div className="col-sm-1">
-                {getDeleteContent()}
             </div>
         </div>
     )

@@ -1,8 +1,8 @@
 package com.ksteindl.chemstore.domain.input;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
@@ -11,37 +11,49 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
 public class ChemItemInput implements Input{
 
     public static ChemItemInputBuilder builder() {
         return new ChemItemInputBuilder();
     }
 
+    public ChemItemInput(String labKey, LocalDate arrivalDate, String chemicalShortName, Long manufacturerId, String batchNumber, Double quantity, String unit, Integer amount, LocalDate expirationDateBeforeOpened) {
+        this.labKey = labKey;
+        this.arrivalDate = arrivalDate;
+        this.chemicalShortName = chemicalShortName;
+        this.manufacturerId = manufacturerId;
+        this.batchNumber = batchNumber;
+        this.quantity = quantity;
+        this.unit = unit;
+        this.amount = amount;
+        this.expirationDateBeforeOpened = expirationDateBeforeOpened;
+    }
+
     @NotBlank(message = "Lab key is required (labKey)")
-    private String labKey;
+    protected String labKey;
     
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate arrivalDate;
+    protected LocalDate arrivalDate;
 
     @NotBlank(message = "Chemical name is required (chemicalShortName)")
-    private String chemicalShortName;
+    protected String chemicalShortName;
 
     @NotNull(message = "Manufacturer id is required (manufacturerId)")
-    private Long manufacturerId;
+    protected Long manufacturerId;
 
     @NotBlank(message = "Batch number of chemical cannot be blank")
-    private String batchNumber;
+    protected String batchNumber;
 
     @NotNull(message = "Quantity of chemical cannot be blank")
     @DecimalMin(value = "0.0", inclusive = false)
-    private Double quantity;
+    protected Double quantity;
 
     @NotBlank(message = "unit is required")
-    private String unit;
+    protected String unit;
 
     @Min(1)
-    private Integer amount;
+    protected Integer amount;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "Expiration date (before opened) is required")
@@ -49,15 +61,15 @@ public class ChemItemInput implements Input{
 
     public static class ChemItemInputBuilder {
         
-        private String labKey;
-        private LocalDate arrivalDate;
-        private String chemicalName;
-        private Long manufacturerId;
-        private String batchNumber;
-        private Double quantity;
-        private String unit;
-        private Integer amount;
-        private LocalDate expirationDateBeforeOpened;
+        protected String labKey;
+        protected LocalDate arrivalDate;
+        protected String chemicalName;
+        protected Long manufacturerId;
+        protected String batchNumber;
+        protected Double quantity;
+        protected String unit;
+        protected Integer amount;
+        protected LocalDate expirationDateBeforeOpened;
 
         public ChemItemInputBuilder setLabKey(String labKey) {
             this.labKey = labKey;

@@ -7,6 +7,7 @@ import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.entities.Project;
 import com.ksteindl.chemstore.domain.entities.Recipe;
+import com.ksteindl.chemstore.domain.input.AppUserQuery;
 import com.ksteindl.chemstore.domain.input.PasswordInput;
 import com.ksteindl.chemstore.security.role.Role;
 import com.ksteindl.chemstore.security.role.RoleService;
@@ -75,16 +76,17 @@ public class LoggedInController {
     }
 
     @GetMapping("/user")
-    public List<AppUser> getAllAppUser() {
+    public List<AppUser> getAppUsers(@RequestParam(required = false) String labKey) {
         logger.info("GET '/api/public/user' was called");
-        List<AppUser> users =  appUserService.getAppUsers();
+        AppUserQuery appUserQuery = AppUserQuery.builder().labKey(labKey).build();
+        List<AppUser> users =  appUserService.getAppUsers(appUserQuery);
         logger.info("GET '/api/logged-in/user' is returning with {} item", users.size());
         return users;
     }
 
     @GetMapping("/user/me")
     public AppUser getMyAppUser(Principal principal) {
-        return appUserService.getMyAppUser(principal);
+        return appUserService.getAppUser(principal.getName());
     }
 
     @GetMapping("/lab")

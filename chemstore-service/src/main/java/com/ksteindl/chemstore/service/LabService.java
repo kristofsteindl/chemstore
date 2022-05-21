@@ -59,7 +59,7 @@ public class LabService implements UniqueEntityService<LabInput> {
     }
 
     public List<Lab> getLabsForUser(Principal principal) {
-        AppUser user = appUserService.getMyAppUser(principal);
+        AppUser user = appUserService.getAppUser(principal.getName());
         Set<Lab> labsForUser = new HashSet<>();
         labsForUser.addAll(user.getLabsAsUser());
         labsForUser.addAll(user.getLabsAsAdmin());
@@ -115,7 +115,7 @@ public class LabService implements UniqueEntityService<LabInput> {
     }
 
     public void validateLabForManager(Lab lab, Principal managerPrincipal) {
-        AppUser user = appUserService.getMyAppUser(managerPrincipal);
+        AppUser user = appUserService.getAppUser(managerPrincipal.getName());
         boolean userIsManagerOfLab = user.getManagedLabs().stream()
                 .anyMatch(managedLab -> managedLab.getKey().equals(lab.getKey()));
         if (!userIsManagerOfLab) {
@@ -125,7 +125,7 @@ public class LabService implements UniqueEntityService<LabInput> {
 
     public void validateLabForAdmin(Lab lab, Principal adminPrincipal) {
         Lab unproxiedLab = HibernateProxyUtil.unproxy(lab);
-        AppUser admin = appUserService.getMyAppUser(adminPrincipal);
+        AppUser admin = appUserService.getAppUser(adminPrincipal.getName());
         if (!unproxiedLab.getLabManagers().stream().anyMatch(manager -> manager.equals(admin))
                 && !admin.getLabsAsAdmin().stream().anyMatch(labAsAdmin -> labAsAdmin.equals(unproxiedLab))) {
             throw new ForbiddenException(String.format(Lang.LAB_ADMIN_FORBIDDEN, unproxiedLab.getName(), adminPrincipal.getName()));
