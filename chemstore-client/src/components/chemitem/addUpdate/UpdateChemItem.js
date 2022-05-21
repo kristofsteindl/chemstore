@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 import ChemItemCoreInputFields from './ChemItemCoreInputFields'
 import Select from 'react-dropdown-select'
 import ChemItemUpdateInputFields from './ChemItemUpdateInputFields'
+import VerifyPanel from '../../UI/VerifyPanel'
 
 const UpdateChemItem = props => {
     const chemItemId = props.match.params.id
@@ -24,6 +25,8 @@ const UpdateChemItem = props => {
     const [ openedBy, setOpenedBy ] = useState("") 
     const [ consumptionDate, setConsumptionDate ] = useState("") 
     const [ consumedBy, setConsumedBy ] = useState("") 
+
+    const [updatedChemItem, setUpdatedChemItem] = useState("")
     
     const [ errors, setErrors ] = useState("") 
 
@@ -58,6 +61,12 @@ const UpdateChemItem = props => {
         check()
     })
 
+    const createAcknowlidgeMessage = () => {
+        return `Chemical (chem item) '${updatedChemItem.chemical.shortName}' 
+        (${updatedChemItem.manufacturer.name}, ${updatedChemItem.batchNumber}/${updatedChemItem.seqNumber}) 
+        was successfully ${true ? "updated" : "created"} in lab ${selectedLab.name}`
+    }
+
     const onSubmit = async e => {
         check()
         e.preventDefault()
@@ -78,7 +87,7 @@ const UpdateChemItem = props => {
             consumedByUsername: consumedBy ? consumedBy.username : ""
         }
         await axios.put(`/api/chem-item/${chemItem.id}`, updatedChemItem)
-            .then(() =>  history.push('/chem-items'))
+            .then(result =>  setUpdatedChemItem(result.data))
             .catch(error => setErrors(error.response.data))   
     }
 
@@ -141,6 +150,12 @@ const UpdateChemItem = props => {
 
                 <input type="submit" className="btn btn-primary btn-block mt-4" />
             </form>
+            {updatedChemItem && 
+                <VerifyPanel 
+                    onCancel={() => history.push('/chem-items')} 
+                    veryfyMessage={createAcknowlidgeMessage()}
+                    buttonLabel="Ok"
+                />}
         </div>
     )
     
