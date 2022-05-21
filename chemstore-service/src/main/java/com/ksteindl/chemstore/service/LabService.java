@@ -93,17 +93,10 @@ public class LabService implements UniqueEntityService<LabInput> {
 
     public Lab findLabForUser(String labKey, Principal admin) {
         Lab lab = findLabByKey(labKey);
-        validateLabForUser(lab, admin);
+        validateLabForUser(lab, admin.getName());
         return lab;
     }
-
-    /*
-    * @Deprecated use validateLabForUser(Lab lab, String username) instead
-    * */
-    @Deprecated
-    public void validateLabForUser(Lab lab, Principal userPrincipal) {
-        validateLabForUser(lab, userPrincipal.getName());
-    }
+    
 
     public void validateLabForUser(Lab lab, String username) {
         AppUser user = appUserService.getAppUser(username);

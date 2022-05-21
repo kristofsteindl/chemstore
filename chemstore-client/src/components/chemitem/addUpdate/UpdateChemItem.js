@@ -12,10 +12,8 @@ const UpdateChemItem = props => {
 
     const [ chemItem, setChemItem ] = useState()
     
-    const [ chemicalShortName, setChemicalShortName ] = useState("") 
     const [ manufacturerId, setManufacturerId ] = useState("") 
     const [ unit, setUnit ] = useState("") 
-    const [ amount, setAmount ] = useState(1) 
     const [ quantity, setQuantity ] = useState(0) 
     const [ batchNumber, setBatchNumber ] = useState("") 
     const [ expirationDateBeforeOpened, setExpirationDateBeforeOpened ] = useState("") 
@@ -40,10 +38,8 @@ const UpdateChemItem = props => {
 
     useEffect(() => {
         if (chemItem) {
-            setChemicalShortName(chemItem.chemical.shortName)
             setManufacturerId(chemItem.manufacturer.id)
             setUnit(chemItem.unit)
-            setAmount(chemItem.amount)
             setQuantity(chemItem.quantity)
             setBatchNumber(chemItem.batchNumber)
             setExpirationDateBeforeOpened(chemItem.expirationDateBeforeOpened)
@@ -65,29 +61,32 @@ const UpdateChemItem = props => {
     const onSubmit = async e => {
         check()
         e.preventDefault()
-        const newChemItem = {
-            labKey: selectedLab.key,
-            chemicalShortName: chemicalShortName,
+        const updatedChemItem = {
+            labKey: chemItem.lab.key,
+            chemicalShortName: chemItem.chemical.shortName,
             manufacturerId: manufacturerId,
             unit: unit,
-            amount: amount,
+            amount: 1,
             quantity: quantity,
             batchNumber: batchNumber,
             expirationDateBeforeOpened: expirationDateBeforeOpened,
-            arrivalDate: arrivalDate
+            arrivalDate: arrivalDate,
+            arrivedByUsername: arrivedBy.username,
+            openingDate: openingDate,
+            openedByUsername: openedBy ? openedBy.username  : "",
+            consumptionDate: consumptionDate,
+            consumedByUsername: consumedBy ? consumedBy.username : ""
         }
-        await axios.post(`/api/chem-item`, newChemItem)
+        await axios.put(`/api/chem-item/${chemItem.id}`, updatedChemItem)
             .then(() =>  history.push('/chem-items'))
             .catch(error => setErrors(error.response.data))   
     }
 
     const setters = {
-        setChemicalShortName: setChemicalShortName,
         setManufacturerId: setManufacturerId,
         setBatchNumber: setBatchNumber,
         setQuantity: setQuantity,
         setUnit: setUnit,
-        setAmount: setAmount,
         setExpirationDateBeforeOpened: setExpirationDateBeforeOpened,
         setArrivalDate: setArrivalDate
     }
@@ -101,12 +100,10 @@ const UpdateChemItem = props => {
     }
 
     const values = {
-        chemical: chemItem && chemItem.chemical,
         unit: chemItem && {unit: chemItem.unit},
         manufacturer: chemItem && chemItem.manufacturer,
         batchNumber: batchNumber,
         quantity: quantity,
-        amount: amount,
         expirationDateBeforeOpened: expirationDateBeforeOpened,
         arrivalDate: arrivalDate,
     }
@@ -122,9 +119,12 @@ const UpdateChemItem = props => {
 
     return (
         <div className="col-md-8 m-auto">
-            <h5 className="display-4 text-center">{`Register chemical into ${selectedLab.name}`}</h5>
+            <h5 className="display-4 text-center">{`Update registered chemical (chem item) in ${selectedLab.name}`}</h5>
             <hr />
             <br/>   
+            {
+                (errors.message && <h5 className="text-danger">{errors.message}</h5>)
+            }
             <form onSubmit={onSubmit}>
                 <ChemItemCoreInputFields
                     chemItem={chemItem}

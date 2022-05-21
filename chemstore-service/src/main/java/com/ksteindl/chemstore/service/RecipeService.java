@@ -71,7 +71,7 @@ public class RecipeService {
     
     public List<Recipe> getRecipes(Long projectId, Principal user, boolean onlyActive) {
         Project project = projectService.findById(projectId, onlyActive);
-        labService.validateLabForUser(project.getLab(), user);
+        labService.validateLabForUser(project.getLab(), user.getName());
         return onlyActive ? 
                 recipeRepository.findAllActive(project) :
                 recipeRepository.findAllByProject(project);

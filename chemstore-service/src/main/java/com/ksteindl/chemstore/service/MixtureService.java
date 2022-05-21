@@ -72,7 +72,7 @@ public class MixtureService {
 
     public Mixture findByIdForUser(Long id, Principal user) {
         Mixture mixture = findById(id);
-        labService.validateLabForUser(mixture.getLab(), user);
+        labService.validateLabForUser(mixture.getLab(), user.getName());
         return mixture;
     }
 

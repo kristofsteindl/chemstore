@@ -69,6 +69,10 @@ public class Lang {
     public static final String CHEM_ITEM_UNOPEN_RESTRICTED = "Unopen chem item is not allowed, because already one or more mixture(s) is/are made out of this chem item:\n%s";
     public static final String CHEM_ITEM_OPENED_AFTER_MIX_CREATED = "The new opening date (%s) is invalid, because one" +
             " or more mixture creation date is before than the new opening date:\n%s";
+    public static final String CHEM_ITEM_EXP_DATE_IS_BEFORE_MIX_CREATED = "The new expiration date is (%s) is invalid, because one " +
+            "or more mixture creation date is after the new expiration date. " +
+            "Expiration date is counted from the expiration date before opening, the opening date " +
+            "and the shelf life of the chemical:\n%s";
     public static final String CHEM_ITEM_CONSUMED_BEFORE_MIX_CREATED = "The new consumption date (%s) is invalid, because one" +
             " or more mixture creation date is after than the new consumption date:\n%s";
 

@@ -67,6 +67,9 @@ const AddChemItem = () => {
             <h5 className="display-4 text-center">{`Register chemical into ${selectedLab.name}`}</h5>
             <hr />
             <br/>   
+            {
+                (errors.message && <h5 className="text-danger">{errors.message}</h5>)
+            }
             <form onSubmit={onSubmit}>
                 <ChemItemCoreInputFields
                     selectedLab={selectedLab}
