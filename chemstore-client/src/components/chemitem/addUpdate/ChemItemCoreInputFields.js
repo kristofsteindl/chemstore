@@ -2,13 +2,12 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import Select from "react-dropdown-select"
 import { useSelector } from "react-redux"
-import { useHistory } from "react-router-dom"
 import { checkIfAdmin } from "../../../utils/securityUtils"
 
 const ChemItemCoreInputFields = props => {
     const { chemItem, selectedLab, setters, values, history } = props
-    const { chemical, manufacturer, unit, batchNumber, quantity, amount, expirationDateBeforeOpened, arrivalDate } = values
-    const { setChemicalShortName, setManufacturerId, setBatchNumber, setQuantity, setUnit, setAmount, setExpirationDateBeforeOpened, setArrivalDate} = setters
+    const { chemical, manufacturer, unit, batchNumber, quantity, pieces, expirationDateBeforeOpened, arrivalDate } = values
+    const { setChemicalShortName, setManufacturerId, setBatchNumber, setQuantity, setUnit, setPieces, setExpirationDateBeforeOpened, setArrivalDate} = setters
     
     const user = useSelector((state) => state.security.user)
 
@@ -16,21 +15,21 @@ const ChemItemCoreInputFields = props => {
     const [ manufacturers, setManufacturers ] = useState([]) 
     const [ units, setUnits ] = useState([]) 
 
-    const loadDropDowns = selectedLab => {
+
+    useEffect(() => {
         axios.get(`/api/logged-in/chemical/${selectedLab.key}`)
             .then(result => setChemicals(result.data))
         axios.get(`/api/logged-in/manufacturer`)
             .then(result => setManufacturers(result.data))
         axios.get(`/api/chem-item/unit`)
             .then(result => setUnits(result.data.map(unit => {return {"unit": unit}})))
-    }
+
+    }, [])
     
     useEffect(() => {
-        if (selectedLab && user && checkIfAdmin(selectedLab, user)) {
-            loadDropDowns(selectedLab)
-        } else {
+        if (selectedLab && user && !checkIfAdmin(selectedLab, user)) {
             history.push("/chem-items")
-        }
+        } 
     }, [selectedLab, user])
 
     return(
@@ -54,7 +53,7 @@ const ChemItemCoreInputFields = props => {
             </div>
 
             <div className="form-group row mb-3">
-                <label htmlFor="manufacturer" className="col-sm-4 col-form-label">manufacturer</label>
+                <label htmlFor="manufacturer" className="col-sm-4 col-form">manufacturer</label>
                 <div className="col-sm-8">
                     <Select
                         options={manufacturers}
@@ -117,15 +116,15 @@ const ChemItemCoreInputFields = props => {
             
             {!chemItem && 
                 (<div className="form-group row mb-3">
-                    <label htmlFor="amount" className="col-sm-4 col-form-label">amount</label>
+                    <label htmlFor="amount" className="col-sm-4 col-form-label">pieces</label>
                     <div className="col-sm-8">
                             <input 
-                                name="amount" 
-                                value={amount}
-                                onChange={event => setAmount(event.target.value)}
+                                name="pieces" 
+                                value={pieces}
+                                onChange={event => setPieces(event.target.value)}
                                 type="text" 
                                 className="form-control form-control-lg " 
-                                placeholder="amount" />
+                                placeholder="pieces" />
                             
                         
                     </div>

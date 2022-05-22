@@ -477,7 +477,7 @@ public class ChemItemControllerTest extends BaseControllerTest {
     @Transactional
     void testCreateChemItem_withMinusAmount_got400() throws Exception {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
-        testChemItemInput.setAmount(-1);
+        testChemItemInput.setPieces(-1);
         String stringInput = asJsonString(testChemItemInput);
         MvcResult result = mvc.perform(post(BASE_URL)
                         .header("Authorization", TOKEN_FOR_ALPHA_LAB_USER).contentType(MediaType.APPLICATION_JSON)

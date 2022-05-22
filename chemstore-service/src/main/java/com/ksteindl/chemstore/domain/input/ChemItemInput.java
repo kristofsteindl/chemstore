@@ -18,7 +18,7 @@ public class ChemItemInput implements Input{
         return new ChemItemInputBuilder();
     }
 
-    public ChemItemInput(String labKey, LocalDate arrivalDate, String chemicalShortName, Long manufacturerId, String batchNumber, Double quantity, String unit, Integer amount, LocalDate expirationDateBeforeOpened) {
+    public ChemItemInput(String labKey, LocalDate arrivalDate, String chemicalShortName, Long manufacturerId, String batchNumber, Double quantity, String unit, Integer pieces, LocalDate expirationDateBeforeOpened) {
         this.labKey = labKey;
         this.arrivalDate = arrivalDate;
         this.chemicalShortName = chemicalShortName;
@@ -26,7 +26,7 @@ public class ChemItemInput implements Input{
         this.batchNumber = batchNumber;
         this.quantity = quantity;
         this.unit = unit;
-        this.amount = amount;
+        this.pieces = pieces;
         this.expirationDateBeforeOpened = expirationDateBeforeOpened;
     }
 
@@ -53,7 +53,7 @@ public class ChemItemInput implements Input{
     protected String unit;
 
     @Min(1)
-    protected Integer amount;
+    protected Integer pieces;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "Expiration date (before opened) is required")
@@ -68,7 +68,7 @@ public class ChemItemInput implements Input{
         protected String batchNumber;
         protected Double quantity;
         protected String unit;
-        protected Integer amount;
+        protected Integer pieces;
         protected LocalDate expirationDateBeforeOpened;
 
         public ChemItemInputBuilder setLabKey(String labKey) {
@@ -106,8 +106,8 @@ public class ChemItemInput implements Input{
             return this;
         }
 
-        public ChemItemInputBuilder setAmount(Integer amount) {
-            this.amount = amount;
+        public ChemItemInputBuilder setAmount(Integer pieces) {
+            this.pieces = pieces;
             return this;
         }
 
@@ -117,7 +117,7 @@ public class ChemItemInput implements Input{
         }
 
         public ChemItemInput build() {
-            return new ChemItemInput(labKey, arrivalDate, chemicalName, manufacturerId, batchNumber, quantity, unit, amount, expirationDateBeforeOpened);
+            return new ChemItemInput(labKey, arrivalDate, chemicalName, manufacturerId, batchNumber, quantity, unit, pieces, expirationDateBeforeOpened);
         }
     }
 

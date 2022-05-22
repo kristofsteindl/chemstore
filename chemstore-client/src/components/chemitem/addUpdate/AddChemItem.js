@@ -9,7 +9,7 @@ const AddChemItem = () => {
     const [ chemicalShortName, setChemicalShortName ] = useState("") 
     const [ manufacturerId, setManufacturerId ] = useState("") 
     const [ unit, setUnit ] = useState("") 
-    const [ amount, setAmount ] = useState(1) 
+    const [ pieces, setPieces ] = useState(1) 
     const [ quantity, setQuantity ] = useState(0) 
     const [ batchNumber, setBatchNumber ] = useState("") 
     const [ expirationDateBeforeOpened, setExpirationDateBeforeOpened ] = useState("") 
@@ -32,7 +32,7 @@ const AddChemItem = () => {
             chemicalShortName: chemicalShortName,
             manufacturerId: manufacturerId,
             unit: unit,
-            amount: amount,
+            pieces: pieces,
             quantity: quantity,
             batchNumber: batchNumber,
             expirationDateBeforeOpened: expirationDateBeforeOpened,
@@ -49,7 +49,7 @@ const AddChemItem = () => {
         setBatchNumber: setBatchNumber,
         setQuantity: setQuantity,
         setUnit: setUnit,
-        setAmount: setAmount,
+        setPieces: setPieces,
         setExpirationDateBeforeOpened: setExpirationDateBeforeOpened,
         setArrivalDate: setArrivalDate
     }
@@ -57,7 +57,7 @@ const AddChemItem = () => {
     const values = {
         batchNumber: batchNumber,
         quantity: quantity,
-        amount: amount,
+        pieces: pieces,
         expirationDateBeforeOpened: expirationDateBeforeOpened,
         arrivalDate: arrivalDate,
     }
@@ -78,7 +78,7 @@ const AddChemItem = () => {
                     history={history}
                 />
 
-                <input type="submit" className="btn btn-primary btn-block mt-4" />
+                <button type="submit" className="btn btn-primary btn-block mt-4">Register</button>
             </form>
         </div>
     )

@@ -67,7 +67,7 @@ public class ChemItemService {
         Chemical chemical = chemicalService.getByShortName(chemItemInput.getChemicalShortName(), lab);
         chemItemTemplate.setChemical(chemical);
         updateSimpleAttributes(chemItemInput, chemItemTemplate);
-        return createBatchedChemItems(chemItemTemplate, chemItemInput.getAmount());
+        return createBatchedChemItems(chemItemTemplate, chemItemInput.getPieces());
     }
 
     public ChemItem updateChemItem(ChemItemUpdateInput chemItemInput, Long chemItemId, Principal manager) {

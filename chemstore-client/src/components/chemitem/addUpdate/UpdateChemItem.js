@@ -61,7 +61,7 @@ const UpdateChemItem = props => {
         check()
     })
 
-    const createAcknowlidgeMessage = () => {
+    const createAcknowledgeMessage = () => {
         return `Chemical (chem item) '${updatedChemItem.chemical.shortName}' 
         (${updatedChemItem.manufacturer.name}, ${updatedChemItem.batchNumber}/${updatedChemItem.seqNumber}) 
         was successfully ${true ? "updated" : "created"} in lab ${selectedLab.name}`
@@ -148,12 +148,12 @@ const UpdateChemItem = props => {
                     updateValues={updateValues}
                 />
 
-                <input type="submit" className="btn btn-primary btn-block mt-4" />
+                <button type="submit" className="btn btn-primary btn-block mt-4">Update</button>
             </form>
             {updatedChemItem && 
                 <VerifyPanel 
                     onCancel={() => history.push('/chem-items')} 
-                    veryfyMessage={createAcknowlidgeMessage()}
+                    veryfyMessage={createAcknowledgeMessage()}
                     buttonLabel="Ok"
                 />}
         </div>

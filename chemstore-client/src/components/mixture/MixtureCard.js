@@ -30,8 +30,14 @@ const MixtureCard = props => {
         })
     }
 
+    const isExpired = mixture => {
+        const expDate = new Date(mixture.expirationDate)
+        let today = new Date().setHours(0,0,0,0)
+        return expDate < today   
+    }
+
     return (
-        <div className="container card card-body bg-light mb-3" style={{paddingTop: "5px", paddingBottom: "0px", paddingRight: "10px", paddingLeft: "10px"}}>
+        <div className={`container card card-body bg-light mb-3 ${isExpired(mixture) ? "unavailable" : ""}`} style={{paddingTop: "5px", paddingBottom: "0px", paddingRight: "10px", paddingLeft: "10px"}}>
             <div className="header row" {...getToggleProps()}>
 
                 <div className="col-1">

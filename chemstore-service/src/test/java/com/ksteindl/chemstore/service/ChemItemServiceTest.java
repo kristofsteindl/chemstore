@@ -57,7 +57,7 @@ public class ChemItemServiceTest extends BaseControllerTest {
         List<ChemItem> chemItems = chemItemService.createChemItems(
                 testChemItemInput,
                 AccountManagerTestUtils.ALPHA_LAB_MANAGER_PRINCIPAL);
-        Assertions.assertEquals(testChemItemInput.getAmount(), chemItems.size());
+        Assertions.assertEquals(testChemItemInput.getPieces(), chemItems.size());
     }
 
     @Test

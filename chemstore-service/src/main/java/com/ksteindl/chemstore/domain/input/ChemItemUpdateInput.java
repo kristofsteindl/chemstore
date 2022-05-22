@@ -21,14 +21,14 @@ public class ChemItemUpdateInput extends ChemItemInput {
             String batchNumber, 
             Double quantity, 
             String unit, 
-            Integer amount, 
+            Integer pieces, 
             LocalDate expirationDateBeforeOpened, 
             String arrivedByUsername, 
             LocalDate openingDate, 
             String openedByUsername, 
             LocalDate consumptionDate, 
             String consumedByUsername) {
-        super(labKey, arrivalDate, chemicalShortName, manufacturerId, batchNumber, quantity, unit, amount, expirationDateBeforeOpened);
+        super(labKey, arrivalDate, chemicalShortName, manufacturerId, batchNumber, quantity, unit, pieces, expirationDateBeforeOpened);
         this.arrivedByUsername = arrivedByUsername;
         this.openingDate = openingDate;
         this.openedByUsername = openedByUsername;
@@ -91,8 +91,8 @@ public class ChemItemUpdateInput extends ChemItemInput {
                     manufacturerId, 
                     batchNumber, 
                     quantity, 
-                    unit, 
-                    amount, 
+                    unit,
+                    pieces, 
                     expirationDateBeforeOpened,
                     arrivedByUsername, 
                     openingDate, 

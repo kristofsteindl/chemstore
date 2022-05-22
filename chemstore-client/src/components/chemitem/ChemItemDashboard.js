@@ -8,15 +8,18 @@ import { check } from '../../utils/securityUtils';
 import axios from 'axios';
 import RedirectFormButton from '../RedirectFormButton';
 import VerifyPanel from '../UI/VerifyPanel';
+import Select from 'react-dropdown-select';
 
 const PAGE_LIMIT = 20
 
 function ChemItemDashboard() {
     
-    const [onlyAvailable, setOnlyAvailable] = useState(true)
-    const [chemItems, setChemItems] = useState([])
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalItems, setTotalItems] = useState(1)
+    const [ onlyAvailable, setOnlyAvailable] = useState(true)
+    const [ chemItems, setChemItems] = useState([])
+    const [ chemicals, setChemicals ] = useState([])
+    const [ chemical, setChemical ] = useState("")
+    const [ currentPage, setCurrentPage] = useState(1)
+    const [ totalItems, setTotalItems] = useState(1)
     const setTotalPages = useState(0)[1]
     const [error, setError] = useState("")
     
@@ -36,10 +39,17 @@ function ChemItemDashboard() {
     const selectedLab = useSelector((state) => state.selectedLab)
     const user = useSelector((state) => state.security.user)
 
+    useEffect(() => {
+        if (selectedLab) {
+            axios.get(`/api/logged-in/chemical/${selectedLab.key}`)
+            .then(result => setChemicals(result.data))
+        }
+
+    }, [selectedLab])
 
     useEffect(() => {
         loadChemItems()
-    }, [selectedLab, onlyAvailable])
+    }, [selectedLab, onlyAvailable, chemical])
 
     
 
@@ -59,7 +69,8 @@ function ChemItemDashboard() {
         const { currentPage, pageLimit } = data;
         if (selectedLab && selectedLab.key && currentPage) {
             const availableString = onlyAvailable ? "&expired=false&consumed=false" : ""
-            axios.get(`/api/chem-item/${selectedLab.key}?page=${currentPage - 1}&size=${pageLimit}${availableString}`)
+            const cehmicalFilter = chemical ? `&chemicalId=${chemical.id}` : ""
+            axios.get(`/api/chem-item/${selectedLab.key}?page=${currentPage - 1}&size=${pageLimit}${availableString}${cehmicalFilter}`)
                 .then(result => {
                     setCurrentPage(currentPage)
                     setChemItems(result.data.content)
@@ -67,6 +78,14 @@ function ChemItemDashboard() {
                     setTotalPages(result.data.totalPages)
                 })
         }
+    }
+
+    const handleChemicalChange = items => {
+        if (items[0]) {
+            setChemical(items[0])
+        } else {
+            setChemical("")
+        } 
     }
 
 
@@ -79,7 +98,7 @@ function ChemItemDashboard() {
                 <div className="row d-flex flex-row py-0">
                     <div className="w-100 px-4 py-0 d-flex flex-row flex-wrap align-items-center justify-content-between">
                         
-                        <div className="d-flex flex-row py-2 align-items-center">
+                        <div className="col-sm-4 d-flex flex-row py-2 align-items-center">
                             <Pagination 
                                 totalRecords={totalItems}
                                 pageLimit={PAGE_LIMIT} 
@@ -97,6 +116,19 @@ function ChemItemDashboard() {
                                 
                             </div>
                         
+                        </div>
+                        <div className="col-sm-8">
+                        <Select
+                            options={chemicals}
+                            values={chemical ? [ chemical ] : []}
+                            labelField="shortName"
+                            valueField="shortName"
+                            placeholder="chemical"
+                            searchable={true}
+                            clearable={true}
+                            style={{height: "42px", fontSize: "16px"}}
+                            onChange={handleChemicalChange}
+                        />
                         </div>
                     </div>
                 
