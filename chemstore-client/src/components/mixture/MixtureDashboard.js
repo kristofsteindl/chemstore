@@ -127,7 +127,7 @@ const MixtureDashboard = () => {
                         values={projects.filter(project => selectedProject && (project.id === selectedProject.id))}
                         placeholder="project"
                         searchable={false}
-                        clearable={false}
+                        clearable={true}
                         style={{height: "42px", fontSize: "16px"}}
                         onChange={items => setSelectedProject(items[0] ? items[0] : "")}
                     />
