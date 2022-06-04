@@ -75,7 +75,9 @@ public class MixtureController {
             @RequestParam(value="page", defaultValue = "0") Integer page,
             @RequestParam(value= "size", defaultValue = "10") Integer size,
             Principal user) {
-        logger.info("GET '/mixture/{labKey}' was called with {} by {}", labKey, user);
+        logger.info("GET '/mixture/{labKey}' was called with {} by {}", labKey, user.getName());
+        logger.info("RequestParams: projectId={}, recipeId={}, availableOn={}, available={}, page={}, size={}", 
+                projectId, recipeId, availableOn, available, page, size);
         MixtureQuery mixtureQuery = MixtureQuery.builder()
                 .labKey(labKey)
                 .projectId(projectId)
@@ -87,7 +89,9 @@ public class MixtureController {
                 .size(size)
                 .build();
         PagedList<Mixture> mixtures = mixtureService.getMixturesForLab(mixtureQuery);
-        logger.info("GET '/mixture' was succesful with {} size mixture list", mixtures);
+        logger.info("GET '/mixture' was successful with content.size={}, totalItems={}, totalPages={}, currentPage={}", 
+                mixtures.getContent().size(), mixtures.getTotalItems(), mixtures.getTotalPages(), mixtures.getCurrentPage());
+        logger.debug(mixtures.getContent());
         return ResponseEntity.status(HttpStatus.OK).body(mixtures);
     }
 
