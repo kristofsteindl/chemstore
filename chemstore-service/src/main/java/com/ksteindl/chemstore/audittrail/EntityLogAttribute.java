@@ -15,6 +15,5 @@ class EntityLogAttribute {
     private String newValue;
     private String oldLabel;
     private String newLabel;
-    private Boolean updated = false;
     
 }

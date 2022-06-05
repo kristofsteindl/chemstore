@@ -2,6 +2,6 @@ package com.ksteindl.chemstore.audittrail;
 
 public enum ActionType {
     
-    CREATE, UPDATE, DELETE
+    CREATE, UPDATE, DELETE, ARCHIVE
     
 }

@@ -148,9 +148,9 @@ public class AccountManagerController {
 
     @DeleteMapping("/lab/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteLab(@PathVariable Long id) {
+    public void deleteLab(@PathVariable Long id, Principal principal) {
         logger.info("DELETE '/lab/{id}' was called with id {}", id);
-        labService.deleteLab(id);
+        labService.deleteLab(id, principal);
         logger.info("DELETE '/lab/{id}' was successfull");
     }
 

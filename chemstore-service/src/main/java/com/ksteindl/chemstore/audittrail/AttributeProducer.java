@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import java.util.function.Function;
 
 @AllArgsConstructor
-class AttributeProducer<T extends AuditTracable> {
+public class AttributeProducer<T extends AuditTracable> {
     
     public final String attributeName;
     public final String attributeLabel;

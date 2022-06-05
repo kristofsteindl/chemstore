@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import java.util.List;
 
 @AllArgsConstructor
-class EntityLogTemplate<T extends AuditTracable> {
+public class EntityLogTemplate<T extends AuditTracable> {
     
     public final String entityName;
     public final String entityLabel;

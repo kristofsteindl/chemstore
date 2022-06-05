@@ -7,10 +7,16 @@ import java.util.Map;
 
 public class StartingEntry<T extends AuditTracable> {
     
+    final EntityLogTemplate<T> templates;
     final Map<String, String> oldValues = new HashMap<>();
     final Map<String, String> oldLabels = new HashMap<>();
 
-    public StartingEntry(EntityLogTemplate<T> template, T entity) {
+    public static <T extends AuditTracable> StartingEntry of(EntityLogTemplate<T> template, T entity) {
+        return new StartingEntry<>(template, entity);
+    }
+    
+    private StartingEntry(EntityLogTemplate<T> template, T entity) {
+        this.templates = template;
         template.attributeProducers.forEach(producer -> 
                 oldValues.put(producer.attributeName, producer.valueProducer.apply(entity)));
         template.attributeProducers.forEach(producer ->

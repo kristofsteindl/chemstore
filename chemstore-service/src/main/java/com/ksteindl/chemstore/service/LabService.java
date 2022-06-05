@@ -41,13 +41,13 @@ public class LabService implements UniqueEntityService<LabInput> {
         lab.setKey(labInput.getKey());
         updateAttributes(lab, labInput);
         Lab created = labRepository.save(lab);
-        auditTrailService.persistCreateEntry(lab, accountManager);
+        auditTrailService.createEntry(lab, accountManager, LogTemplates.LAB_LOG_TEMPLATE);
         return created;
     }
 
     public Lab updateLab(LabInput labInput, Long id, Principal accountManagerPrincipal) {
         Lab lab = labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, id));
-        StartingEntry<Lab> startingEntry = auditTrailService.startUpdateEntry(lab);
+        StartingEntry<Lab> startingEntry = StartingEntry.of(LogTemplates.LAB_LOG_TEMPLATE, lab);
         if (!lab.getKey().equals(labInput.getKey())) {
             throw new ValidationException(Lang.LAB_KEY_ATTRIBUTE_NAME, String.format(Lang.LAB_KEY_CANNOT_BE_CHANGED, lab.getKey(), labInput.getKey()));
         }
@@ -55,7 +55,7 @@ public class LabService implements UniqueEntityService<LabInput> {
         updateAttributes(lab, labInput);
         Lab updated = labRepository.save(lab);
         AppUser accountManager = appUserService.getAppUser(accountManagerPrincipal.getName());
-        auditTrailService.persistUpdateEntry(startingEntry, updated, accountManager);
+        auditTrailService.updateEntry(startingEntry, updated, accountManager);
         return updated;
     }
 
@@ -82,12 +82,15 @@ public class LabService implements UniqueEntityService<LabInput> {
         return labRepository.findByKey(key).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, key));
     }
 
-    public void deleteLab(Long id) {
+    public void deleteLab(Long id, Principal accountManagerPrincipal) {
         Lab lab = findById(id);
+        StartingEntry<Lab> startingEntry = StartingEntry.of(LogTemplates.LAB_LOG_TEMPLATE, lab);
+        AppUser accountManager = appUserService.getAppUser(accountManagerPrincipal.getName());
         lab.setDeleted(true);
         lab.getLabManagers().clear();
         appUserService.removeLabsFromAppUsers(lab);
-        labRepository.save(lab);
+        Lab deleted = labRepository.save(lab);
+        auditTrailService.archiveEntry(startingEntry, deleted, accountManager);
     }
 
     public Lab findLabForManager(String labKey, Principal admin) {
@@ -171,6 +174,5 @@ public class LabService implements UniqueEntityService<LabInput> {
                             lab.getName()));
                 });
     }
-
-
+    
 }
