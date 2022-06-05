@@ -1,5 +1,7 @@
 package com.ksteindl.chemstore.service;
 
+import com.ksteindl.chemstore.audittrail.AuditTrailService;
+import com.ksteindl.chemstore.audittrail.StartingEntry;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.LabInput;
@@ -29,23 +31,32 @@ public class LabService implements UniqueEntityService<LabInput> {
     private LabRepository labRepository;
     @Autowired
     private AppUserService appUserService;
+    @Autowired
+    private AuditTrailService auditTrailService;
 
-    public Lab createLab(LabInput labInput) {
+    public Lab createLab(LabInput labInput, Principal accountManagerPrincipal) {
         throwExceptionIfNotUnique(labInput);
+        AppUser accountManager = appUserService.getAppUser(accountManagerPrincipal.getName());
         Lab lab = new Lab();
         lab.setKey(labInput.getKey());
         updateAttributes(lab, labInput);
-        return labRepository.save(lab);
+        Lab created = labRepository.save(lab);
+        auditTrailService.persistCreateEntry(lab, accountManager);
+        return created;
     }
 
-    public Lab updateLab(LabInput labInput, Long id) {
+    public Lab updateLab(LabInput labInput, Long id, Principal accountManagerPrincipal) {
         Lab lab = labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, id));
+        StartingEntry<Lab> startingEntry = auditTrailService.startUpdateEntry(lab);
         if (!lab.getKey().equals(labInput.getKey())) {
             throw new ValidationException(Lang.LAB_KEY_ATTRIBUTE_NAME, String.format(Lang.LAB_KEY_CANNOT_BE_CHANGED, lab.getKey(), labInput.getKey()));
         }
         throwExceptionIfNotUnique(labInput, id);
         updateAttributes(lab, labInput);
-        return labRepository.save(lab);
+        Lab updated = labRepository.save(lab);
+        AppUser accountManager = appUserService.getAppUser(accountManagerPrincipal.getName());
+        auditTrailService.persistUpdateEntry(startingEntry, updated, accountManager);
+        return updated;
     }
 
     public List<Lab> getLabs() {

@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -103,10 +104,13 @@ public class AccountManagerController {
 
     // Lab
     @PostMapping("/lab")
-    public ResponseEntity<Lab> createLab(@Valid @RequestBody LabInput labInput, BindingResult bindingResult) {
+    public ResponseEntity<Lab> createLab(
+            @Valid @RequestBody LabInput labInput,
+            BindingResult bindingResult,
+            Principal principal) {
         logger.info("POST '/lab' was called with {}", labInput);
         mapValidationErrorService.throwExceptionIfNotValid(bindingResult);
-        Lab lab = labService.createLab(labInput);
+        Lab lab = labService.createLab(labInput, principal);
         logger.info("POST '/lab' was succesful with returned result{}", lab);
         return ResponseEntity.status(HttpStatus.CREATED).body(lab);
     }
@@ -115,10 +119,11 @@ public class AccountManagerController {
     public ResponseEntity<Lab> updateLab(
             @Valid @RequestBody LabInput labInput,
             BindingResult bindingResult,
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            Principal principal) {
         logger.info("PUT '/lab/{id}' was called with id {} and input {}", id, labInput);
         mapValidationErrorService.throwExceptionIfNotValid(bindingResult);
-        Lab lab = labService.updateLab(labInput, id);
+        Lab lab = labService.updateLab(labInput, id, principal);
         logger.info("PUT '/lab/{id}' was succesful with returned result{}", lab);
         return ResponseEntity.ok().body(lab);
     }

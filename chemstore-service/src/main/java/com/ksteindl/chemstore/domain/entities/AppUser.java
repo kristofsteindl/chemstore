@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Data
-public class AppUser {
+public class AppUser implements AuditTracable {
 
     // TODO maybe we should split AppUser and UserDetails implementation
 

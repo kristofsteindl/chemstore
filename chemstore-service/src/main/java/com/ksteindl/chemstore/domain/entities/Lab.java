@@ -6,7 +6,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ksteindl.chemstore.service.wrapper.AppUserCard;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.PrePersist;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Data
-public class Lab {
+public class Lab implements AuditTracable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
