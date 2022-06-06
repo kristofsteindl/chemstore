@@ -1,4 +1,4 @@
-package com.ksteindl.chemstore.domain.entities;
+package com.ksteindl.chemstore.audittrail;
 
 public interface AuditTracable {
     

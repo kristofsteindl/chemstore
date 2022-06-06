@@ -1,86 +1,122 @@
 package com.ksteindl.chemstore.audittrail;
 
 import com.ksteindl.chemstore.domain.entities.AppUser;
-import com.ksteindl.chemstore.domain.entities.AuditTracable;
+import com.ksteindl.chemstore.domain.entities.HasLab;
+import com.ksteindl.chemstore.domain.entities.Lab;
+import com.ksteindl.chemstore.exceptions.ValidationException;
+import com.ksteindl.chemstore.service.wrapper.PagedList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.security.Principal;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class AuditTrailService {
     
     @Autowired
-    private TrailEntryRepository trailEntryRepository;
+    private AuditTrailRepository auditTrailRepository;
 
-    public List<TrailEntry> getAllEntry() {
-        Iterator<TrailEntry> iterator = trailEntryRepository.findAll().iterator();
-        List<TrailEntry> entries = new ArrayList<>();
-        while (iterator.hasNext()) {
-            entries.add(iterator.next());
+    @Transactional
+    public PagedList<AuditTrailEntry> findAuditTrailEntries(AuditTrailEntryQuery auditTrailEntryQuery, Principal principal) {
+        Set<String> actionTypeStrings = auditTrailEntryQuery.getActionTypes();
+        if (actionTypeStrings != null) {
+            for (String actionTypeString : actionTypeStrings) {
+                if (!ActionType.contains(actionTypeString)) {
+                    throw new ValidationException("actionType must be amongs the following: " + ActionType.values());
+                }
+            }
         }
-        return entries;
+        return auditTrailRepository.findAuditTrailEntries(auditTrailEntryQuery);
     }
 
-    public <T extends AuditTracable> void createEntry(T entity, AppUser modifier, EntityLogTemplate<T> template) {
-        AuditLogEntryContext<T> context = AuditLogEntryContext.<T>builder()
+    public <T extends HasLab> void createEntry(T entity, AppUser performer, EntityLogTemplate<T> template) {
+        createEntry(entity, performer, template, entity.getLab());
+    }
+
+    public <T extends AuditTracable> void createEntry(T entity, AppUser performer, EntityLogTemplate<T> template) {
+        createEntry(entity, performer, template, null);
+    }
+
+    public <T extends HasLab> void updateEntry(StartingEntry<T> startingEntry, T updatedEntity, AppUser performer) {
+        updateEntry(startingEntry, updatedEntity, performer, updatedEntity.getLab());
+    }
+
+    public <T extends AuditTracable> void updateEntry(StartingEntry<T> startingEntry, T updatedEntity, AppUser performer) {
+        updateEntry(startingEntry, updatedEntity, performer, null);
+    }
+
+    public <T extends HasLab> void archiveEntry(StartingEntry<T> startingEntry, T entity, AppUser performer) {
+        archiveEntry(startingEntry, entity, performer, entity.getLab());
+    }
+
+    public <T extends AuditTracable> void archiveEntry(StartingEntry<T> startingEntry, T entity, AppUser performer) {
+        archiveEntry(startingEntry, entity, performer, null);
+    }
+
+    private <T extends AuditTracable> void createEntry(T entity, AppUser performer, EntityLogTemplate<T> template, Lab lab) {
+        AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
                 .template(template)
                 .actionType(ActionType.CREATE)
                 .entity(entity)
-                .modifier(modifier)
+                .performer(performer)
+                .lab(lab)
                 .build();
-        trailEntryRepository.save(createEntry(context));
+        auditTrailRepository.save(createEntry(context));
     }
 
-    public <T extends AuditTracable> void archiveEntry(StartingEntry<T> startingEntry, T entity, AppUser modifier) {
-        AuditLogEntryContext<T> context = AuditLogEntryContext.<T>builder()
-                .template(startingEntry.templates)
-                .actionType(ActionType.ARCHIVE)
-                .entity(entity)
-                .modifier(modifier)
-                .startingEntry(startingEntry)
-                .build();
-        trailEntryRepository.save(createEntry(context));
-    }
-
-    public <T extends AuditTracable> void updateEntry(StartingEntry<T> startingEntry, T updatedLab, AppUser modifier) {
-        AuditLogEntryContext<T> context = AuditLogEntryContext.<T>builder()
-                .template(startingEntry.templates)
+    private <T extends AuditTracable> void updateEntry(StartingEntry<T> startingEntry, T updatedLab, AppUser performer, Lab lab) {
+        AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
+                .template(startingEntry.template)
                 .actionType(ActionType.UPDATE)
                 .entity(updatedLab)
-                .modifier(modifier)
+                .performer(performer)
                 .startingEntry(startingEntry)
+                .lab(lab)
                 .build();
-        trailEntryRepository.save(createEntry(context));
+        auditTrailRepository.save(createEntry(context));
+    }
+
+    private <T extends AuditTracable> void archiveEntry(StartingEntry<T> startingEntry, T entity, AppUser performer, Lab lab) {
+        AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
+                .template(startingEntry.template)
+                .actionType(ActionType.ARCHIVE)
+                .entity(entity)
+                .performer(performer)
+                .startingEntry(startingEntry)
+                .lab(lab)
+                .build();
+        auditTrailRepository.save(createEntry(context));
     }
     
-    private <T extends AuditTracable> TrailEntry createEntry(AuditLogEntryContext<T> context) {
+    private <T extends AuditTracable> AuditTrailEntry createEntry(AuditTrailEntryContext<T> context) {
         T entity = context.entity;
         EntityLogTemplate<T> template = context.template;
-        TrailEntry trailEntry = new TrailEntry();
+        AuditTrailEntry auditTrailEntry = new AuditTrailEntry();
         List<AttributeProducer<T>> producers = template.attributeProducers;
-        trailEntry.setEntityTypeName(template.entityName);
-        trailEntry.setEntityTypeLabel(template.entityLabel);
-        trailEntry.setDateTime(OffsetDateTime.now());
-        trailEntry.setUser(context.modifier);
-        trailEntry.setEntityId(entity.getId());
-        trailEntry.setType(context.actionType);
+        auditTrailEntry.setEntityTypeName(template.entityName);
+        auditTrailEntry.setEntityTypeLabel(template.entityLabel);
+        auditTrailEntry.setDateTime(OffsetDateTime.now());
+        auditTrailEntry.setPerformer(context.performer);
+        auditTrailEntry.setEntityId(entity.getId());
+        auditTrailEntry.setActionType(context.actionType);
+        context.getLab().ifPresent(auditTrailEntry::setLab);
         List<EntityLogAttribute> entityLogAttributes = producers.stream()
                 .map(producer -> getAttribute(context, producer))
                 .flatMap(Optional::stream)
                 .collect(Collectors.toList());
-        trailEntry.setUpdatedAttributes(entityLogAttributes);
-        return trailEntry;
+        auditTrailEntry.setUpdatedAttributes(entityLogAttributes);
+        return auditTrailEntry;
     }
 
 
     private static <T extends AuditTracable> Optional<EntityLogAttribute> getAttribute(
-            AuditLogEntryContext<T> context, 
+            AuditTrailEntryContext<T> context, 
             AttributeProducer<T> producer) {
         ActionType actionType = context.actionType;
         T entity = context.entity;
@@ -105,7 +141,7 @@ public class AuditTrailService {
 
     private static <T extends AuditTracable> Optional<EntityLogAttribute> getArchiveAttribute(
             EntityLogAttribute.EntityLogAttributeBuilder builder,
-            AuditLogEntryContext<T> context,
+            AuditTrailEntryContext<T> context,
             AttributeProducer<T> producer) {
         T entity = context.entity;
         StartingEntry<T> startingEntry = context.startingEntry;
@@ -119,7 +155,7 @@ public class AuditTrailService {
 
     private static <T extends AuditTracable> Optional<EntityLogAttribute> getUpdateAttribute(
             EntityLogAttribute.EntityLogAttributeBuilder builder, 
-            AuditLogEntryContext<T> context, 
+            AuditTrailEntryContext<T> context, 
             AttributeProducer<T> producer) {
         StartingEntry<T> startingEntry = context.startingEntry;
         T entity = context.entity;

@@ -1,6 +1,5 @@
 package com.ksteindl.chemstore.audittrail;
 
-import com.ksteindl.chemstore.domain.entities.AuditTracable;
 import lombok.AllArgsConstructor;
 
 import java.util.function.Function;

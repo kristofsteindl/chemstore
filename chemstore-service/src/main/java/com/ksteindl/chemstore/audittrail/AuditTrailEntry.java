@@ -5,12 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ksteindl.chemstore.domain.entities.AppUser;
+import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.service.wrapper.AppUserCard;
+import com.ksteindl.chemstore.service.wrapper.LabCard;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.Transient;
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +32,7 @@ import java.util.List;
 @Immutable
 @Setter
 @Getter
-public class TrailEntry {
+public class AuditTrailEntry implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +40,8 @@ public class TrailEntry {
     
     private Long entityId;
     
-    private ActionType type;
+    @Enumerated(EnumType.STRING)
+    private ActionType actionType;
 
     private String entityTypeName;
 
@@ -43,11 +49,20 @@ public class TrailEntry {
     
     @ManyToOne
     @JsonIgnore
-    private AppUser user;
+    private AppUser performer;
 
-    @JsonProperty(value = "user")
-    private AppUserCard getUser() {
-        return new AppUserCard(user);
+    @ManyToOne
+    @JsonIgnore
+    private Lab lab;
+
+    @JsonProperty(value = "performer")
+    private AppUserCard getUserCard() {
+        return new AppUserCard(performer);
+    }
+
+    @JsonProperty(value = "lab")
+    private LabCard getLabCard() {
+        return lab == null ? null : new LabCard(lab);
     }
     
     private OffsetDateTime dateTime;

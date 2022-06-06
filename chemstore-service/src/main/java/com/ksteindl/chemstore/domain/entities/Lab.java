@@ -3,6 +3,7 @@ package com.ksteindl.chemstore.domain.entities;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ksteindl.chemstore.audittrail.AuditTracable;
 import com.ksteindl.chemstore.service.wrapper.AppUserCard;
 import lombok.Data;
 
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Data
-public class Lab implements AuditTracable{
+public class Lab implements AuditTracable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

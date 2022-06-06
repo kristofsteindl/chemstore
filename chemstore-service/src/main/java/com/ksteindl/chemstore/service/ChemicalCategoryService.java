@@ -1,5 +1,8 @@
 package com.ksteindl.chemstore.service;
 
+import com.ksteindl.chemstore.audittrail.AuditTrailService;
+import com.ksteindl.chemstore.audittrail.StartingEntry;
+import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
@@ -33,6 +36,10 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
     private LabService labService;
     @Autowired
     private ChemicalRepository chemicalRepository;
+    @Autowired
+    private AuditTrailService auditTrailService;
+    @Autowired
+    private AppUserService appUserService;
 
     public ChemicalCategory createCategory(ChemicalCategoryInput chemicalCategoryInput, Principal principal) {
         ChemicalCategory chemicalCategory = new ChemicalCategory();
@@ -42,18 +49,25 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
                 .id(null)
                 .principal(principal)
                 .build();
-        return createOrUpdateCategory(validatorWrapper);
+        ChemicalCategory category = createOrUpdateCategory(validatorWrapper);
+        AppUser accountManager = appUserService.getAppUser(principal.getName());
+        auditTrailService.createEntry(category, accountManager, LogTemplates.CHEM_CAT_TEMPLATE);
+        return category;
     }
 
     public ChemicalCategory updateCategory(@Valid ChemicalCategoryInput chemicalCategoryInput, Long id, Principal principal) {
         ChemicalCategory category = findById(id, principal);
+        StartingEntry<ChemicalCategory> startingEntry = StartingEntry.of(LogTemplates.CHEM_CAT_TEMPLATE, category);
         ChemicalCategoryValidatorWrapper validatorWrapper = ChemicalCategoryValidatorWrapper.builder()
                 .chemicalCategoryInput(chemicalCategoryInput)
                 .chemicalCategory(category)
                 .id(id)
                 .principal(principal)
                 .build();
-        return createOrUpdateCategory(validatorWrapper);
+        AppUser accountManager = appUserService.getAppUser(principal.getName());
+        ChemicalCategory updated = createOrUpdateCategory(validatorWrapper);
+        auditTrailService.updateEntry(startingEntry, updated, accountManager);
+        return updated;
     }
 
     private ChemicalCategory createOrUpdateCategory(ChemicalCategoryValidatorWrapper validatorWrapper) {
@@ -99,13 +113,16 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
 
     public void deleteChemicalCategory(Long id, Principal principal) {
         ChemicalCategory category = getById(id);
+        StartingEntry<ChemicalCategory> startingEntry = StartingEntry.of(LogTemplates.CHEM_CAT_TEMPLATE, category);
         labService.validateLabForAdmin(category.getLab(), principal);
         chemicalRepository.findByCategory(category).stream().forEach(chemical -> {
             chemical.setCategory(null);
             chemicalRepository.save(chemical);
             });
         category.setDeleted(true);
-        categoryRepository.save(category);
+        AppUser accountManager = appUserService.getAppUser(principal.getName());
+        ChemicalCategory deleted = categoryRepository.save(category);
+        auditTrailService.archiveEntry(startingEntry, deleted, accountManager);
     }
 
     private Duration convertToDuration(ChemicalCategoryInput chemicalCategoryInput) {

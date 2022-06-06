@@ -1,6 +1,7 @@
 package com.ksteindl.chemstore.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ksteindl.chemstore.audittrail.AuditTracable;
 import com.ksteindl.chemstore.security.role.Role;
 import lombok.Data;
 
