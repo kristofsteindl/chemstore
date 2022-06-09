@@ -33,7 +33,7 @@ public class AppUser implements AuditTracable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(updatable = false, unique = true) // for backup, duplicate supposed to be checked in service
+    @Column(unique = true) // for backup, duplicate supposed to be checked in service
     private String username;
     @JsonIgnore
     private String password;

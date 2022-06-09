@@ -26,7 +26,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import javax.transaction.Transactional;
 
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -131,7 +135,7 @@ class AccountManagerAppUserControllerTest extends BaseControllerTest {
     @Rollback
     void testUpdateDeletedAlphaLabUser_whenAuthorized_got400(@Autowired AppUserService appUserService) throws Exception {
         AppUser persistedAlphaLabUser = appUserService.findByUsername(AccountManagerTestUtils.ALPHA_LAB_USER_USERNAME).get();
-        appUserService.deleteAppUser(persistedAlphaLabUser.getId());
+        appUserService.deleteAppUser(persistedAlphaLabUser.getId(), AccountManagerTestUtils.ACCOUNT_MANAGER_PRINCIPAL);
         AppUserInput alabuserInput = AccountManagerTestUtils.getAlphaLabUserInput();
         String newFullName = "Changed Alpha Lab User";
         alabuserInput.setFullName(newFullName);

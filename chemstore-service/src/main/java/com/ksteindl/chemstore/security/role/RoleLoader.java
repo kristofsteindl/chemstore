@@ -1,13 +1,15 @@
 package com.ksteindl.chemstore.security.role;
 
-import com.ksteindl.chemstore.domain.input.AppUserInput;
+import com.ksteindl.chemstore.domain.entities.AppUser;
+import com.ksteindl.chemstore.domain.input.AppUserQuery;
+import com.ksteindl.chemstore.domain.repositories.appuser.AppUserRepository;
 import com.ksteindl.chemstore.security.Authority;
-import com.ksteindl.chemstore.service.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Set;
 
 
 @Component
@@ -16,11 +18,13 @@ public class RoleLoader implements CommandLineRunner {
     private final String SUPERADMIN = "superadmin";
 
     @Autowired
-    private AppUserService appUserService;
+    private AppUserRepository appUserRepository;
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // TODO logging is needed
     @Override
@@ -28,13 +32,15 @@ public class RoleLoader implements CommandLineRunner {
         roleService.getDefaultRoles().stream()
                 .filter(role -> roleRepository.findByKey(role.getKey()).isEmpty())
                 .forEach(role -> roleRepository.save(role));
-        if (!appUserService.findByUsername(SUPERADMIN).isPresent()) {
-            AppUserInput superAdminInput = AppUserInput.builder()
-                    .fullName(SUPERADMIN)
-                    .username(SUPERADMIN)
-                    .roles(List.of(Authority.ACCOUNT_MANAGER))
-                    .build();
-            appUserService.createUser(superAdminInput);
+        Role accountManagerRole = roleRepository.findByKey(Authority.ACCOUNT_MANAGER).get();
+        AppUserQuery query = AppUserQuery.builder().username(SUPERADMIN).build();
+        if (appUserRepository.findAppUsers(query).isEmpty()) {
+            AppUser superadmin = new AppUser();
+            superadmin.setUsername(SUPERADMIN);
+            superadmin.setFullName(SUPERADMIN);
+            superadmin.setPassword(bCryptPasswordEncoder.encode(SUPERADMIN));
+            superadmin.setRoles(Set.of(accountManagerRole));
+            appUserRepository.save(superadmin);
         }
     }
 

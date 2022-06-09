@@ -1,5 +1,8 @@
 package com.ksteindl.chemstore.service;
 
+import com.ksteindl.chemstore.audittrail.ActionType;
+import com.ksteindl.chemstore.audittrail.AuditTrailService;
+import com.ksteindl.chemstore.audittrail.StartingEntry;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.AppUserInput;
@@ -48,6 +51,8 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private AuditTrailService auditTrailService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -63,35 +68,45 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         return new UserDetailsImpl(appUser);
     }
 
-    public AppUser createUser(AppUserInput appUserInput) {
+    public AppUser createUser(AppUserInput appUserInput, Principal principal) {
         AppUser appUser = new AppUser();
         throwExceptionIfNotUnique(appUserInput);
         validateAndSetAppUser(appUser, appUserInput);
         setDefaultPassword(appUser);
-        return appUserRepository.save(appUser);
+        AppUser accountManager = getAppUser(principal.getName());
+        AppUser created = appUserRepository.save(appUser);
+        auditTrailService.createEntry(created, accountManager, LogTemplates.APP_USER_TEMPLATE);
+        return created;
     }
 
 
-    public AppUser updateUser(AppUserInput appUserInput, Long id) {
+    public AppUser updateUser(AppUserInput appUserInput, Long id, Principal principal) {
         AppUser appUser = findById(id);
-        if (!appUser.getUsername().equals(appUserInput.getUsername())) {
-            throw new ValidationException(Lang.APP_USER_USERNAME_ATTRIBUTE_NAME,
-                    String.format(Lang.USERNAME_CANNOT_BE_CHANGED, appUser.getUsername(), appUserInput.getUsername()));
-        }
+        AppUser performer = getAppUser(principal.getName());
+        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, performer);
         validateAndSetAppUser(appUser, appUserInput);
-        return appUserRepository.save(appUser);
+        AppUser updated = appUserRepository.save(appUser);
+        auditTrailService.updateEntry(startingEntry, updated);
+        return updated;
     }
 
-    public AppUser restorePassword(Long id) {
+    public AppUser restorePassword(Long id, Principal principal) {
         AppUser appUser = findById(id);
         setDefaultPassword(appUser);
-        return appUserRepository.save(appUser);
+        AppUser updated = appUserRepository.save(appUser);
+        AppUser performer = getAppUser(principal.getName());
+        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, performer);
+        auditTrailService.logEntry(startingEntry, updated, ActionType.PW_RESTORE);
+        return updated;
     }
 
     public AppUser updatePassword(PasswordInput passwordInput, Principal principal) {
         AppUser appUser = getAppUser(principal.getName());
         validateAndSetPassword(appUser, passwordInput);
-        return appUserRepository.save(appUser);
+        AppUser updated = appUserRepository.save(appUser);
+        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, getAppUser(principal.getName()));
+        auditTrailService.logEntry(startingEntry, updated, ActionType.PW_CHANGE);
+        return updated;
     }
 
     public List<AppUser> getAppUsers(AppUserQuery appUserQuery) {
@@ -118,13 +133,17 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         return appUserRepository.findByLabsAsUser(managedLab);
     }
 
-    public void deleteAppUser(Long id) {
+    public AppUser deleteAppUser(Long id, Principal principal) {
         AppUser appUser = findById(id);
+        AppUser performer = getAppUser(principal.getName());
+        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, performer);
         appUser.setDeleted(true);
         appUser.setLabsAsAdmin(Collections.emptyList());
         appUser.setLabsAsUser(Collections.emptyList());
         removeUserFromLabs(appUser);
-        appUserRepository.save(appUser);
+        AppUser deleted = appUserRepository.save(appUser);
+        auditTrailService.archiveEntry(startingEntry, deleted);
+        return deleted;
     }
 
     public Optional<AppUser> findByUsername(String username) {

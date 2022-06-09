@@ -46,19 +46,23 @@ public class AccountManagerController {
 
     // USER
     @PostMapping("/user")
-    public ResponseEntity<AppUser> createUser(@RequestBody @Valid AppUserInput appUserInput, BindingResult result) {
+    public ResponseEntity<AppUser> createUser(
+            @RequestBody @Valid AppUserInput appUserInput, 
+            BindingResult result,
+            Principal principal) {
         logger.info("POST '/user' was called with {}", appUserInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        AppUser appUser = appUserService.createUser(appUserInput);
+        AppUser appUser = appUserService.createUser(appUserInput, principal);
         logger.info("POST '/user' was succesful with returned result{}", appUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(appUser);
     }
 
     @PatchMapping("/user/{id}/restore-password")
     public ResponseEntity<AppUser> restorePassword(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            Principal principal) {
         logger.info("PATCH '/user/{id}/restore-password' was called with id {}", id);
-        AppUser appUser = appUserService.restorePassword(id);
+        AppUser appUser = appUserService.restorePassword(id, principal);
         logger.info("PATCH '/user/{id}/restore-password' was succesful with returned result {}", appUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(appUser);
     }
@@ -67,10 +71,11 @@ public class AccountManagerController {
     public ResponseEntity<AppUser> updateteUser(
             @RequestBody @Valid AppUserInput appUserInput,
             BindingResult result,
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            Principal principal) {
         logger.info("PUT '/user/{id}' was called with id {} and input {}", id, appUserInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        AppUser appUser = appUserService.updateUser(appUserInput, id);
+        AppUser appUser = appUserService.updateUser(appUserInput, id, principal);
         logger.info("PUT '/user/{id}' was succesful with returned result{}", appUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(appUser);
     }
@@ -96,9 +101,11 @@ public class AccountManagerController {
 
     @DeleteMapping("/user/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteAppUser(@PathVariable Long id) {
+    public void deleteAppUser(
+            @PathVariable Long id,
+            Principal principal) {
         logger.info("DELETE '/user/{id}' was called with id {}", id);
-        appUserService.deleteAppUser(id);
+        appUserService.deleteAppUser(id, principal);
         logger.info("DELETE '/user/{id}' was successfull");
     }
 

@@ -2,6 +2,7 @@ package com.ksteindl.chemstore.service;
 
 import com.ksteindl.chemstore.audittrail.AttributeProducer;
 import com.ksteindl.chemstore.audittrail.EntityLogTemplate;
+import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 
@@ -10,7 +11,57 @@ import java.util.stream.Collectors;
 
 class LogTemplates {
     
-    private static final List<AttributeProducer> APP_USER_ATTR_PRODUCERS = List.of();
+    public static final List<AttributeProducer<AppUser>> APP_USER_ATTR_PRODUCERS = List.of(
+            new AttributeProducer<>(
+                    "id",
+                    "id",
+                    user -> user.getId().toString(),
+                    user -> user.getId().toString()),
+            new AttributeProducer<>(
+                    "username",
+                    "username",
+                    user -> user.getUsername(),
+                    user -> user.getUsername()),
+            new AttributeProducer<>(
+                    "password",
+                    "password",
+                    user -> "pw cahnged",
+                    user -> "pw cahnged"),
+            new AttributeProducer<>(
+                    "fullName",
+                    "fullName",
+                    user -> user.getFullName(),
+                    user -> user.getFullName()),
+            new AttributeProducer<>(
+                    "deleted",
+                    "Deleted",
+                    user -> user.getDeleted().toString(),
+                    user -> user.getDeleted().toString()),
+            new AttributeProducer<>(
+                    "roles",
+                    "Roles",
+                    user -> user.getRoles().toString(),
+                    user -> user.getRoles().toString()),
+            new AttributeProducer<>(
+                    "labsAsUser",
+                    "technician in labs",
+                    user -> user.getLabsAsUser().stream()
+                            .map(lab -> lab.getId())
+                            .collect(Collectors.toList()).toString(),
+                    user -> user.getLabsAsUser().stream()
+                            .map(lab -> lab.toLabel())
+                            .collect(Collectors.toList()).toString()),
+            new AttributeProducer<>(
+                    "labsAsAdmin",
+                    "admin in labs",
+                    user -> user.getLabsAsAdmin().stream()
+                            .map(lab -> lab.getId())
+                            .collect(Collectors.toList()).toString(),
+                    user -> user.getLabsAsAdmin().stream()
+                            .map(lab -> lab.toLabel())
+                            .collect(Collectors.toList()).toString())
+            
+    );
     
     private static final List<AttributeProducer<Lab>> LAB_ATTR_PRODUCERS = List.of(
             new AttributeProducer<>(
@@ -45,7 +96,7 @@ class LogTemplates {
 
     );
 
-    private static final List<AttributeProducer<ChemicalCategory>> CHEM_CAT_PRODUCERS = List.of(
+    private static final List<AttributeProducer<ChemicalCategory>> CHEM_CAT_ATTR_PRODUCERS = List.of(
             new AttributeProducer<>(
                     "id",
                     "id",
@@ -74,5 +125,6 @@ class LogTemplates {
     );
 
     static final EntityLogTemplate<Lab> LAB_LOG_TEMPLATE = new EntityLogTemplate("lab","Lab", LAB_ATTR_PRODUCERS);
-    static final EntityLogTemplate<ChemicalCategory> CHEM_CAT_TEMPLATE = new EntityLogTemplate("chemicalCategory","Chemical Category", CHEM_CAT_PRODUCERS);
+    static final EntityLogTemplate<ChemicalCategory> CHEM_CAT_TEMPLATE = new EntityLogTemplate("chemicalCategory","Chemical Category", CHEM_CAT_ATTR_PRODUCERS);
+    static final EntityLogTemplate<AppUser> APP_USER_TEMPLATE = new EntityLogTemplate("appUser","User", APP_USER_ATTR_PRODUCERS);
 }

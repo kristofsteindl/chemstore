@@ -106,7 +106,7 @@ class UpdateUser extends Component {
                                             name="username"
                                             value={this.state.username}
                                             onChange={this.onChangeBasicInputs}
-                                            type="email" 
+                                            type="text" 
                                             className={classNames("form-control form-control-lg", {"is-invalid": errors.username})} 
                                             placeholder="username (email)" 
                                             

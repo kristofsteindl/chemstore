@@ -82,4 +82,8 @@ public class Lab implements AuditTracable {
                 ", deleted=" + deleted +
                 '}';
     }
+    
+    public String toLabel() {
+        return key + "(" + name +")";
+    }
 }

@@ -35,6 +35,15 @@ public class AuditTrailService {
         return auditTrailRepository.findAuditTrailEntries(auditTrailEntryQuery);
     }
 
+    public <T extends HasLab> void logEntry(StartingEntry<T> startingEntry, T updatedEntity, ActionType type) {
+        logEntry(startingEntry, updatedEntity, type, updatedEntity.getLab());
+    }
+
+    public <T extends AuditTracable> void logEntry(StartingEntry<T> startingEntry, T updatedEntity, ActionType type) {
+        logEntry(startingEntry, updatedEntity, type, null);
+    }
+    
+
     public <T extends HasLab> void createEntry(T entity, AppUser performer, EntityLogTemplate<T> template) {
         createEntry(entity, performer, template, entity.getLab());
     }
@@ -43,20 +52,20 @@ public class AuditTrailService {
         createEntry(entity, performer, template, null);
     }
 
-    public <T extends HasLab> void updateEntry(StartingEntry<T> startingEntry, T updatedEntity, AppUser performer) {
-        updateEntry(startingEntry, updatedEntity, performer, updatedEntity.getLab());
+    public <T extends HasLab> void updateEntry(StartingEntry<T> startingEntry, T updatedEntity) {
+        updateEntry(startingEntry, updatedEntity, updatedEntity.getLab());
     }
 
-    public <T extends AuditTracable> void updateEntry(StartingEntry<T> startingEntry, T updatedEntity, AppUser performer) {
-        updateEntry(startingEntry, updatedEntity, performer, null);
+    public <T extends AuditTracable> void updateEntry(StartingEntry<T> startingEntry, T updatedEntity) {
+        updateEntry(startingEntry, updatedEntity, null);
     }
 
-    public <T extends HasLab> void archiveEntry(StartingEntry<T> startingEntry, T entity, AppUser performer) {
-        archiveEntry(startingEntry, entity, performer, entity.getLab());
+    public <T extends HasLab> void archiveEntry(StartingEntry<T> startingEntry, T entity) {
+        archiveEntry(startingEntry, entity, entity.getLab());
     }
 
-    public <T extends AuditTracable> void archiveEntry(StartingEntry<T> startingEntry, T entity, AppUser performer) {
-        archiveEntry(startingEntry, entity, performer, null);
+    public <T extends AuditTracable> void archiveEntry(StartingEntry<T> startingEntry, T entity) {
+        archiveEntry(startingEntry, entity, null);
     }
 
     private <T extends AuditTracable> void createEntry(T entity, AppUser performer, EntityLogTemplate<T> template, Lab lab) {
@@ -70,24 +79,36 @@ public class AuditTrailService {
         auditTrailRepository.save(createEntry(context));
     }
 
-    private <T extends AuditTracable> void updateEntry(StartingEntry<T> startingEntry, T updatedLab, AppUser performer, Lab lab) {
+    private <T extends AuditTracable> void updateEntry(StartingEntry<T> startingEntry, T updatedLab, Lab lab) {
         AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
                 .template(startingEntry.template)
                 .actionType(ActionType.UPDATE)
                 .entity(updatedLab)
-                .performer(performer)
+                .performer(startingEntry.performer)
                 .startingEntry(startingEntry)
                 .lab(lab)
                 .build();
         auditTrailRepository.save(createEntry(context));
     }
 
-    private <T extends AuditTracable> void archiveEntry(StartingEntry<T> startingEntry, T entity, AppUser performer, Lab lab) {
+    private <T extends AuditTracable> void logEntry(StartingEntry<T> startingEntry, T updatedLab, ActionType type, Lab lab) {
+        AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
+                .template(startingEntry.template)
+                .actionType(type)
+                .entity(updatedLab)
+                .performer(startingEntry.performer)
+                .startingEntry(startingEntry)
+                .lab(lab)
+                .build();
+        auditTrailRepository.save(createEntry(context));
+    }
+
+    private <T extends AuditTracable> void archiveEntry(StartingEntry<T> startingEntry, T entity, Lab lab) {
         AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
                 .template(startingEntry.template)
                 .actionType(ActionType.ARCHIVE)
                 .entity(entity)
-                .performer(performer)
+                .performer(startingEntry.performer)
                 .startingEntry(startingEntry)
                 .lab(lab)
                 .build();
@@ -123,6 +144,9 @@ public class AuditTrailService {
         EntityLogAttribute.EntityLogAttributeBuilder builder = EntityLogAttribute.builder()
                 .attributeName(producer.attributeName)
                 .attributeLabel(producer.attributeLabel);
+        if (actionType == ActionType.PW_CHANGE || actionType == ActionType.PW_RESTORE) {
+            return Optional.empty();
+        }
         if (actionType == ActionType.CREATE) {
             builder.newValue(producer.valueProducer.apply(entity))
                     .newLabel(producer.valueLabelProducer.apply(entity));
@@ -161,7 +185,7 @@ public class AuditTrailService {
         T entity = context.entity;
         String oldValue = startingEntry.oldValues.get(producer.attributeName);
         String newValue = producer.valueProducer.apply(entity);
-        if (oldValue.equals(newValue)) {
+        if (oldValue == newValue || (oldValue != null && newValue !=null && oldValue.equals(newValue))) {
             return Optional.empty();
         } else {
             builder

@@ -57,16 +57,16 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
 
     public ChemicalCategory updateCategory(@Valid ChemicalCategoryInput chemicalCategoryInput, Long id, Principal principal) {
         ChemicalCategory category = findById(id, principal);
-        StartingEntry<ChemicalCategory> startingEntry = StartingEntry.of(LogTemplates.CHEM_CAT_TEMPLATE, category);
+        AppUser performer = appUserService.getAppUser(principal.getName());
+        StartingEntry<ChemicalCategory> startingEntry = StartingEntry.of(LogTemplates.CHEM_CAT_TEMPLATE, category, performer);
         ChemicalCategoryValidatorWrapper validatorWrapper = ChemicalCategoryValidatorWrapper.builder()
                 .chemicalCategoryInput(chemicalCategoryInput)
                 .chemicalCategory(category)
                 .id(id)
                 .principal(principal)
                 .build();
-        AppUser accountManager = appUserService.getAppUser(principal.getName());
         ChemicalCategory updated = createOrUpdateCategory(validatorWrapper);
-        auditTrailService.updateEntry(startingEntry, updated, accountManager);
+        auditTrailService.updateEntry(startingEntry, updated);
         return updated;
     }
 
@@ -113,16 +113,16 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
 
     public void deleteChemicalCategory(Long id, Principal principal) {
         ChemicalCategory category = getById(id);
-        StartingEntry<ChemicalCategory> startingEntry = StartingEntry.of(LogTemplates.CHEM_CAT_TEMPLATE, category);
+        AppUser performer = appUserService.getAppUser(principal.getName());
+        StartingEntry<ChemicalCategory> startingEntry = StartingEntry.of(LogTemplates.CHEM_CAT_TEMPLATE, category, performer);
         labService.validateLabForAdmin(category.getLab(), principal);
         chemicalRepository.findByCategory(category).stream().forEach(chemical -> {
             chemical.setCategory(null);
             chemicalRepository.save(chemical);
             });
         category.setDeleted(true);
-        AppUser accountManager = appUserService.getAppUser(principal.getName());
         ChemicalCategory deleted = categoryRepository.save(category);
-        auditTrailService.archiveEntry(startingEntry, deleted, accountManager);
+        auditTrailService.archiveEntry(startingEntry, deleted);
     }
 
     private Duration convertToDuration(ChemicalCategoryInput chemicalCategoryInput) {
