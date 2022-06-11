@@ -71,6 +71,14 @@ public class AuditTrailService {
         archiveEntry(startingEntry, entity, null);
     }
 
+    public <T extends HasLab> void deleteEntry(StartingEntry<T> startingEntry, T entity) {
+        deleteEntry(startingEntry, entity, entity.getLab());
+    }
+
+    public <T extends AuditTracable> void deleteEntry(StartingEntry<T> startingEntry, T entity) {
+        deleteEntry(startingEntry, entity, null);
+    }
+
     private <T extends AuditTracable> void logEntry(StartingEntry<T> startingEntry, T updatedLab, ActionType type, Lab lab) {
         AppUser performerUser = appUserRepository.findAppUsers(AppUserQuery.builder().username(startingEntry.performer.getName()).build()).get(0);
         AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
@@ -114,6 +122,19 @@ public class AuditTrailService {
         AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
                 .template(startingEntry.template)
                 .actionType(ActionType.ARCHIVE)
+                .entity(entity)
+                .performer(performerUser)
+                .startingEntry(startingEntry)
+                .lab(lab)
+                .build();
+        auditTrailRepository.save(createEntry(context));
+    }
+
+    private <T extends AuditTracable> void deleteEntry(StartingEntry<T> startingEntry, T entity, Lab lab) {
+        AppUser performerUser = appUserRepository.findAppUsers(AppUserQuery.builder().username(startingEntry.performer.getName()).build()).get(0);
+        AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
+                .template(startingEntry.template)
+                .actionType(ActionType.DELETE)
                 .entity(entity)
                 .performer(performerUser)
                 .startingEntry(startingEntry)

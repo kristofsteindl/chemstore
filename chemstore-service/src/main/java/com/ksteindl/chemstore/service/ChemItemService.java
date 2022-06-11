@@ -1,5 +1,9 @@
 package com.ksteindl.chemstore.service;
 
+import com.ksteindl.chemstore.audittrail.ActionType;
+import com.ksteindl.chemstore.audittrail.AuditTrailService;
+import com.ksteindl.chemstore.audittrail.EntityLogTemplate;
+import com.ksteindl.chemstore.audittrail.StartingEntry;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.ChemItem;
 import com.ksteindl.chemstore.domain.entities.Chemical;
@@ -33,7 +37,7 @@ import java.util.stream.Collectors;
 public class ChemItemService {
 
     private static final Logger logger = LoggerFactory.getLogger(ChemItemService.class);
-    private final static Sort SORT_BY_ID_DESC = Sort.by(Sort.Direction.DESC, "id");
+    private final static EntityLogTemplate<ChemItem> template = LogTemplates.CHEM_ITEM_TEMPLATE;
     
     @Autowired
     private AppUserService appUserService;
@@ -49,6 +53,8 @@ public class ChemItemService {
     private MixtureRepository mixtureRepository;
     @Autowired
     private UnitService unitService;
+    @Autowired
+    private AuditTrailService auditTrailService;
 
 
     public List<ChemItem> createChemItems(ChemItemInput chemItemInput, Principal user) {
@@ -67,13 +73,16 @@ public class ChemItemService {
         Chemical chemical = chemicalService.getByShortName(chemItemInput.getChemicalShortName(), lab);
         chemItemTemplate.setChemical(chemical);
         updateSimpleAttributes(chemItemInput, chemItemTemplate);
-        return createBatchedChemItems(chemItemTemplate, chemItemInput.getPieces());
+        List<ChemItem> createdList = createBatchedChemItems(chemItemTemplate, chemItemInput.getPieces());
+        createdList.forEach(created -> auditTrailService.createEntry(created, user, template));
+        return createdList;
     }
 
     public ChemItem updateChemItem(ChemItemUpdateInput chemItemInput, Long chemItemId, Principal manager) {
         ChemItem chemItem = getById(chemItemId, manager);
         Lab lab = chemItem.getLab();
         labService.validateLabForManager(lab, manager);
+        StartingEntry startingEntry = StartingEntry.of(chemItem, manager, template);
 
         updateArrival(chemItem, chemItemInput);
         updateExpBeforeOpened(chemItem, chemItemInput);
@@ -82,7 +91,9 @@ public class ChemItemService {
         
         updateSimpleAttributes(chemItemInput, chemItem);
         updateBatchAndSeq(chemItem, chemItemInput);
-        return chemItemRepository.save(chemItem);
+        ChemItem updated = chemItemRepository.save(chemItem);
+        auditTrailService.updateEntry(startingEntry, updated);
+        return updated;
     }
     
     private void updateExpBeforeOpened(ChemItem chemItem, ChemItemInput chemItemInput) {
@@ -95,6 +106,9 @@ public class ChemItemService {
         LocalDate consumptionData = chemItemInput.getConsumptionDate();
         List<Mixture> productMixtures = mixtureRepository.findProductMixtureItems(chemItem);
         if (consumedByUsername != null && !consumedByUsername.isEmpty()) {
+            AppUser consumedBy = appUserService.getAppUser(consumedByUsername);
+            labService.validateLabForUser(chemItem.getLab(), consumedBy.getUsername());
+            chemItem.setConsumedBy(consumedBy);
             if (consumptionData == null) {
                 //TODO
                 throw new ValidationException("For updating consumption, consumptionData is required (beside consumedBy username)");
@@ -106,6 +120,7 @@ public class ChemItemService {
                 throw new ValidationException(String.format(Lang.CHEM_ITEM_CONSUMED_BEFORE_MIX_CREATED,
                         consumptionData, getMixtureListToString(invalidMixtures)));
             }
+            chemItem.setConsumptionDate(consumptionData);
         } else {
             chemItem.setConsumedBy(null);
             chemItem.setConsumptionDate(null);
@@ -193,6 +208,7 @@ public class ChemItemService {
 
     public ChemItem openChemItem(Long chemItemId, Principal user) {
         ChemItem chemItem = findById(chemItemId);
+        StartingEntry startingEntry = StartingEntry.of(chemItem, user, template);
         AppUser appUser = appUserService.getAppUser(user.getName());
         labService.validateLabForUser(chemItem.getLab(), user.getName());
         if (chemItem.getOpeningDate() != null) {
@@ -207,11 +223,14 @@ public class ChemItemService {
         chemItem.setOpenedBy(appUser);
         chemItem.setOpeningDate(now);
         chemItem.setExpirationDate(calcExpDate(chemItem));
-        return chemItemRepository.save(chemItem);
+        ChemItem opened = chemItemRepository.save(chemItem);
+        auditTrailService.logEntry(startingEntry, opened, ActionType.OPEN);
+        return opened;
     }
 
     public ChemItem consumeChemItem(Long chemItemId, Principal user) {
         ChemItem chemItem = findById(chemItemId);
+        StartingEntry startingEntry = StartingEntry.of(chemItem, user, template);
         AppUser appUser = appUserService.getAppUser(user.getName());
         labService.validateLabForUser(chemItem.getLab(), user.getName());
         if (chemItem.getOpeningDate() == null) {
@@ -221,7 +240,9 @@ public class ChemItemService {
         LocalDate now = LocalDate.now();
         chemItem.setConsumedBy(appUser);
         chemItem.setConsumptionDate(now);
-        return chemItemRepository.save(chemItem);
+        ChemItem consumed = chemItemRepository.save(chemItem);
+        auditTrailService.logEntry(startingEntry, consumed, ActionType.CONSUME);
+        return consumed;
     }
 
     public PagedList<ChemItem> getChemItemsByLab(ChemItemQuery chemItemQuery) {
@@ -247,6 +268,7 @@ public class ChemItemService {
         if (!usedMixtures.isEmpty()) {
             throw new ValidationException(String.format(Lang.CHEM_ITEM_DELETION_MIXTURE_USED));
         }
+        auditTrailService.deleteEntry(StartingEntry.of(chemItem, principal, template), chemItem);
         chemItemRepository.delete(chemItem);
     }
     

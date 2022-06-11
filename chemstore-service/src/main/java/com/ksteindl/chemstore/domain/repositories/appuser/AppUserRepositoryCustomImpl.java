@@ -32,6 +32,7 @@ public class AppUserRepositoryCustomImpl implements AppUserRepositoryCustom {
         selectQuery.where(assemblePredicate(appUserQuery, criteriaBuilder, root));
         
         selectQuery.orderBy(criteriaBuilder.desc(root.get("username")));
+        selectQuery.distinct(true);
         
         TypedQuery<AppUser> appUserTypedQuery = entityManager.createQuery(selectQuery);
         return appUserTypedQuery.getResultList();

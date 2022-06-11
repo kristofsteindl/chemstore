@@ -94,6 +94,10 @@ public class AppUser implements AuditTracable {
                 ", roles=" + roles +
                 '}';
     }
+    
+    public String toLabel() {
+        return username + "(" + fullName + ")";
+    }
 
     @Override
     public boolean equals(Object o) {

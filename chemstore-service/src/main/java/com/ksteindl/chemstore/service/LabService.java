@@ -1,6 +1,7 @@
 package com.ksteindl.chemstore.service;
 
 import com.ksteindl.chemstore.audittrail.AuditTrailService;
+import com.ksteindl.chemstore.audittrail.EntityLogTemplate;
 import com.ksteindl.chemstore.audittrail.StartingEntry;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class LabService implements UniqueEntityService<LabInput> {
 
     private final static Sort SORT_BY_NAME = Sort.by(Sort.Direction.ASC, "name");
+    private final static EntityLogTemplate<Lab> template = LogTemplates.LAB_LOG_TEMPLATE;
 
     @Autowired
     private LabRepository labRepository;
@@ -40,13 +42,13 @@ public class LabService implements UniqueEntityService<LabInput> {
         lab.setKey(labInput.getKey());
         updateAttributes(lab, labInput);
         Lab created = labRepository.save(lab);
-        auditTrailService.createEntry(lab, accountManagerPrincipal, LogTemplates.LAB_LOG_TEMPLATE);
+        auditTrailService.createEntry(lab, accountManagerPrincipal, template);
         return created;
     }
 
     public Lab updateLab(LabInput labInput, Long id, Principal accountManagerPrincipal) {
         Lab lab = labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, id));
-        StartingEntry<Lab> startingEntry = StartingEntry.of(LogTemplates.LAB_LOG_TEMPLATE, lab, accountManagerPrincipal);
+        StartingEntry<Lab> startingEntry = StartingEntry.of(lab, accountManagerPrincipal, template);
         if (!lab.getKey().equals(labInput.getKey())) {
             throw new ValidationException(Lang.LAB_KEY_ATTRIBUTE_NAME, String.format(Lang.LAB_KEY_CANNOT_BE_CHANGED, lab.getKey(), labInput.getKey()));
         }
@@ -83,7 +85,7 @@ public class LabService implements UniqueEntityService<LabInput> {
 
     public void deleteLab(Long id, Principal accountManagerPrincipal) {
         Lab lab = findById(id);
-        StartingEntry<Lab> startingEntry = StartingEntry.of(LogTemplates.LAB_LOG_TEMPLATE, lab, accountManagerPrincipal);
+        StartingEntry<Lab> startingEntry = StartingEntry.of(lab, accountManagerPrincipal, template);
         lab.setDeleted(true);
         lab.getLabManagers().clear();
         appUserService.removeLabsFromAppUsers(lab);

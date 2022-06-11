@@ -3,6 +3,7 @@ package com.ksteindl.chemstore.service;
 import com.ksteindl.chemstore.audittrail.AttributeProducer;
 import com.ksteindl.chemstore.audittrail.EntityLogTemplate;
 import com.ksteindl.chemstore.domain.entities.AppUser;
+import com.ksteindl.chemstore.domain.entities.ChemItem;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
@@ -159,8 +160,109 @@ class LogTemplates {
 
     );
 
+    private static final List<AttributeProducer<ChemItem>> CHEM_ITEM_ATTR_PRODUCERS = List.of(
+            new AttributeProducer<>(
+                    "id",
+                    "id",
+                    chemItem -> chemItem.getId().toString(),
+                    chemItem -> chemItem.getId().toString()),
+            new AttributeProducer<>(
+                    "lab",
+                    "lab",
+                    chemItem -> chemItem.getLab().getId().toString(),
+                    chemItem -> chemItem.getLab().toLabel()),
+            new AttributeProducer<>(
+                    "chemical",
+                    "Chemical",
+                    chemItem -> chemItem.getChemical().getId().toString(),
+                    chemItem -> chemItem.getChemical().getShortName()),
+            new AttributeProducer<>(
+                    "arrivalDate",
+                    "Arrival Date",
+                    chemItem -> chemItem.getArrivalDate() == null ? null : chemItem.getArrivalDate().toString(),
+                    chemItem -> chemItem.getArrivalDate() == null ? null : chemItem.getArrivalDate().toString()),
+            new AttributeProducer<>(
+                    "arrivedBy",
+                    "Arrived by",
+                    chemItem -> chemItem.getArrivalDate() == null ? null : chemItem.getArrivalDate().toString(),
+                    chemItem -> chemItem.getArrivalDate() == null ? null :  chemItem.getArrivalDate().toString()),
+            new AttributeProducer<>(
+                    "arrivedBy",
+                    "Arrived by",
+                    chemItem -> chemItem.getArrivedBy() == null ? null : chemItem.getArrivedBy().getId().toString(),
+                    chemItem -> chemItem.getArrivedBy() == null ? null :  chemItem.getArrivedBy().toLabel()),
+            new AttributeProducer<>(
+                    "manufacturer",
+                    "Manufacturer",
+                    chemItem -> chemItem.getManufacturer().getId().toString(),
+                    chemItem -> chemItem.getManufacturer().getName()),
+            new AttributeProducer<>(
+                    "batchnumber",
+                    "Batch number",
+                    chemItem -> chemItem.getBatchNumber(),
+                    chemItem -> chemItem.getBatchNumber()),
+            new AttributeProducer<>(
+                    "quantity",
+                    "Quantity",
+                    chemItem -> chemItem.getQuantity().toString(),
+                    chemItem -> chemItem.getQuantity().toString()),
+            new AttributeProducer<>(
+                    "unit",
+                    "unit",
+                    chemItem -> chemItem.getUnit(),
+                    chemItem -> chemItem.getUnit()),
+            new AttributeProducer<>(
+                    "seqNumber",
+                    "Sequence number",
+                    chemItem -> chemItem.getSeqNumber().toString(),
+                    chemItem -> chemItem.getSeqNumber().toString()),
+            new AttributeProducer<>(
+                    "expirationDateBeforeOpened",
+                    "Expiration Date before opened",
+                    chemItem -> chemItem.getExpirationDateBeforeOpened() == null ? null 
+                            : chemItem.getExpirationDateBeforeOpened().toString(),
+                    chemItem -> chemItem.getExpirationDateBeforeOpened() == null ? null
+                            : chemItem.getExpirationDateBeforeOpened().toString()),
+            new AttributeProducer<>(
+                    "openingDate",
+                    "Opening Date",
+                    chemItem -> chemItem.getOpeningDate() == null ? null
+                            : chemItem.getOpeningDate().toString(),
+                    chemItem -> chemItem.getOpeningDate() == null ? null
+                            : chemItem.getOpeningDate().toString()),
+            new AttributeProducer<>(
+                    "openedBy",
+                    "Opened by",
+                    chemItem -> chemItem.getOpenedBy() == null ? null
+                            : chemItem.getOpenedBy().getId().toString(),
+                    chemItem -> chemItem.getOpenedBy() == null ? null
+                            : chemItem.getOpenedBy().toLabel()),
+            new AttributeProducer<>(
+                    "expirationDate",
+                    "Expiration Date",
+                    chemItem -> chemItem.getExpirationDate() == null ? null
+                            : chemItem.getExpirationDate().toString(),
+                    chemItem -> chemItem.getExpirationDate() == null ? null
+                            : chemItem.getExpirationDate().toString()),
+            new AttributeProducer<>(
+                    "consumptionDate",
+                    "Consumtpion Date",
+                    chemItem -> chemItem.getConsumptionDate() == null ? null
+                            : chemItem.getConsumptionDate().toString(),
+                    chemItem -> chemItem.getConsumptionDate() == null ? null
+                            : chemItem.getConsumptionDate().toString()),
+            new AttributeProducer<>(
+                    "consumedBy",
+                    "Consumed by",
+                    chemItem -> chemItem.getConsumedBy() == null ? null
+                            : chemItem.getConsumedBy().getId().toString(),
+                    chemItem -> chemItem.getConsumedBy() == null ? null
+                            : chemItem.getConsumedBy().toLabel())
+    );
+
     static final EntityLogTemplate<Lab> LAB_LOG_TEMPLATE = new EntityLogTemplate("lab","Lab", LAB_ATTR_PRODUCERS);
     static final EntityLogTemplate<ChemicalCategory> CHEM_CAT_TEMPLATE = new EntityLogTemplate("chemicalCategory","Chemical Category", CHEM_CAT_ATTR_PRODUCERS);
     static final EntityLogTemplate<AppUser> APP_USER_TEMPLATE = new EntityLogTemplate("appUser","User", APP_USER_ATTR_PRODUCERS);
     static final EntityLogTemplate<Chemical> CHEM_TEMPLATE = new EntityLogTemplate("chemical","Chemical", CHEM_ATTR_PRODUCERS);
+    static final EntityLogTemplate<ChemItem> CHEM_ITEM_TEMPLATE = new EntityLogTemplate("chemItem","Chem Item", CHEM_ITEM_ATTR_PRODUCERS);
 }

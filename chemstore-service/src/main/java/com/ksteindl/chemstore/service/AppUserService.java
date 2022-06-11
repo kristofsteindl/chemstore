@@ -2,6 +2,7 @@ package com.ksteindl.chemstore.service;
 
 import com.ksteindl.chemstore.audittrail.ActionType;
 import com.ksteindl.chemstore.audittrail.AuditTrailService;
+import com.ksteindl.chemstore.audittrail.EntityLogTemplate;
 import com.ksteindl.chemstore.audittrail.LoginLogInput;
 import com.ksteindl.chemstore.audittrail.StartingEntry;
 import com.ksteindl.chemstore.domain.entities.AppUser;
@@ -44,6 +45,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
             = LoggerFactory.getLogger(AppUserService.class);
 
     private final static Sort SORT_BY_USERNAME = Sort.by(Sort.Direction.ASC, "username");
+    private final static EntityLogTemplate<AppUser> template = LogTemplates.APP_USER_TEMPLATE;
 
     @Autowired
     private AppUserRepository appUserRepository;
@@ -76,14 +78,14 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         validateAndSetAppUser(appUser, appUserInput);
         setDefaultPassword(appUser);
         AppUser created = appUserRepository.save(appUser);
-        auditTrailService.createEntry(created, principal, LogTemplates.APP_USER_TEMPLATE);
+        auditTrailService.createEntry(created, principal, template);
         return created;
     }
 
 
     public AppUser updateUser(AppUserInput appUserInput, Long id, Principal principal) {
         AppUser appUser = findById(id);
-        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, principal);
+        StartingEntry startingEntry = StartingEntry.of(appUser, principal, template);
         validateAndSetAppUser(appUser, appUserInput);
         AppUser updated = appUserRepository.save(appUser);
         auditTrailService.updateEntry(startingEntry, updated);
@@ -94,7 +96,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         AppUser appUser = findById(id);
         setDefaultPassword(appUser);
         AppUser updated = appUserRepository.save(appUser);
-        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, principal);
+        StartingEntry startingEntry = StartingEntry.of(appUser, principal, template);
         auditTrailService.logEntry(startingEntry, updated, ActionType.PW_RESTORE);
         return updated;
     }
@@ -103,7 +105,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         AppUser appUser = getAppUser(principal.getName());
         validateAndSetPassword(appUser, passwordInput);
         AppUser updated = appUserRepository.save(appUser);
-        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, principal);
+        StartingEntry startingEntry = StartingEntry.of(appUser, principal, template);
         auditTrailService.logEntry(startingEntry, updated, ActionType.PW_CHANGE);
         return updated;
     }
@@ -134,7 +136,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
 
     public AppUser deleteAppUser(Long id, Principal principal) {
         AppUser appUser = findById(id);
-        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, principal);
+        StartingEntry startingEntry = StartingEntry.of(appUser, principal, template);
         appUser.setDeleted(true);
         appUser.setLabsAsAdmin(Collections.emptyList());
         appUser.setLabsAsUser(Collections.emptyList());

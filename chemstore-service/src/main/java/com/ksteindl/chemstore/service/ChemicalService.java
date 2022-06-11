@@ -1,6 +1,7 @@
 package com.ksteindl.chemstore.service;
 
 import com.ksteindl.chemstore.audittrail.AuditTrailService;
+import com.ksteindl.chemstore.audittrail.EntityLogTemplate;
 import com.ksteindl.chemstore.audittrail.StartingEntry;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
@@ -19,6 +20,8 @@ import java.util.List;
 @Service
 public class ChemicalService implements UniqueEntityService<ChemicalInput> {
 
+    private final static EntityLogTemplate<Chemical> template = LogTemplates.CHEM_TEMPLATE;
+
     @Autowired
     private ChemicalRepository chemicalRepository;
     @Autowired
@@ -34,13 +37,13 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
         validateAndCopyAttributes(chemicalInput, chemical, lab);
         chemical.setLab(lab);
         Chemical created = chemicalRepository.save(chemical);
-        auditTrailService.createEntry(created, admin, LogTemplates.CHEM_TEMPLATE);
+        auditTrailService.createEntry(created, admin, template);
         return created;
     }
 
     public Chemical updateChemical(ChemicalInput chemicalInput, Long id, Principal admin) {
         Chemical chemical = chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
-        StartingEntry startingEntry = StartingEntry.of(LogTemplates.CHEM_TEMPLATE, chemical, admin);
+        StartingEntry startingEntry = StartingEntry.of(chemical, admin, template);
         Lab lab = chemical.getLab();
         String labKey = lab.getKey();
         labService.validateLabForAdmin(lab, admin);
@@ -104,7 +107,7 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
         labService.validateLabForAdmin(chemical.getLab(), admin);
         chemical.setDeleted(true);
         chemicalRepository.save(chemical);
-        auditTrailService.archiveEntry(StartingEntry.of(LogTemplates.CHEM_TEMPLATE, chemical, admin), chemical);
+        auditTrailService.archiveEntry(StartingEntry.of(chemical, admin, template), chemical);
     }
 
     @Override
