@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.Map;
 
 
-
 @Component
 public class UnauthorizedHandler implements AuthenticationEntryPoint {
 
@@ -20,7 +19,7 @@ public class UnauthorizedHandler implements AuthenticationEntryPoint {
 
     {
         Map<String, String> invalidAuthenticationMap = Map.of("username", "Invalid username", "password", "Invalid password");
-        INVALID_AUTHENTICATION_RESPONSE =new Gson().toJson(invalidAuthenticationMap);
+        INVALID_AUTHENTICATION_RESPONSE = new Gson().toJson(invalidAuthenticationMap);
     }
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {

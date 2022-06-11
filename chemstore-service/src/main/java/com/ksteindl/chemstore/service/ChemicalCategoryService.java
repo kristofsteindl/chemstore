@@ -2,7 +2,6 @@ package com.ksteindl.chemstore.service;
 
 import com.ksteindl.chemstore.audittrail.AuditTrailService;
 import com.ksteindl.chemstore.audittrail.StartingEntry;
-import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 import com.ksteindl.chemstore.domain.input.ChemicalCategoryInput;
@@ -50,15 +49,13 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
                 .principal(principal)
                 .build();
         ChemicalCategory category = createOrUpdateCategory(validatorWrapper);
-        AppUser accountManager = appUserService.getAppUser(principal.getName());
-        auditTrailService.createEntry(category, accountManager, LogTemplates.CHEM_CAT_TEMPLATE);
+        auditTrailService.createEntry(category, principal, LogTemplates.CHEM_CAT_TEMPLATE);
         return category;
     }
 
     public ChemicalCategory updateCategory(@Valid ChemicalCategoryInput chemicalCategoryInput, Long id, Principal principal) {
         ChemicalCategory category = findById(id, principal);
-        AppUser performer = appUserService.getAppUser(principal.getName());
-        StartingEntry<ChemicalCategory> startingEntry = StartingEntry.of(LogTemplates.CHEM_CAT_TEMPLATE, category, performer);
+        StartingEntry<ChemicalCategory> startingEntry = StartingEntry.of(LogTemplates.CHEM_CAT_TEMPLATE, category, principal);
         ChemicalCategoryValidatorWrapper validatorWrapper = ChemicalCategoryValidatorWrapper.builder()
                 .chemicalCategoryInput(chemicalCategoryInput)
                 .chemicalCategory(category)
@@ -113,8 +110,7 @@ public class ChemicalCategoryService implements UniqueEntityService<ChemicalCate
 
     public void deleteChemicalCategory(Long id, Principal principal) {
         ChemicalCategory category = getById(id);
-        AppUser performer = appUserService.getAppUser(principal.getName());
-        StartingEntry<ChemicalCategory> startingEntry = StartingEntry.of(LogTemplates.CHEM_CAT_TEMPLATE, category, performer);
+        StartingEntry<ChemicalCategory> startingEntry = StartingEntry.of(LogTemplates.CHEM_CAT_TEMPLATE, category, principal);
         labService.validateLabForAdmin(category.getLab(), principal);
         chemicalRepository.findByCategory(category).stream().forEach(chemical -> {
             chemical.setCategory(null);

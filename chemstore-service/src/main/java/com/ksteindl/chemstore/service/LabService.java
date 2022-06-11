@@ -36,19 +36,17 @@ public class LabService implements UniqueEntityService<LabInput> {
 
     public Lab createLab(LabInput labInput, Principal accountManagerPrincipal) {
         throwExceptionIfNotUnique(labInput);
-        AppUser accountManager = appUserService.getAppUser(accountManagerPrincipal.getName());
         Lab lab = new Lab();
         lab.setKey(labInput.getKey());
         updateAttributes(lab, labInput);
         Lab created = labRepository.save(lab);
-        auditTrailService.createEntry(lab, accountManager, LogTemplates.LAB_LOG_TEMPLATE);
+        auditTrailService.createEntry(lab, accountManagerPrincipal, LogTemplates.LAB_LOG_TEMPLATE);
         return created;
     }
 
     public Lab updateLab(LabInput labInput, Long id, Principal accountManagerPrincipal) {
         Lab lab = labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.LAB_ENTITY_NAME, id));
-        AppUser performer = appUserService.getAppUser(accountManagerPrincipal.getName());
-        StartingEntry<Lab> startingEntry = StartingEntry.of(LogTemplates.LAB_LOG_TEMPLATE, lab, performer);
+        StartingEntry<Lab> startingEntry = StartingEntry.of(LogTemplates.LAB_LOG_TEMPLATE, lab, accountManagerPrincipal);
         if (!lab.getKey().equals(labInput.getKey())) {
             throw new ValidationException(Lang.LAB_KEY_ATTRIBUTE_NAME, String.format(Lang.LAB_KEY_CANNOT_BE_CHANGED, lab.getKey(), labInput.getKey()));
         }
@@ -85,8 +83,7 @@ public class LabService implements UniqueEntityService<LabInput> {
 
     public void deleteLab(Long id, Principal accountManagerPrincipal) {
         Lab lab = findById(id);
-        AppUser performer = appUserService.getAppUser(accountManagerPrincipal.getName());
-        StartingEntry<Lab> startingEntry = StartingEntry.of(LogTemplates.LAB_LOG_TEMPLATE, lab, performer);
+        StartingEntry<Lab> startingEntry = StartingEntry.of(LogTemplates.LAB_LOG_TEMPLATE, lab, accountManagerPrincipal);
         lab.setDeleted(true);
         lab.getLabManagers().clear();
         appUserService.removeLabsFromAppUsers(lab);

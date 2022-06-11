@@ -3,6 +3,7 @@ package com.ksteindl.chemstore.service;
 import com.ksteindl.chemstore.audittrail.AttributeProducer;
 import com.ksteindl.chemstore.audittrail.EntityLogTemplate;
 import com.ksteindl.chemstore.domain.entities.AppUser;
+import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
 
@@ -124,7 +125,42 @@ class LogTemplates {
                     category -> category.getDeleted().toString())
     );
 
+    private static final List<AttributeProducer<Chemical>> CHEM_ATTR_PRODUCERS = List.of(
+            new AttributeProducer<>(
+                    "id",
+                    "id",
+                    chemical -> chemical.getId().toString(),
+                    chemical -> chemical.getId().toString()),
+            new AttributeProducer<>(
+                    "deleted",
+                    "Deleted",
+                    category -> category.getDeleted().toString(),
+                    category -> category.getDeleted().toString()),
+            new AttributeProducer<>(
+                    "lab",
+                    "lab",
+                    chemical -> chemical.getLab().getId().toString(),
+                    chemical -> chemical.getLab().getKey() + "(" + chemical.getLab().getName() + ")"),
+            new AttributeProducer<>(
+                    "shortName",
+                    "short name",
+                    chemical -> chemical.getShortName(),
+                    chemical -> chemical.getShortName()),
+            new AttributeProducer<>(
+                    "exactName",
+                    "Exact Name",
+                    chemical -> chemical.getExactName(),
+                    chemical -> chemical.getExactName()),
+            new AttributeProducer<>(
+                    "category",
+                    "Category",
+                    chemical -> chemical.getCategory().getId().toString(),
+                    chemical -> chemical.getCategory().getName())
+
+    );
+
     static final EntityLogTemplate<Lab> LAB_LOG_TEMPLATE = new EntityLogTemplate("lab","Lab", LAB_ATTR_PRODUCERS);
     static final EntityLogTemplate<ChemicalCategory> CHEM_CAT_TEMPLATE = new EntityLogTemplate("chemicalCategory","Chemical Category", CHEM_CAT_ATTR_PRODUCERS);
     static final EntityLogTemplate<AppUser> APP_USER_TEMPLATE = new EntityLogTemplate("appUser","User", APP_USER_ATTR_PRODUCERS);
+    static final EntityLogTemplate<Chemical> CHEM_TEMPLATE = new EntityLogTemplate("chemical","Chemical", CHEM_ATTR_PRODUCERS);
 }

@@ -1,5 +1,7 @@
 package com.ksteindl.chemstore.service;
 
+import com.ksteindl.chemstore.audittrail.AuditTrailService;
+import com.ksteindl.chemstore.audittrail.StartingEntry;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
@@ -23,17 +25,22 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
     private ChemicalCategoryService chemicalCategoryService;
     @Autowired
     private LabService labService;
+    @Autowired
+    private AuditTrailService auditTrailService;
 
     public Chemical createChemical(ChemicalInput chemicalInput, Principal admin) {
         Chemical chemical = new Chemical();
         Lab lab = labService.findLabForAdmin(chemicalInput.getLabKey(), admin);
         validateAndCopyAttributes(chemicalInput, chemical, lab);
         chemical.setLab(lab);
-        return chemicalRepository.save(chemical);
+        Chemical created = chemicalRepository.save(chemical);
+        auditTrailService.createEntry(created, admin, LogTemplates.CHEM_TEMPLATE);
+        return created;
     }
 
     public Chemical updateChemical(ChemicalInput chemicalInput, Long id, Principal admin) {
         Chemical chemical = chemicalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.CHEMICAL_ENTITY_NAME, id));
+        StartingEntry startingEntry = StartingEntry.of(LogTemplates.CHEM_TEMPLATE, chemical, admin);
         Lab lab = chemical.getLab();
         String labKey = lab.getKey();
         labService.validateLabForAdmin(lab, admin);
@@ -41,7 +48,9 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
             throw new ValidationException(String.format(Lang.LAB_OF_CHEMICAL_CANNOT_CHANGED, labKey));
         }
         validateAndCopyAttributes(chemicalInput, chemical, lab);
-        return chemicalRepository.save(chemical);
+        Chemical updated = chemicalRepository.save(chemical);
+        auditTrailService.updateEntry(startingEntry, updated);
+        return updated;
     }
 
     private void validateAndCopyAttributes(ChemicalInput chemicalInput, Chemical chemical, Lab lab) {
@@ -95,6 +104,7 @@ public class ChemicalService implements UniqueEntityService<ChemicalInput> {
         labService.validateLabForAdmin(chemical.getLab(), admin);
         chemical.setDeleted(true);
         chemicalRepository.save(chemical);
+        auditTrailService.archiveEntry(StartingEntry.of(LogTemplates.CHEM_TEMPLATE, chemical, admin), chemical);
     }
 
     @Override

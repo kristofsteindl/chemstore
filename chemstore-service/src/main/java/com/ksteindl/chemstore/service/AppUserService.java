@@ -2,6 +2,7 @@ package com.ksteindl.chemstore.service;
 
 import com.ksteindl.chemstore.audittrail.ActionType;
 import com.ksteindl.chemstore.audittrail.AuditTrailService;
+import com.ksteindl.chemstore.audittrail.LoginLogInput;
 import com.ksteindl.chemstore.audittrail.StartingEntry;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.Lab;
@@ -12,6 +13,7 @@ import com.ksteindl.chemstore.domain.repositories.LabRepository;
 import com.ksteindl.chemstore.domain.repositories.appuser.AppUserRepository;
 import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
+import com.ksteindl.chemstore.payload.LoginRequest;
 import com.ksteindl.chemstore.security.UserDetailsImpl;
 import com.ksteindl.chemstore.security.role.Role;
 import com.ksteindl.chemstore.security.role.RoleService;
@@ -73,17 +75,15 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         throwExceptionIfNotUnique(appUserInput);
         validateAndSetAppUser(appUser, appUserInput);
         setDefaultPassword(appUser);
-        AppUser accountManager = getAppUser(principal.getName());
         AppUser created = appUserRepository.save(appUser);
-        auditTrailService.createEntry(created, accountManager, LogTemplates.APP_USER_TEMPLATE);
+        auditTrailService.createEntry(created, principal, LogTemplates.APP_USER_TEMPLATE);
         return created;
     }
 
 
     public AppUser updateUser(AppUserInput appUserInput, Long id, Principal principal) {
         AppUser appUser = findById(id);
-        AppUser performer = getAppUser(principal.getName());
-        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, performer);
+        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, principal);
         validateAndSetAppUser(appUser, appUserInput);
         AppUser updated = appUserRepository.save(appUser);
         auditTrailService.updateEntry(startingEntry, updated);
@@ -94,8 +94,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         AppUser appUser = findById(id);
         setDefaultPassword(appUser);
         AppUser updated = appUserRepository.save(appUser);
-        AppUser performer = getAppUser(principal.getName());
-        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, performer);
+        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, principal);
         auditTrailService.logEntry(startingEntry, updated, ActionType.PW_RESTORE);
         return updated;
     }
@@ -104,7 +103,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
         AppUser appUser = getAppUser(principal.getName());
         validateAndSetPassword(appUser, passwordInput);
         AppUser updated = appUserRepository.save(appUser);
-        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, getAppUser(principal.getName()));
+        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, principal);
         auditTrailService.logEntry(startingEntry, updated, ActionType.PW_CHANGE);
         return updated;
     }
@@ -135,8 +134,7 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
 
     public AppUser deleteAppUser(Long id, Principal principal) {
         AppUser appUser = findById(id);
-        AppUser performer = getAppUser(principal.getName());
-        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, performer);
+        StartingEntry startingEntry = StartingEntry.of(LogTemplates.APP_USER_TEMPLATE, appUser, principal);
         appUser.setDeleted(true);
         appUser.setLabsAsAdmin(Collections.emptyList());
         appUser.setLabsAsUser(Collections.emptyList());
@@ -177,6 +175,29 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
             appUserRepository.save(admin);
         });
 
+    }
+    
+    public void logLoginAttempt(LoginRequest loginRequest) {
+        LoginLogInput.LoginLogInputBuilder builder = LoginLogInput.builder();
+        Optional<AppUser> appUserOpt = findByUsername(loginRequest.getUsername());
+        boolean success = appUserOpt
+                .map(appUser -> appUser.getPassword().equals(bCryptPasswordEncoder.encode(loginRequest.getPassword())))
+                .orElse(false);
+        builder.username(loginRequest.getUsername());
+        builder.appUserOpt(appUserOpt);
+        builder.success(success);
+        auditTrailService.logLoginAttempt(builder.build());
+    }
+
+    @Override
+    public void throwExceptionIfNotUnique(AppUserInput input, Long id) {
+        Optional<AppUser> foundUser = findByUsername(
+                input.getUsername());
+        foundUser.ifPresent(appUser -> {
+            if (!appUser.getId().equals(id)) {
+                throw new ValidationException(String.format(Lang.APP_USER_SAME_NAME_FOUND_TEMPLATE, appUser.getUsername()));
+            }
+        });
     }
 
     private void removeUserFromLabs(AppUser labManager) {
@@ -232,17 +253,6 @@ public class AppUserService implements UniqueEntityService<AppUserInput>, UserDe
             throw new ValidationException(errors);
         }
         appUser.setPassword(bCryptPasswordEncoder.encode(password));
-    }
-
-    @Override
-    public void throwExceptionIfNotUnique(AppUserInput input, Long id) {
-        Optional<AppUser> foundUser = findByUsername(
-                input.getUsername());
-        foundUser.ifPresent(appUser -> {
-            if (!appUser.getId().equals(id)) {
-                throw new ValidationException(String.format(Lang.APP_USER_SAME_NAME_FOUND_TEMPLATE, appUser.getUsername()));
-            }
-        });
     }
 
 

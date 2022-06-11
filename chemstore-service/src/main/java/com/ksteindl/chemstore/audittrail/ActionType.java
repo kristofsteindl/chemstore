@@ -2,7 +2,7 @@ package com.ksteindl.chemstore.audittrail;
 
 public enum ActionType {
     
-    CREATE, UPDATE, DELETE, ARCHIVE, PW_CHANGE, PW_RESTORE;
+    CREATE, UPDATE, DELETE, ARCHIVE, PW_CHANGE, PW_RESTORE, LOGIN;
     
     public static boolean contains(String value) {
         for (ActionType actionType : ActionType.values()) {

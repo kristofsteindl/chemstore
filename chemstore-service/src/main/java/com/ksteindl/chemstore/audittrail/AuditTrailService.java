@@ -3,6 +3,8 @@ package com.ksteindl.chemstore.audittrail;
 import com.ksteindl.chemstore.domain.entities.AppUser;
 import com.ksteindl.chemstore.domain.entities.HasLab;
 import com.ksteindl.chemstore.domain.entities.Lab;
+import com.ksteindl.chemstore.domain.input.AppUserQuery;
+import com.ksteindl.chemstore.domain.repositories.appuser.AppUserRepository;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.service.wrapper.PagedList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,8 @@ public class AuditTrailService {
     
     @Autowired
     private AuditTrailRepository auditTrailRepository;
+    @Autowired
+    private AppUserRepository appUserRepository;
 
     @Transactional
     public PagedList<AuditTrailEntry> findAuditTrailEntries(AuditTrailEntryQuery auditTrailEntryQuery, Principal principal) {
@@ -43,12 +47,11 @@ public class AuditTrailService {
         logEntry(startingEntry, updatedEntity, type, null);
     }
     
-
-    public <T extends HasLab> void createEntry(T entity, AppUser performer, EntityLogTemplate<T> template) {
+    public <T extends HasLab> void createEntry(T entity, Principal performer, EntityLogTemplate<T> template) {
         createEntry(entity, performer, template, entity.getLab());
     }
 
-    public <T extends AuditTracable> void createEntry(T entity, AppUser performer, EntityLogTemplate<T> template) {
+    public <T extends AuditTracable> void createEntry(T entity, Principal performer, EntityLogTemplate<T> template) {
         createEntry(entity, performer, template, null);
     }
 
@@ -68,35 +71,38 @@ public class AuditTrailService {
         archiveEntry(startingEntry, entity, null);
     }
 
-    private <T extends AuditTracable> void createEntry(T entity, AppUser performer, EntityLogTemplate<T> template, Lab lab) {
-        AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
-                .template(template)
-                .actionType(ActionType.CREATE)
-                .entity(entity)
-                .performer(performer)
-                .lab(lab)
-                .build();
-        auditTrailRepository.save(createEntry(context));
-    }
-
-    private <T extends AuditTracable> void updateEntry(StartingEntry<T> startingEntry, T updatedLab, Lab lab) {
+    private <T extends AuditTracable> void logEntry(StartingEntry<T> startingEntry, T updatedLab, ActionType type, Lab lab) {
+        AppUser performerUser = appUserRepository.findAppUsers(AppUserQuery.builder().username(startingEntry.performer.getName()).build()).get(0);
         AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
                 .template(startingEntry.template)
-                .actionType(ActionType.UPDATE)
+                .actionType(type)
                 .entity(updatedLab)
-                .performer(startingEntry.performer)
+                .performer(performerUser)
                 .startingEntry(startingEntry)
                 .lab(lab)
                 .build();
         auditTrailRepository.save(createEntry(context));
     }
 
-    private <T extends AuditTracable> void logEntry(StartingEntry<T> startingEntry, T updatedLab, ActionType type, Lab lab) {
+    private <T extends AuditTracable> void createEntry(T entity, Principal performer, EntityLogTemplate<T> template, Lab lab) {
+        AppUser performerUser = appUserRepository.findAppUsers(AppUserQuery.builder().username(performer.getName()).build()).get(0);
+        AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
+                .template(template)
+                .actionType(ActionType.CREATE)
+                .entity(entity)
+                .performer(performerUser)
+                .lab(lab)
+                .build();
+        auditTrailRepository.save(createEntry(context));
+    }
+
+    private <T extends AuditTracable> void updateEntry(StartingEntry<T> startingEntry, T updatedLab, Lab lab) {
+        AppUser performerUser = appUserRepository.findAppUsers(AppUserQuery.builder().username(startingEntry.performer.getName()).build()).get(0);
         AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
                 .template(startingEntry.template)
-                .actionType(type)
+                .actionType(ActionType.UPDATE)
                 .entity(updatedLab)
-                .performer(startingEntry.performer)
+                .performer(performerUser)
                 .startingEntry(startingEntry)
                 .lab(lab)
                 .build();
@@ -104,15 +110,31 @@ public class AuditTrailService {
     }
 
     private <T extends AuditTracable> void archiveEntry(StartingEntry<T> startingEntry, T entity, Lab lab) {
+        AppUser performerUser = appUserRepository.findAppUsers(AppUserQuery.builder().username(startingEntry.performer.getName()).build()).get(0);
         AuditTrailEntryContext<T> context = AuditTrailEntryContext.<T>builder()
                 .template(startingEntry.template)
                 .actionType(ActionType.ARCHIVE)
                 .entity(entity)
-                .performer(startingEntry.performer)
+                .performer(performerUser)
                 .startingEntry(startingEntry)
                 .lab(lab)
                 .build();
         auditTrailRepository.save(createEntry(context));
+    }
+
+    public void logLoginAttempt(LoginLogInput input) {
+        AuditTrailEntry auditTrailEntry = new AuditTrailEntry();
+        auditTrailEntry.setActionType(ActionType.LOGIN.name());
+        auditTrailEntry.setEntityTypeName("loginAction");
+        auditTrailEntry.setEntityTypeLabel("Login Action");
+        auditTrailEntry.setDateTime(OffsetDateTime.now());
+        auditTrailEntry.setPerformer(input.appUserOpt.orElse(null));
+        String successString = input.success ? "SUCCESS" : "FAILED";
+        auditTrailEntry.setUpdatedAttributes(List.of(
+                EntityLogAttribute.builder().attributeName("success").attributeLabel("Success").newValue(successString).newLabel(successString).build(),
+                EntityLogAttribute.builder().attributeName("username").attributeLabel("Username").newValue(input.username).newLabel(input.username).build()
+        ));
+        auditTrailRepository.save(auditTrailEntry);
     }
     
     private <T extends AuditTracable> AuditTrailEntry createEntry(AuditTrailEntryContext<T> context) {
@@ -125,7 +147,7 @@ public class AuditTrailService {
         auditTrailEntry.setDateTime(OffsetDateTime.now());
         auditTrailEntry.setPerformer(context.performer);
         auditTrailEntry.setEntityId(entity.getId());
-        auditTrailEntry.setActionType(context.actionType);
+        auditTrailEntry.setActionType(context.actionType.name());
         context.getLab().ifPresent(auditTrailEntry::setLab);
         List<EntityLogAttribute> entityLogAttributes = producers.stream()
                 .map(producer -> getAttribute(context, producer))

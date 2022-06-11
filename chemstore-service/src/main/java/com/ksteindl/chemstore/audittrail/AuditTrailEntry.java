@@ -13,8 +13,6 @@ import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -40,8 +38,7 @@ public class AuditTrailEntry implements Serializable {
     
     private Long entityId;
     
-    @Enumerated(EnumType.STRING)
-    private ActionType actionType;
+    private String actionType;
 
     private String entityTypeName;
 
@@ -57,7 +54,7 @@ public class AuditTrailEntry implements Serializable {
 
     @JsonProperty(value = "performer")
     private AppUserCard getUserCard() {
-        return new AppUserCard(performer);
+        return performer == null? null : new AppUserCard(performer);
     }
 
     @JsonProperty(value = "lab")
