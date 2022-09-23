@@ -7,6 +7,7 @@ import com.ksteindl.chemstore.domain.entities.ChemItem;
 import com.ksteindl.chemstore.domain.entities.Chemical;
 import com.ksteindl.chemstore.domain.entities.ChemicalCategory;
 import com.ksteindl.chemstore.domain.entities.Lab;
+import com.ksteindl.chemstore.domain.entities.Manufacturer;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -260,9 +261,28 @@ class LogTemplates {
                             : chemItem.getConsumedBy().toLabel())
     );
 
+    private static final List<AttributeProducer<Manufacturer>> MANUFACTURER_ATTR_PRODUCERS = List.of(
+            new AttributeProducer<>(
+                    "id",
+                    "id",
+                    manufacturer -> manufacturer.getId().toString(),
+                    manufacturer -> manufacturer.getId().toString()),
+            new AttributeProducer<>(
+                    "name",
+                    "name",
+                    manufacturer -> manufacturer.getName(),
+                    manufacturer -> manufacturer.getName()),
+            new AttributeProducer<>(
+                    "deleted",
+                    "Deleted",
+                    manufacturer -> manufacturer.getDeleted().toString(),
+                    manufacturer -> manufacturer.getDeleted().toString())
+    );
+
     static final EntityLogTemplate<Lab> LAB_LOG_TEMPLATE = new EntityLogTemplate("lab","Lab", LAB_ATTR_PRODUCERS);
     static final EntityLogTemplate<ChemicalCategory> CHEM_CAT_TEMPLATE = new EntityLogTemplate("chemicalCategory","Chemical Category", CHEM_CAT_ATTR_PRODUCERS);
     static final EntityLogTemplate<AppUser> APP_USER_TEMPLATE = new EntityLogTemplate("appUser","User", APP_USER_ATTR_PRODUCERS);
     static final EntityLogTemplate<Chemical> CHEM_TEMPLATE = new EntityLogTemplate("chemical","Chemical", CHEM_ATTR_PRODUCERS);
     static final EntityLogTemplate<ChemItem> CHEM_ITEM_TEMPLATE = new EntityLogTemplate("chemItem","Chem Item", CHEM_ITEM_ATTR_PRODUCERS);
+    static final EntityLogTemplate<Manufacturer> MANUFACTURER_TEMPLATE = new EntityLogTemplate("manufacturer","Mafufacturer", MANUFACTURER_ATTR_PRODUCERS);
 }

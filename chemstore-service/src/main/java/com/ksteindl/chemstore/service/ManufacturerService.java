@@ -1,5 +1,8 @@
 package com.ksteindl.chemstore.service;
 
+import com.ksteindl.chemstore.audittrail.AuditTrailService;
+import com.ksteindl.chemstore.audittrail.EntityLogTemplate;
+import com.ksteindl.chemstore.audittrail.StartingEntry;
 import com.ksteindl.chemstore.domain.entities.Manufacturer;
 import com.ksteindl.chemstore.domain.input.ManufacturerInput;
 import com.ksteindl.chemstore.domain.repositories.ManufacturerRepository;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,20 +26,28 @@ public class ManufacturerService implements UniqueEntityService<ManufacturerInpu
     private final static Sort SORT_BY_NAME = Sort.by(Sort.Direction.ASC, "name");
 
     @Autowired
-    ManufacturerRepository manufacturerRepository;
+    private ManufacturerRepository manufacturerRepository;
+    @Autowired
+    private AuditTrailService auditTrailService;
+    private static EntityLogTemplate<Manufacturer> template = LogTemplates.MANUFACTURER_TEMPLATE;
 
-    public Manufacturer createManufacturer(ManufacturerInput manufacturerInput) {
+    public Manufacturer createManufacturer(ManufacturerInput manufacturerInput, Principal admin) {
         throwExceptionIfNotUnique(manufacturerInput);
         Manufacturer manufacturer = new Manufacturer();
         manufacturer.setName(manufacturerInput.getName());
-        return manufacturerRepository.save(manufacturer);
+        Manufacturer created = manufacturerRepository.save(manufacturer);
+        auditTrailService.createEntry(created, admin, template);
+        return created;
     }
 
-    public Manufacturer updateManufacturer(ManufacturerInput manufacturerInput, Long id) {
+    public Manufacturer updateManufacturer(ManufacturerInput manufacturerInput, Long id, Principal admin) {
         Manufacturer manufacturer = manufacturerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Lang.MANUFACTURER_ENTITY_NAME, id));
+        StartingEntry<Manufacturer> startingEntry = StartingEntry.of(manufacturer, admin, template);
         throwExceptionIfNotUnique(manufacturerInput, id);
         manufacturer.setName(manufacturerInput.getName());
-        return manufacturerRepository.save(manufacturer);
+        Manufacturer updated = manufacturerRepository.save(manufacturer);
+        auditTrailService.updateEntry(startingEntry, updated);
+        return updated;
     }
 
     public List<Manufacturer> getManufacturers() {
@@ -48,10 +60,12 @@ public class ManufacturerService implements UniqueEntityService<ManufacturerInpu
                 manufacturerRepository.findAll(SORT_BY_NAME);
     }
 
-    public void deleteManufacturer(Long id) {
+    public void deleteManufacturer(Long id, Principal admin) {
         Manufacturer manufacturer = findById(id);
+        StartingEntry startingEntry = StartingEntry.of(manufacturer, admin, template);
         manufacturer.setDeleted(true);
-        manufacturerRepository.save(manufacturer);
+        Manufacturer deleted = manufacturerRepository.save(manufacturer);
+        auditTrailService.deleteEntry(startingEntry, deleted);
     }
 
     public Manufacturer findById(Long id) {

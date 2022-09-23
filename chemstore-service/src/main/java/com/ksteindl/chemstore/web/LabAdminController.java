@@ -49,10 +49,13 @@ public class LabAdminController {
 
     // MANUFACTURER
     @PostMapping("/manufacturer")
-    public ResponseEntity<Manufacturer> createManufacturer(@Valid @RequestBody ManufacturerInput manufacturerInput, BindingResult result) {
+    public ResponseEntity<Manufacturer> createManufacturer(
+            @Valid @RequestBody ManufacturerInput manufacturerInput, 
+            BindingResult result,
+            Principal admin) {
         logger.info("POST '/manufacturer' was called with {}", manufacturerInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        Manufacturer manufacturer = manufacturerService.createManufacturer(manufacturerInput);
+        Manufacturer manufacturer = manufacturerService.createManufacturer(manufacturerInput, admin);
         logger.info("POST '/manufacturer' was succesful with returned result \n{}", manufacturer);
         return new ResponseEntity<>(manufacturer, HttpStatus.CREATED);
     }
@@ -61,10 +64,11 @@ public class LabAdminController {
     public ResponseEntity<Manufacturer> updateManufacturer(
             @Valid @RequestBody ManufacturerInput manufacturerInput,
             BindingResult result,
-            @PathVariable  Long id) {
+            @PathVariable  Long id,
+            Principal admin) {
         logger.info("PUT '/manufacturer/{id}' was called with id {} and input {}", id, manufacturerInput);
         mapValidationErrorService.throwExceptionIfNotValid(result);
-        Manufacturer manufacturer = manufacturerService.updateManufacturer(manufacturerInput, id);
+        Manufacturer manufacturer = manufacturerService.updateManufacturer(manufacturerInput, id, admin);
         logger.info("PUT '/manufacturer/{id}' was succesful with returned result \n{}", manufacturer);
         return new ResponseEntity<>(manufacturer, HttpStatus.CREATED);
     }
@@ -89,9 +93,9 @@ public class LabAdminController {
 
     @DeleteMapping("/manufacturer/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteManufacture(@PathVariable Long id) {
+    public void deleteManufacture(@PathVariable Long id, Principal admin) {
         logger.info("DELETE '/manufacturer/{id}' was called with id {}", id);
-        manufacturerService.deleteManufacturer(id);
+        manufacturerService.deleteManufacturer(id, admin);
         logger.info("DELETE '/manufacturer/{id}' was successfull");
     }
 

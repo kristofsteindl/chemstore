@@ -1,5 +1,6 @@
 package com.ksteindl.chemstore.domain.entities;
 
+import com.ksteindl.chemstore.audittrail.AuditTracable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ import javax.persistence.Id;
 @Entity
 @Getter
 @Setter
-public class Manufacturer {
+public class Manufacturer implements AuditTracable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
