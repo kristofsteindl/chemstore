@@ -2,7 +2,7 @@ package com.ksteindl.chemstore.domain.input;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 @Data
 public class PasswordInput {

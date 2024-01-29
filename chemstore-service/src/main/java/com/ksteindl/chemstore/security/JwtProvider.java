@@ -23,7 +23,7 @@ public class JwtProvider {
     private AppUserService appUserService;
 
     public static final Long EXPIRATION_TIME_IN_SECONDS = 1200l;
-    public static final String SECRET_KEY = "thisIsASecret";
+    public static final String SECRET_KEY = "thisIsASecretthisIsASecretthisIsASecretthisIsASecretthisIsASecretthisIsASecretthisIsASecretthisIsASecret";
 
     public String generateToken(Authentication authentication) {
         return generateToken(authentication.getName());
@@ -53,7 +53,7 @@ public class JwtProvider {
     }
 
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).build().parseClaimsJws(token).getBody();
         String id = (String)claims.get("id");
         return  Long.parseLong(id);
     }

@@ -26,7 +26,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -448,13 +448,15 @@ public class RecipeServiceTest extends BaseControllerTest{
         Recipe eluB = recipeService.getRecipes(alphaLisoProject.getId(), alphaManager, true).stream()
                 .filter(recipe -> recipe.getName().equals(LabAdminTestUtils.CONTENT_ELUENT_B_NAME))
                 .findAny().get();
-        Long oldAcnIngId = eluB.getChemicalIngredients().stream().filter(ingr -> ingr.getIngredient().equals(alphaAcn)).findAny().get().getId();
+        Long oldMeOHIngId = eluB.getChemicalIngredients().stream()
+                .filter(ingr -> ingr.getIngredient().equals(alphaMeOH))
+                .findAny().get().getId();
         
         Recipe fetched = recipeService.updateRecipe(input, eluB.getId(), alphaManager);
 
-        Long newAcnIngId = fetched.getChemicalIngredients().stream().filter(ingr -> ingr.getIngredient().equals(alphaAcn)).findAny().get().getId();
+        Long newMeOHIngId = fetched.getChemicalIngredients().stream().filter(ingr -> ingr.getIngredient().equals(alphaMeOH)).findAny().get().getId();
 
-        Assertions.assertEquals(oldAcnIngId, newAcnIngId);
+        Assertions.assertEquals(oldMeOHIngId, newMeOHIngId);
     }
 
     @Test

@@ -28,12 +28,12 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -47,6 +47,8 @@ public class MixtureServiceTest extends BaseControllerTest {
     private MixtureService mixtureService;
     @Autowired 
     private ChemItemRepository chemItemRepository;
+    @Autowired 
+    MixtureRepository mixtureRepository;
     
     private static ChemItem availAcnAlpha;
     private static ChemItem availNH4AcAlpha;
@@ -57,9 +59,7 @@ public class MixtureServiceTest extends BaseControllerTest {
     private final static Principal alphaUser = AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL;
     
     @BeforeAll
-    public static void loadIds(
-            @Autowired ChemItemRepository chemItemRepository, 
-            @Autowired MixtureRepository mixtureRepository) {
+    public static void loadIds(@Autowired ChemItemRepository chemItemRepository) {
         PageRequest pageRequest = PageRequest.of(0, 1000);
         List<ChemItem> chemItems = chemItemRepository
                 .findAvailableByLab(alphaLab, pageRequest).getContent();
@@ -74,16 +74,32 @@ public class MixtureServiceTest extends BaseControllerTest {
                 availEtOHAlpha = chemItem;
             }
         }
-        Pageable pageable = Pageable.ofSize(100).withPage(0);
-        MixtureQuery.MixtureQueryBuilder mixtureQueryBuilder = MixtureQuery.builder()
-                .labKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
-                .projectId(alphaLisoBuffer.getId())
-                .available(true)
-                .page(0)
-                .size(100)
-                .principal(alphaUser);
-        MixtureQuery mixtureQuery = mixtureQueryBuilder.build();
-        availLisoBuffer = mixtureRepository.findMixtures(mixtureQuery, pageable).getContent().get(0);
+        
+    }
+
+    @Transactional
+    long getLisBufferId() {
+        if (availLisoBuffer == null) {
+            Pageable pageable = Pageable.ofSize(100).withPage(0);
+            MixtureQuery.MixtureQueryBuilder mixtureQueryBuilder = MixtureQuery.builder()
+                    .labKey(AccountManagerTestUtils.ALPHA_LAB_KEY)
+                    .projectId(alphaLisoBuffer.getProject().getId())
+                    .available(true)
+                    .page(0)
+                    .size(100)
+                    .principal(alphaUser);
+            MixtureQuery mixtureQuery = mixtureQueryBuilder.build();
+            var mixtures = mixtureRepository.findMixtures(mixtureQuery, pageable).getContent().stream().toList();
+            for (Mixture mixture :mixtures) {
+                if (mixture.getRecipe().getName().equals(LabAdminTestUtils.BUFFER_NAME)) {
+                    availLisoBuffer = mixture;
+                }
+            }
+            if (availLisoBuffer == null) {
+                throw new ResourceNotFoundException("No available Liso Buffer was found for test initialization");   
+            }
+        }
+        return availLisoBuffer.getId();
     }
     
     @Test
@@ -114,9 +130,9 @@ public class MixtureServiceTest extends BaseControllerTest {
         MixtureInput input = getContEluBMixInput();
         Mixture returned = mixtureService.createMixtureAsUser(input, alphaUser);
         Mixture fetched = mixtureService.findById(returned.getId());
-        Set<ChemItem> chemItems = fetched.getChemItems().stream().collect(Collectors.toSet());
+        Set<ChemItem> chemItems = new HashSet<>(fetched.getChemItems());
         Assertions.assertTrue(chemItems.contains(availNH4AcAlpha));
-        Assertions.assertTrue(chemItems.contains(availAcnAlpha));
+        Assertions.assertTrue(chemItems.contains(availMeOHAlpha));
     }
 
     @Test
@@ -251,15 +267,15 @@ public class MixtureServiceTest extends BaseControllerTest {
     @Test
     @Rollback
     @Transactional
-    public void createMixture_whenAcnIsInAnotherLab_gotValidationException() {
+    public void createMixture_whenMeOHIsInAnotherLab_gotValidationException() {
         MixtureInput input = getContEluBMixInput();
-        ChemItem acn = chemItemRepository.findAvailableByLab(betaLab, PageRequest.of(0, 1000)).getContent().stream()
-                .filter(chemItem -> chemItem.getChemical().getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME))
-                .findAny().get();
+        ChemItem meOhFromAnotherLab = chemItemRepository.findAvailableByLab(betaLab, PageRequest.of(0, 1000)).getContent().stream()
+                .filter(chemItem -> chemItem.getChemical().getShortName().equals(LabAdminTestUtils.METHANOL_SHORT_NAME))
+                .findAny().orElseThrow(() -> new ResourceNotFoundException("No available MeOH was found in lab B"));
         for (int i = 0; i < input.getChemItemIds().size(); i++) {
-            if (input.getChemItemIds().get(i) == availAcnAlpha.getId()) {
+            if (input.getChemItemIds().get(i) == availMeOHAlpha.getId()) {
                 input.getChemItemIds().remove(i);
-                input.getChemItemIds().add(i, acn.getId());
+                input.getChemItemIds().add(i, meOhFromAnotherLab.getId());
             }
         }
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
@@ -273,16 +289,16 @@ public class MixtureServiceTest extends BaseControllerTest {
     @Test
     @Rollback
     @Transactional
-    public void createMixture_whenAcnIsInNotOpened_gotValidationException() {
+    public void createMixture_whenMeOHIsInNotOpened_gotValidationException() {
         MixtureInput input = getContEluBMixInput();
-        ChemItem acn = chemItemRepository.findByLab(alphaLab, PageRequest.of(0, 1000)).getContent().stream()
-                .filter(chemItem -> chemItem.getChemical().getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME))
+        ChemItem MeOHNotOpened = chemItemRepository.findByLab(alphaLab, PageRequest.of(0, 1000)).getContent().stream()
+                .filter(chemItem -> chemItem.getChemical().getShortName().equals(LabAdminTestUtils.METHANOL_SHORT_NAME))
                 .filter(chemItem -> chemItem.getOpeningDate() == null)
                 .findAny().get();
         for (int i = 0; i < input.getChemItemIds().size(); i++) {
-            if (input.getChemItemIds().get(i) == availAcnAlpha.getId()) {
+            if (input.getChemItemIds().get(i) == availMeOHAlpha.getId()) {
                 input.getChemItemIds().remove(i);
-                input.getChemItemIds().add(i, acn.getId());
+                input.getChemItemIds().add(i, MeOHNotOpened.getId());
             }
         }
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
@@ -296,16 +312,16 @@ public class MixtureServiceTest extends BaseControllerTest {
     @Test
     @Rollback
     @Transactional
-    public void createMixture_whenAcnIsConsumed_gotValidationException() {
+    public void createMixture_whenMeOhIsConsumed_gotValidationException() {
         MixtureInput input = getContEluBMixInput();
-        ChemItem acn = chemItemRepository.findByLab(alphaLab, PageRequest.of(0, 1000)).getContent().stream()
-                .filter(chemItem -> chemItem.getChemical().getShortName().equals(LabAdminTestUtils.ACETONITRIL_SHORT_NAME))
+        ChemItem expiredMeOH = chemItemRepository.findByLab(alphaLab, PageRequest.of(0, 1000)).getContent().stream()
+                .filter(chemItem -> chemItem.getChemical().getShortName().equals(LabAdminTestUtils.METHANOL_SHORT_NAME))
                 .filter(chemItem -> chemItem.getConsumptionDate() != null)
                 .findAny().get();
         for (int i = 0; i < input.getChemItemIds().size(); i++) {
-            if (input.getChemItemIds().get(i) == availAcnAlpha.getId()) {
+            if (input.getChemItemIds().get(i) == availMeOHAlpha.getId()) {
                 input.getChemItemIds().remove(i);
-                input.getChemItemIds().add(i, acn.getId());
+                input.getChemItemIds().add(i, expiredMeOH.getId());
             }
         }
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
@@ -345,9 +361,9 @@ public class MixtureServiceTest extends BaseControllerTest {
     private MixtureInput getContEluBMixInput() {
         MixtureInput input = MixtureUtils.getLisoContEluBMixInputForAlpha();
         input.setRecipeId(alphaLisoEluB.getId());
-        input.getMixtureItemIds().add(availLisoBuffer.getId());
+        input.getMixtureItemIds().add(getLisBufferId());
         input.getChemItemIds().add(availNH4AcAlpha.getId());
-        input.getChemItemIds().add(availAcnAlpha.getId());
+        input.getChemItemIds().add(availMeOHAlpha.getId());
         return input;
     }
 }

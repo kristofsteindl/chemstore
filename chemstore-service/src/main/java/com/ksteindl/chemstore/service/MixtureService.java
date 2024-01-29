@@ -147,7 +147,7 @@ public class MixtureService {
         } else if (openingDate.isAfter(createdDate)) {
             throw new ValidationException(
                     Lang.MIXTURE_CREATION_DATE,
-                    String.format(Lang.MIXTURE_CI_OPENED_AFTER, chemItem.getChemical().getShortName(), createdDate, chemItem.getOpeningDate()));
+                    String.format(Lang.MIXTURE_CI_OPENED_AFTER, chemItem.getChemical().getShortName(), createdDate, openingDate));
         }
         LocalDate consumptionDate = chemItem.getConsumptionDate();
         if (consumptionDate != null && consumptionDate.isBefore(createdDate)) {
@@ -164,14 +164,16 @@ public class MixtureService {
     }
 
     private void fillMixtureItems(MixtureInput input, Mixture mixture, Recipe recipe) {
-        List<Mixture> mixtureItems =  input.getMixtureItemIds().stream()
+        List<Mixture> inputMixtureItems =  input.getMixtureItemIds().stream()
                 .map(mixtureItemId -> findById(mixtureItemId))
                 .collect(Collectors.toList());
-        Map<Recipe, Mixture> mixureItemMap = mixtureItems.stream().collect(Collectors.toMap(Mixture::getRecipe, recipeItem -> recipeItem));
-        for (RecipeIngredient ingredient : recipe.getRecipeIngredients()) {
-            Mixture mixtureItem = mixureItemMap.get(ingredient.getIngredient());
+        Map<Recipe, Mixture> mixureItemMap = inputMixtureItems.stream()
+                .collect(Collectors.toMap(Mixture::getRecipe, recipeItem -> recipeItem));
+        for (RecipeIngredient recipeIngredient : recipe.getRecipeIngredients()) {
+            Recipe ingredientRecipe = recipeIngredient.getIngredient();
+            Mixture mixtureItem = mixureItemMap.get(ingredientRecipe);
             if (mixtureItem == null) {
-                throw new ValidationException(String.format(Lang.MIXTURE_MISSING_MIXTURE_ITEM, ingredient.getIngredient().getName() ,recipe.getName()));
+                throw new ValidationException(String.format(Lang.MIXTURE_MISSING_MIXTURE_ITEM, recipeIngredient.getIngredient().getName() ,recipe.getName()));
             }
             validateMixtureItemDate(mixtureItem, input.getCreationDate());
             mixture.addMixtureItem(mixtureItem);

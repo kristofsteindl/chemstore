@@ -22,7 +22,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -279,7 +279,7 @@ public class ChemItemServiceTest extends BaseControllerTest {
     public void testCreateChemItem_whenExpDateIsThePast_gotValidationException() {
         ChemItemInput testChemItemInput = ChemItemTestUtils.getTestChemItemInput(manufacturerService);
         Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
-            testChemItemInput.setExpirationDateBeforeOpened(LocalDate.now().minusDays(1));
+            testChemItemInput.setExpirationDateBeforeOpened(testChemItemInput.getArrivalDate().minusDays(1));
             chemItemService.createChemItems(
                     testChemItemInput,
                     AccountManagerTestUtils.ALPHA_LAB_USER_PRINCIPAL);

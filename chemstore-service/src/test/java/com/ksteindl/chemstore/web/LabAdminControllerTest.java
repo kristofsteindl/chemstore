@@ -28,7 +28,7 @@ import org.springframework.test.util.AssertionErrors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.util.Optional;
 
 import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.ACCOUNT_MANAGER_USERNAME;

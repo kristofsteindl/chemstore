@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.security.Principal;
 import java.time.Duration;
 import java.time.LocalDateTime;

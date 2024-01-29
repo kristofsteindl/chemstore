@@ -9,6 +9,7 @@ import com.ksteindl.chemstore.exceptions.ResourceNotFoundException;
 import com.ksteindl.chemstore.exceptions.ValidationException;
 import com.ksteindl.chemstore.utils.AccountManagerTestUtils;
 import com.ksteindl.chemstore.utils.LabAdminTestUtils;
+import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -21,7 +22,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.transaction.Transactional;
 import java.security.Principal;
 import java.time.Duration;
 import java.time.LocalDateTime;

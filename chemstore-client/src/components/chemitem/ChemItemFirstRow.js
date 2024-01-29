@@ -16,7 +16,7 @@ const ChemItemFirstRow = props => {
             return (
                 <Button onClick={() => setActiveModal("OPEN")} className="btn action-button" variant="outlined" size="medium">
                     <i className="fas fa-external-link-square-alt">Open</i>
-                    <i class=""></i>
+                    <i className=""></i>
                 </Button>
             )
         }

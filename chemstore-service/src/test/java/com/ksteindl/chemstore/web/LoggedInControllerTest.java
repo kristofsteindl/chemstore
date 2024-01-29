@@ -21,7 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.util.Map;
 
 import static com.ksteindl.chemstore.utils.AccountManagerTestUtils.ALPHA_LAB_KEY;

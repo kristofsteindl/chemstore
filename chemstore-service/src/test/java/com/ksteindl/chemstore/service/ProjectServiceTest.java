@@ -21,7 +21,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.security.Principal;
 import java.util.List;
 

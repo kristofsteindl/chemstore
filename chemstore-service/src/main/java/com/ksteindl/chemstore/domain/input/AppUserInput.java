@@ -1,12 +1,13 @@
 package com.ksteindl.chemstore.domain.input;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
+
 import java.util.ArrayList;
 import java.util.List;
 
